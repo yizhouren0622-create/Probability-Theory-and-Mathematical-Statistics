@@ -61,4 +61,21 @@ assert math.isclose(2/9/(2/9+1/6),4/7)
 # Composite midpoint integration verifies both transformed densities, away from integrable endpoint singularities via substitution y=t^2.
 assert math.isclose(sum((1/4)*2*(2/10000) for _ in range(10000)),1,rel_tol=1e-9)
 assert math.isclose((math.erf(2/math.sqrt(2))-math.erf(-1/math.sqrt(2)))/2,0.81859,abs_tol=1e-5)
-print(f'PASS: {len(pages)} pages, {links} local links/anchors, {sum(x.math for x in pages.values())} rendered formulas; 25 concepts, 32 exercises, 2 x 100-point exams; mathematical spot checks.')
+# Independently check the new numerical comparisons and normal quantile examples.
+exact_tail=1-sum(math.comb(200,k)*0.01**k*0.99**(200-k) for k in range(2))
+assert math.isclose(exact_tail,0.5953543153,abs_tol=1e-10)
+exact_cdf=sum(math.comb(500,k)*0.004**k*0.996**(500-k) for k in range(2))
+assert math.isclose(exact_cdf,0.4054634230,abs_tol=1e-10)
+assert math.isclose(abs(exact_cdf-3*math.exp(-2)),0.0005424267,abs_tol=1e-10)
+assert math.isclose((1+math.erf(1.96/math.sqrt(2)))/2,0.975,abs_tol=3e-6)
+# Direct finite-n binomial probabilities approach the stated fixed-k Poisson limit.
+for k in (0,1,2,5):
+    target=math.exp(-2)*2**k/math.factorial(k)
+    error=[]
+    for n in (100,1000,10000):
+        p=2/n
+        value=math.comb(n,k)*p**k*(1-p)**(n-k)
+        error.append(abs(value-target))
+    assert error[2]<error[1]<error[0], (k,error)
+assert 'poisson-limit' in pages['chapter-2.html'].ids
+print(f'PASS: {len(pages)} pages, {links} local links/anchors, {sum(x.math for x in pages.values())} rendered formulas; {len(concepts)} concepts, {len(exercises)} exercises, 2 x 100-point exams; mathematical spot checks.')

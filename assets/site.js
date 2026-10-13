@@ -2,6 +2,9 @@
 (() => {
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+  $$('[data-proofs]').forEach(button => button.addEventListener('click', () => {
+    $$('.concept > details:first-of-type').forEach(detail => { detail.open = button.dataset.proofs === 'open'; });
+  }));
   const KEY = 'probability-study-v1';
   const reading = $('.reading');
   if (reading) $('#main').prepend(reading);
