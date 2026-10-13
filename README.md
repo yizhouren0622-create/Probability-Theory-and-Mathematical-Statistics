@@ -1,1 +1,39 @@
-# Probability-Theory-and-Mathematical-Statistics
+# 概率论与数理统计 · 理解、推理与掌握
+
+**网站：** https://yizhouren0622-create.github.io/Probability-Theory-and-Mathematical-Statistics/
+
+参考 [数学物理方法复习网站](https://yizhouren0622-create.github.io/math-physics-review/) 的学习流程，按浙江大学盛骤等《概率论与数理统计》第六版官方前两章目录组织。
+
+## 当前内容
+
+- 2 章、11 节、25 张知识卡：白话解释、数学表述、公式、条件、推导、例题与易错点。
+- 32 道原创练习：三级提示、逐步引导、完整答案、检验、草稿和掌握状态。
+- 2 套原创模拟卷，每套 100 分；共 12 题，带计时、解析与自评。
+- 三个交互实验：贝叶斯检测模型、四种分布的累计概率、抛硬币频率。
+- 全站搜索、公式速查、知识卡回顾、学习记录导入导出。
+- 22 / 26 / 30px 正文字号、两种配色、手机导航和打印。
+
+页面与 MathML 公式均预生成，运行时没有 CDN、登录或后端依赖。克隆仓库后可以直接打开 `index.html`；浏览器对本地文件的存储策略可能不同，学习记录建议通过 HTTP 服务使用并定期导出。
+
+## 来源与限制
+
+已读取 [出版社第六版书目与目录](https://xuanshu.hep.com.cn/front/book/findBookDetails?bookId=6967ccf2e119ac97292654e8)，ISBN 978-7-04-066689-2，并比对第五版目录。未取得第六版完整可读正文；用户提供的第五版压缩包内层加密，未读取正文。
+
+讲解、例题、练习及模拟卷独立编写。P 与 E 编号不对应教材题号，本网站不声称提供教材课后习题全解。详细核对范围见 `sources.html`。仓库不包含教材 PDF。
+
+## 修改与构建
+
+Python 3.11 或更高版本：
+
+```sh
+python -m pip install -r requirements-build.txt
+python build.py
+python validate.py
+python -m http.server 8000
+```
+
+内容在 `data/course.json`、`data/exercises.json`、`data/exams.json`，支持 Markdown 与 LaTeX 公式。新增章节可追加 course 对象及相应练习，模板自动生成章节页。当前校验脚本针对前两章，扩展时同步更新覆盖断言。
+
+提交时包括重新生成的 HTML 与 `assets/index-data.js`。GitHub Pages 从 `main` 分支根目录发布。验证程序检查章节覆盖、题目字段、公式输出、本地链接、模拟卷分数及部分独立数值核验；它不能替代完整数学审校。
+
+学习数据使用独立键 `probability-study-v1`，不会与数学物理复习站的记录混淆。同一域名下记录按此键共享，导出 JSON 可跨设备导入。导入前完整校验，拒绝非法格式与越界分数；同名条目以导入文件为准。
