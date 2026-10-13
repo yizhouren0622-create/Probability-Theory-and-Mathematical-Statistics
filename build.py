@@ -53,6 +53,7 @@ page('index.html','学习总览',h)
 # Concepts
 for c in chapters:
     h=heading(f'CHAPTER 0{c["id"]} / CONCEPTS',c['title'],c['summary']+' 每张卡包含解释、条件、推导、例题与易错点。')
+    h+='<nav class="chapter-switch" aria-label="知识点章节切换">'+''.join(f'<a href="chapter-{other["id"]}.html"'+(' class="selected" aria-current="page"' if other['id']==c['id'] else '')+f'><span>第 {other["id"]} 章</span><strong>{other["title"]}</strong><small>{len(other["sections"])} 节 · {sum(len(s["concepts"]) for s in other["sections"])} 张知识卡</small></a>' for other in chapters)+'</nav>'
     h+='<nav class="toc" aria-label="本章目录">'+''.join(f'<a href="#section-{s["id"]}">{s["id"]} {s["title"]}</a>' for s in c['sections'])+'</nav>'
     for s in c['sections']:
         h+=f'<section class="study-section" id="section-{s["id"]}"><p class="eyebrow">SECTION {s["id"]}</p><h2>{s["title"]}</h2>'
@@ -60,7 +61,11 @@ for c in chapters:
             related=[e for e in exercises if e['concept']==x['id']]
             h+=f'<article class="card concept" id="{x["id"]}"><div class="card-meta">{s["id"]}<span>{x["en"]}</span><span class="tag">理解后再记忆</span></div><h3>{x["title"]}</h3><div class="plain"><strong>先用一句话理解</strong>{md(x["plain"])}</div>{md(x["statement"])}{md("$$"+x["formula"]+"$$")}<div class="conditions"><strong>使用条件</strong>{md(x["conditions"])}</div>{detail("展开推导 / 为什么成立",x["proof"])}{detail("做一道简单例题",x["example"])}<div class="pitfall"><strong>容易出错的地方</strong>{md(x["pitfall"])}</div><div class="actions"><button data-recall="{x["id"]}" aria-pressed="false">◇ 加入记忆回顾</button>'+(''.join(f'<a href="practice-{e["chapter"]}.html#{e["id"]}">试一题：{e["id"]} →</a>' for e in related[:1]))+'</div></article>'
         h+='</section>'
-    h+=f'<a class="primary" href="practice-{c["id"]}.html">练习这一章 →</a>'
+    h+=f'<div class="chapter-next"><a class="primary" href="practice-{c["id"]}.html">练习这一章 →</a>'
+    following=next((other for other in chapters if other['id']>c['id']),None)
+    if following:h+=f'<a class="secondary" href="chapter-{following["id"]}.html">进入第 {following["id"]} 章：{following["title"]} →</a>'
+    elif c['id']>1:h+='<a class="secondary" href="chapter-1.html">← 回顾第一章</a>'
+    h+='</div>'
     page(f'chapter-{c["id"]}.html',c['title'],h,'chapter-1.html')
 
 # Exercises
