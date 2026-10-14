@@ -81,6 +81,14 @@ assert math.isclose(sum((k-1)**2 for k in hyper_counts)/len(hyper_counts),6/11)
 midpoints=[(i+.5)/10000 for i in range(10000)]
 assert math.isclose(sum(2*(1-x) for x in midpoints)/10000,1,abs_tol=1e-10)
 assert math.isclose(sum(2*(1-2*x) for x in midpoints if x<.5)/10000,.5,abs_tol=1e-10)
+# Enumerate a two-group Bernoulli mixture directly, then verify the variance split.
+mixture=[(.5,.2),(.5,.8)]
+mu=sum(weight*p for weight,p in mixture)
+within=sum(weight*p*(1-p) for weight,p in mixture)
+between=sum(weight*(p-mu)**2 for weight,p in mixture)
+direct=sum(weight*(p*(1-mu)**2+(1-p)*mu**2) for weight,p in mixture)
+assert math.isclose(mu,.5) and math.isclose(within,.16)
+assert math.isclose(between,.09) and math.isclose(direct,within+between)
 # Direct finite-n binomial probabilities approach the stated fixed-k Poisson limit.
 for k in (0,1,2,5):
     target=math.exp(-2)*2**k/math.factorial(k)

@@ -717,6 +717,19 @@
             "example": "把 10 封信随机装入 10 个信封，令 $I_i$ 表示第 i 封装对。虽各 $I_i$ 不独立，但每个成功概率 1/10，装对总数的期望为 $\\sum_i E(I_i)=1$。",
             "pitfall": "计算总数的期望不必先求总数分布，也不必证明各项独立。",
             "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "conditional-expectation",
+            "title": "扩展：条件期望与全期望、全方差",
+            "en": "Conditional expectation and total variance",
+            "plain": "先按已知组别求平均，再按组别出现的概率加权；总波动还要加上组间均值的波动。",
+            "statement": "设组别变量 G 的可能取值为 $g_j$，$q_j=P(G=g_j)>0$，各组概率之和为 1。记 $m_j=E(X\\mid G=g_j)$、$v_j=D(X\\mid G=g_j)$，则 $E(X\\mid G)$ 是随 G 变化、在第 j 组取值 $m_j$ 的随机变量；$D(X\\mid G)$ 同理取值 $v_j$。以下简记这两个随机变量为 $m_G$、$v_G$。全期望公式为 $E(X)=\\sum_jq_jm_j=E[E(X\\mid G)]$。令 $\\mu=E(X)$，全方差公式为 $D(X)=\\sum_jq_jv_j+\\sum_jq_j(m_j-\\mu)^2$，即“组内方差的平均＋组均值的方差”。这也说明总方差不小于组内方差的平均。",
+            "formula": "D(X)=E(v_G)+D(m_G)",
+            "conditions": "这里仅讨论 G 可数、各条件事件概率为正且 $E(X^2)<\\infty$ 的情形，保证条件均值和方差有限。若 G 连续，不能用 $P(G=g)=0$ 作分母，需用条件密度或更一般的条件期望定义。",
+            "proof": "因 $\\{G=g_j\\}$ 划分样本空间，$E(X)=\\sum_jE[X\\mathbf1_{\\{G=g_j\\}}]=\\sum_jq_jm_j$。在每组中，$E(X^2\\mid G=g_j)=v_j+m_j^2$，故 $E(X^2)=\\sum_jq_j(v_j+m_j^2)$。减去 $\\mu^2$：$D(X)=\\sum_jq_jv_j+\\sum_jq_jm_j^2-\\mu^2$；因为 $\\mu=\\sum_jq_jm_j$、$\\sum_jq_j=1$，后两项等于 $\\sum_jq_j(m_j-\\mu)^2=D(E[X\\mid G])$。非负性也随之得到。",
+            "example": "两组各占一半：A 组 $X\\sim\\operatorname{Bernoulli}(0.2)$，B 组 $X\\sim\\operatorname{Bernoulli}(0.8)$。总均值为 0.5；组内方差平均为 0.16，组间均值方差为 0.09，总方差为 0.25。直接看，X 的总体成功概率也是 0.5。",
+            "pitfall": "不能只平均各组方差而漏掉组间均值差异。此卡是独立编写的拓展讲解，尚未与盛骤第六版正文逐页核对。",
+            "proofTitle": "全期望与全方差的逐步证明"
           }
         ]
       },
