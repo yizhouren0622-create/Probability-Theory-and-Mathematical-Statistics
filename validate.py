@@ -9,7 +9,7 @@ course=load('course.json');exercises=load('exercises.json');exams=load('exams.js
 concepts=[x for c in course for s in c['sections'] for x in s['concepts']]
 ids=[x['id'] for x in concepts+exercises]+[q['id'] for e in exams for q in e['questions']]
 assert len(ids)==len(set(ids)), 'Duplicate content ids'
-assert [len(c['sections']) for c in course]==[6,5]
+assert [len(c['sections']) for c in course]==[6,5,5,5,2,3,8,8,6,3,6,3,3,4]
 for c in course:
     for s in c['sections']:
         assert s['concepts'], s['id']
@@ -49,7 +49,7 @@ for filename,page in pages.items():
         assert (ROOT/target).exists(), (filename,link)
         if url.fragment and target.endswith('.html'):assert unquote(url.fragment) in pages[target].ids,(filename,link)
         links+=1
-assert len(pages)==15, len(pages)
+assert len(pages)==40, len(pages)
 assert sum(x.math for x in pages.values())>300
 # Independent numerical checks for selected nontrivial examples.
 assert math.isclose(0.01*0.9/(0.01*0.9+0.99*0.05),2/13)
@@ -78,4 +78,41 @@ for k in (0,1,2,5):
         error.append(abs(value-target))
     assert error[2]<error[1]<error[0], (k,error)
 assert 'poisson-limit' in pages['chapter-2.html'].ids
+# New chapters: independently compute representative examples by enumeration,
+# regression normal equations and numerical integration.
+from itertools import product
+from statistics import mean, variance
+sample=[1,3,5,7]
+boot_means=[mean(xs) for xs in product(sample,repeat=4)]
+assert math.isclose(mean((m-mean(sample))**2 for m in boot_means),1.25)
+xs=[0,1,2];ys=[1,2,2]
+sxx=sum((x-mean(xs))**2 for x in xs)
+sxy=sum((x-mean(xs))*(y-mean(ys)) for x,y in zip(xs,ys))
+b=sxy/sxx;a=mean(ys)-b*mean(xs)
+residuals=[y-a-b*x for x,y in zip(xs,ys)]
+assert math.isclose(a,7/6) and math.isclose(b,.5)
+assert math.isclose(sum(r*r for r in residuals),1/6)
+assert abs(sum(residuals))<1e-12 and abs(sum(x*r for x,r in zip(xs,residuals)))<1e-12
+assert math.isclose(variance([1,-1,1,1,2]),1.2)
+assert math.isclose(mean([1,-1,1,1,2])/math.sqrt(1.2/5),1.632993161855452)
+groups=[[1,2,3],[4,5,6]];grand=mean(sum(groups,[]))
+between=sum(len(g)*(mean(g)-grand)**2 for g in groups)
+within=sum((x-mean(g))**2 for g in groups for x in g)
+assert math.isclose(between,13.5) and math.isclose(within,4)
+assert math.isclose(between+within,sum((x-grand)**2 for g in groups for x in g))
+transition=[[.8,.2],[.4,.6]]
+squared=[[sum(transition[i][k]*transition[k][j] for k in range(2)) for j in range(2)] for i in range(2)]
+assert all(math.isclose(a,b) for a,b in zip(squared[0],[.72,.28]))
+stationary=[2/3,1/3]
+assert all(math.isclose(sum(stationary[i]*transition[i][j] for i in range(2)),stationary[j]) for j in range(2))
+# Fourier transform of R(t)=3 exp(-2|t|): even cosine integral.
+for omega in [0,1,3]:
+    dt=20/20000
+    numerical=2*sum(3*math.exp(-2*(i+.5)*dt)*math.cos(omega*(i+.5)*dt)*dt for i in range(20000))
+    assert math.isclose(numerical,12/(4+omega**2),abs_tol=2e-6)
+# Confirm code fences remain code rather than being interpreted as mathematics.
+r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
+assert r_page.count('<pre><code class="language-r">')==6
+assert 'boxplot.stats(x)$stats' in r_page
+assert 'CODETOKEN' not in r_page
 print(f'PASS: {len(pages)} pages, {links} local links/anchors, {sum(x.math for x in pages.values())} rendered formulas; {len(concepts)} concepts, {len(exercises)} exercises, 2 x 100-point exams; mathematical spot checks.')

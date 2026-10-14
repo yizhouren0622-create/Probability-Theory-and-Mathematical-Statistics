@@ -501,5 +501,1257 @@
         ]
       }
     ]
+  },
+  {
+    "id": 3,
+    "title": "多维随机变量及其分布",
+    "summary": "从联合与边缘分布出发，理解条件分布、独立性和多个变量的函数。",
+    "sections": [
+      {
+        "id": "3.1",
+        "title": "二维随机变量",
+        "concepts": [
+          {
+            "id": "joint-cdf",
+            "title": "二维随机变量与联合分布函数",
+            "en": "Joint distribution",
+            "plain": "一次试验可以同时记录两个数；联合分布描述这两个数如何一起变化。",
+            "statement": "随机向量 $(X,Y)$ 的两个分量都是同一概率空间上的随机变量。联合分布函数 $F(x,y)=P(X\\le x,Y\\le y)$ 对每个变量单调不减、右连续，任一坐标趋于负无穷时极限为 0，两坐标同时趋于正无穷时极限为 1。还必须满足矩形增量非负；仅分别单调并不足够。",
+            "formula": "P(a<X\\le b,c<Y\\le d)=F(b,d)-F(a,d)-F(b,c)+F(a,c)",
+            "conditions": "$a<b,c<d$；分布函数包括右端点，不自动排除边界上的概率质量。",
+            "proof": "把事件 $\\{X\\le b,Y\\le d\\}$ 中 $X\\le a$ 和 $Y\\le c$ 的两块去掉，再把被重复减去的左下交集加回，得到矩形增量公式。该增量是事件概率，所以非负。右连续性由概率对递减事件列的连续性得到；其余极限也由事件列连续性得到。",
+            "example": "独立公平硬币的两个正面指示变量满足 $F(0,0)=1/4,F(0,1)=F(1,0)=1/2,F(1,1)=1$。",
+            "pitfall": "联合分布不是把两个一维分布并排写出；它还包含两变量的依赖关系。"
+          },
+          {
+            "id": "joint-law-density",
+            "title": "联合分布律与联合密度",
+            "en": "Joint PMF and PDF",
+            "plain": "离散情形按格点相加，连续情形按区域积分。",
+            "statement": "离散联合分布律 $p_{ij}=P(X=x_i,Y=y_j)$ 非负且总和为 1。连续型随机向量存在非负可积函数 $f(x,y)$，使任意可测区域的概率等于该区域上的密度二重积分；全平面积分为 1。并非每个随机向量都有二维密度，例如 $Y=X$ 的分布可能集中在一条直线上。",
+            "formula": "P((X,Y)\\in D)=\\iint_D f(x,y)\\,dx\\,dy,\\quad F(x,y)=\\int_{-\\infty}^x\\int_{-\\infty}^y f(u,v)\\,dv\\,du",
+            "conditions": "密度表示要求联合分布对二维面积绝对连续；积分时必须先确定真实支撑区域。",
+            "proof": "全平面事件必然发生，故密度归一化。非负性使任意区域的积分非负；不交区域的可列可加性由积分的可列可加性给出。因此非负、积分为 1 的函数可以定义概率分布。在密度连续的点，可由微积分基本定理恢复 $f=\\partial^2F/(\\partial x\\partial y)$。",
+            "example": "三角形 $0<x<y<1$ 上取常数密度 $c$，面积为 $1/2$，所以 $c=2$。",
+            "pitfall": "支撑集是三角形时，不能直接在整个单位正方形积分。"
+          }
+        ]
+      },
+      {
+        "id": "3.2",
+        "title": "边缘分布",
+        "concepts": [
+          {
+            "id": "marginal-distribution",
+            "title": "边缘分布与联合分布的信息差",
+            "en": "Marginal distribution",
+            "plain": "只看其中一个变量时，把另一个变量的所有可能性加起来。",
+            "statement": "边缘分布是随机向量各个分量自己的分布。离散边缘概率沿另一指标求和；连续边缘密度沿另一坐标积分。联合分布唯一确定边缘分布，但给定边缘分布通常不能唯一恢复联合分布。",
+            "formula": "p_{i\\cdot}=\\sum_jp_{ij},\\quad f_X(x)=\\int_{-\\infty}^{\\infty}f(x,y)\\,dy,\\quad F_X(x)=\\lim_{y\\to\\infty}F(x,y)",
+            "conditions": "求边缘时积分上下限可能依赖保留的坐标；支撑区域外密度为 0。",
+            "proof": "离散情形把 $\\{X=x_i\\}$ 按互斥事件 $\\{Y=y_j\\}$ 分割，再用可列可加性。连续情形 $P(X\\in A)=\\int_A\\int_{\\mathbb R} f(x,y)\\,dy\\,dx$，据一维密度定义识别内层积分。联合分布函数的极限由递增事件连续性得到。",
+            "example": "$f(x,y)=2$ 在 $0<x<y<1$ 时，$f_X(x)=2(1-x)$、$f_Y(y)=2y$，各自在 $(0,1)$ 外为 0。",
+            "pitfall": "若两变量边缘均为公平的 0–1 分布，它们既可能独立，也可能完全相同。"
+          }
+        ]
+      },
+      {
+        "id": "3.3",
+        "title": "条件分布",
+        "concepts": [
+          {
+            "id": "conditional-distribution",
+            "title": "条件分布：离散与连续",
+            "en": "Conditional distribution",
+            "plain": "观察到一个变量之后，重新描述另一个变量的分布。",
+            "statement": "离散条件分布直接使用条件概率。连续变量的单点事件通常概率为 0，条件密度不能把 $P(Y=y)$ 当分母；在 $f_Y(y)>0$ 时用联合密度与边缘密度之比定义一个条件密度版本。条件分布只要求在边缘分布意义下几乎处处确定。",
+            "formula": "P(X=x_i\\mid Y=y_j)=\\frac{p_{ij}}{p_{\\cdot j}},\\quad f_{X\\mid Y}(x\\mid y)=\\frac{f(x,y)}{f_Y(y)}",
+            "conditions": "离散分母须大于 0；连续分母密度须大于 0。条件密度必须关于待求变量积分为 1。",
+            "proof": "离散公式来自 $P(A\\mid B)=P(A\\cap B)/P(B)$。连续公式先满足 $\\int f(x,y)/f_Y(y)\\,dx=1$，再满足 $P(X\\in A,Y\\in B)=\\int_B[\\int_A f_{X\\mid Y}(x\\mid y)\\,dx]f_Y(y)\\,dy$，因此确实把联合概率分解为给定 $Y$ 的概率与 $Y$ 的分布。密度连续时也可从窄区间 $y<Y\\le y+h$ 的条件概率取极限理解。",
+            "example": "在 $0<x<y<1$ 上联合密度为 2，给定 $Y=y$ 后 $X$ 在 $(0,y)$ 上均匀，条件密度为 $1/y$。",
+            "pitfall": "给定 Y=y 之后，y 是参数；归一化时对 x 积分。"
+          }
+        ]
+      },
+      {
+        "id": "3.4",
+        "title": "相互独立的随机变量",
+        "concepts": [
+          {
+            "id": "random-variable-independence",
+            "title": "随机变量独立性与函数保持独立",
+            "en": "Independence of random variables",
+            "plain": "知道一个变量的值，不改变另一个变量的分布。",
+            "statement": "$X,Y$ 独立是指对任意实数 $x,y$ 有 $F(x,y)=F_X(x)F_Y(y)$；等价地，对任意可测集合 $A,B$，事件 $\\{X\\in A\\}$ 与 $\\{Y\\in B\\}$ 独立。离散时联合概率逐点分解；存在联合密度时联合密度几乎处处分解。多个变量相互独立要求任意有限组的联合分布均分解，而两两独立不足。独立变量各自作可测变换后仍独立。",
+            "formula": "f(x,y)=f_X(x)f_Y(y)\\quad\\text{a.e.},\\qquad p_{ij}=p_{i\\cdot}p_{\\cdot j}",
+            "conditions": "密度判据仅用于具有联合密度的情形。分别对 X 和 Y 作变换，不能将混合两者的任意函数都说成独立。",
+            "proof": "独立时矩形概率分解，对矩形积分比较得到密度分解（几乎处处）；反之，密度乘积分解后矩形的二重积分分成两积分乘积，得到联合分布函数分解。若 $U=g(X),V=h(Y)$，则 $\\{U\\in A\\}=\\{X\\in g^{-1}(A)\\}$，两逆像事件独立，因此 $U,V$ 独立。",
+            "example": "若联合密度为 $4xy$ 在单位正方形上，边缘为 $2x,2y$，因此独立。三角形上的常数密度通常不独立，支撑形状已经提示依赖。",
+            "pitfall": "只验证某一对阈值的概率分解不足以证明独立，须验证整个分布。"
+          },
+          {
+            "id": "bivariate-normal",
+            "title": "二维正态分布与零相关",
+            "en": "Bivariate normal distribution",
+            "plain": "二维正态用两个均值、两个标准差与相关系数描述椭圆形的概率密度。",
+            "statement": "非退化二维正态参数为 $\\mu_1,\\mu_2,\\sigma_1>0,\\sigma_2>0,|\\rho|<1$；两个边缘均为正态。只有在联合正态的前提下，零相关才等价于独立。两个边缘各自正态并不足以推出联合正态。条件分布也是正态，均值随给定值线性改变，条件方差为 $\\sigma_1^2(1-\\rho^2)$。",
+            "formula": "f(x,y)=\\frac{\\exp\\{-\\frac{1}{2(1-\\rho^2)}[u^2-2\\rho uv+v^2]\\}}{2\\pi\\sigma_1\\sigma_2\\sqrt{1-\\rho^2}},\\quad u=\\frac{x-\\mu_1}{\\sigma_1},\\ v=\\frac{y-\\mu_2}{\\sigma_2}",
+            "conditions": "这里给出非退化密度；$|\\rho|=1$ 的情形集中在线上，不能套用此密度。相关系数的定义在第四章进一步解释。",
+            "proof": "配方 $u^2-2\\rho uv+v^2=(u-\\rho v)^2+(1-\\rho^2)v^2$。关于 x 积分时第一部分是归一化正态密度，剩下 Y 的正态边缘。联合密度除以 Y 的边缘得到 $X\\mid Y=y$ 为 $N(\\mu_1+\\rho\\sigma_1(y-\\mu_2)/\\sigma_2,\\sigma_1^2(1-\\rho^2))$。当 $\\rho=0$，联合密度直接分成两个边缘之积，故独立；反向由独立且二阶矩有限可推出协方差为 0。",
+            "example": "标准二维正态且 $\\rho=1/2$ 时，给定 $Y=2$，$X$ 的条件均值为 1，条件方差为 $3/4$。",
+            "pitfall": "一般分布中不相关不代表独立；不能删掉“联合正态”这个条件。"
+          }
+        ]
+      },
+      {
+        "id": "3.5",
+        "title": "两个随机变量的函数的分布",
+        "concepts": [
+          {
+            "id": "sum-convolution",
+            "title": "和的分布与卷积",
+            "en": "Convolution",
+            "plain": "要让两个变量的和等于某个值，先列出所有能拼成这个值的组合。",
+            "statement": "离散函数 $Z=g(X,Y)$ 的概率由所有映到同一值的联合概率相加。连续和 $Z=X+Y$ 的密度为沿 $y=z-x$ 积分。若独立，可把联合密度替换为边缘密度乘积，这才是常用的卷积公式。独立正态之和仍为正态，其均值、方差分别相加；独立泊松之和仍为泊松，参数相加。",
+            "formula": "f_{X+Y}(z)=\\int_{-\\infty}^{\\infty}f(x,z-x)\\,dx,\\quad f_{X+Y}(z)=\\int_{-\\infty}^{\\infty}f_X(x)f_Y(z-x)\\,dx\\ \\text{(独立)}",
+            "conditions": "连续公式要求联合密度存在；独立性是使用边缘乘积的额外条件。",
+            "proof": "从 $F_Z(z)=\\int_{\\mathbb R}\\int_{-\\infty}^{z-x}f(x,y)\\,dy\\,dx$ 出发，对 z 求导（几乎处处）得到公式。也可作变换 $(x,y)\\mapsto(x,z=x+y)$，Jacobian 的绝对值为 1。泊松和的离散证明：$P(X+Y=k)=e^{-(\\lambda+\\mu)}\\sum_{j=0}^k\\lambda^j\\mu^{k-j}/[j!(k-j)!]=e^{-(\\lambda+\\mu)}(\\lambda+\\mu)^k/k!$，最后一步用二项式定理。正态卷积对指数中的二次式配方积分，得到方差相加的正态密度。",
+            "example": "独立 $U(0,1)$ 的和呈三角形密度：$f_Z(z)=z$（$0<z<1$），$2-z$（$1\\le z<2$），其他为 0。",
+            "pitfall": "卷积积分的范围应同时满足两个密度非零的条件；不是永远从 0 到 z。"
+          },
+          {
+            "id": "product-ratio-transform",
+            "title": "乘积与商的密度变换",
+            "en": "Product and ratio",
+            "plain": "反解变量时，除了替换密度，还要乘上面积缩放因子。",
+            "statement": "设 $(X,Y)$ 有联合密度。乘积 $Z=XY$ 可保留 X 并反解 $Y=Z/X$，面积因子为 $1/|x|$。商 $Z=X/Y$ 可保留 Y 并反解 $X=ZY$，面积因子为 $|y|$。有联合密度时坐标轴概率为零，零分母事件不影响商的分布。",
+            "formula": "f_{XY}(z)=\\int_{\\mathbb R}\\frac{f(x,z/x)}{|x|}\\,dx,\\qquad f_{X/Y}(z)=\\int_{\\mathbb R}|y|f(zy,y)\\,dy",
+            "conditions": "等式按密度几乎处处理解；积分忽略零分母点。若存在原子或奇异联合分布，应回到分布函数法。",
+            "proof": "乘积变换的逆映射为 $(x,z)\\mapsto(x,z/x)$，Jacobian 行列式为 $1/x$，取绝对值再对保留变量积分。商变换的逆映射为 $(z,y)\\mapsto(zy,y)$，行列式为 y，同样取绝对值。正负区间都可能有贡献，绝对值保证密度非负。",
+            "example": "独立 $U(0,1)$ 的乘积密度在 $0<z<1$ 上为 $\\int_z^1 dx/x=-\\log z$，其余为 0。",
+            "pitfall": "Jacobian 必须取绝对值，反解得到多个分支时还须逐支相加。"
+          },
+          {
+            "id": "maximum-minimum",
+            "title": "最大值与最小值的分布",
+            "en": "Maximum and minimum",
+            "plain": "最大值不超过 z，要求所有变量都不超过 z；最小值超过 z，要求所有变量都超过 z。",
+            "statement": "设 $X_1,\\ldots,X_n$ 相互独立，$M=\\max_iX_i$、$L=\\min_iX_i$。用交事件的概率乘积得到分布函数。同分布时简化为幂函数。连续同分布时求导得到最大值与最小值的密度。",
+            "formula": "F_M(z)=\\prod_{i=1}^nF_i(z),\\quad F_L(z)=1-\\prod_{i=1}^n[1-F_i(z)]",
+            "conditions": "乘积公式需要相互独立，只有两两独立通常不足；同分布的简化还需要各 F 相同。",
+            "proof": "$\\{M\\le z\\}=\\cap_i\\{X_i\\le z\\}$，由相互独立得到第一式。$\\{L>z\\}=\\cap_i\\{X_i>z\\}$，取补即得第二式。若同分布且有密度，链式求导给出 $f_M(z)=nF(z)^{n-1}f(z)$ 与 $f_L(z)=n[1-F(z)]^{n-1}f(z)$。这些公式保留了 CDF 的端点约定，也适用于离散 CDF。",
+            "example": "三个独立 $U(0,1)$ 变量的最大值在 $(0,1)$ 上 CDF 为 $z^3$，密度为 $3z^2$。",
+            "pitfall": "最小值的分布函数不是各分布函数的乘积。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "随机变量的数字特征",
+    "summary": "用期望刻画位置，用方差刻画波动，用协方差刻画共同变化。",
+    "sections": [
+      {
+        "id": "4.1",
+        "title": "数学期望",
+        "concepts": [
+          {
+            "id": "expectation-definition",
+            "title": "数学期望：存在性与函数的期望",
+            "en": "Expectation and LOTUS",
+            "plain": "期望是按概率加权的平均；先检查能否取平均，再进行计算。",
+            "statement": "离散型变量的期望定义为 $E(X)=\\sum_k x_kp_k$，要求 $\\sum_k|x_k|p_k<\\infty$；连续型变量定义为 $E(X)=\\int_{-\\infty}^{\\infty}xf(x)\\,dx$，要求绝对可积。此处“期望存在”均指有限期望。对于函数 $Y=g(X)$，无需先求 Y 的分布：离散时 $E[g(X)]=\\sum_k g(x_k)p_k$，连续时对 $g(x)f(x)$ 积分。二维时用联合分布作二重求和或积分。期望未必是可能取到的值。",
+            "formula": "E[g(X)]=\\int_{-\\infty}^{\\infty}g(x)f_X(x)\\,dx",
+            "conditions": "公式需 $E|g(X)|<\\infty$；不能用正负无穷抵消得到有限数。非负函数可先定义广义期望。",
+            "proof": "离散情形：把所有满足 $g(x_k)=y_j$ 的取值合并，得到 $P(Y=y_j)=\\sum_{g(x_k)=y_j}p_k$。于是 $E(Y)=\\sum_j y_j\\sum_{g(x_k)=y_j}p_k=\\sum_k g(x_k)p_k$，绝对收敛保证重排合法。连续情形先对分段常值函数按事件概率成立，再用非负简单函数逼近，最后将可积函数分成正、负部分；这一步依赖积分的单调收敛性质。",
+            "example": "若 $X\\sim U(-1,1)$，则 $E(X)=0$，而 $E(X^2)=\\frac12\\int_{-1}^{1}x^2dx=1/3$。若 X 为标准柯西分布，$\\int |x|/[\\pi(1+x^2)]dx$ 发散，所以不能把对称主值 0 称为其期望。",
+            "pitfall": "一般 $E[g(X)]\\ne g(E(X))$；密度对称不自动保证期望存在。",
+            "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "expectation-properties",
+            "title": "线性性质、独立乘积与常用分布期望",
+            "en": "Linearity and product rule",
+            "plain": "和的期望可拆开；乘积的期望通常需要独立性才能拆开。",
+            "statement": "若 X、Y 可积，则 $E(aX+bY+c)=aE(X)+bE(Y)+c$，不要求独立。若 X、Y 独立且可积，则 $E(XY)=E(X)E(Y)$。指示变量 $I_A$ 满足 $E(I_A)=P(A)$，可把计数写成指标之和。常用结果：伯努利 p；二项 np；泊松 $\\lambda$；均匀 $(a+b)/2$；率参数为 $\\lambda$ 的指数 $1/\\lambda$；正态 $\\mu$。",
+            "formula": "E\\left(\\sum_{i=1}^n a_iX_i\\right)=\\sum_{i=1}^n a_iE(X_i)",
+            "conditions": "有限线性组合只需各项可积；无限级数与期望交换还需额外收敛条件。独立乘积公式不能由“不相关”任意推广到其他非线性函数。",
+            "proof": "线性性质来自求和或积分的线性。独立时联合分布分解成边缘分布的乘积，$\\iint xy\\,dF_XdF_Y=(\\int x\\,dF_X)(\\int y\\,dF_Y)$。二项变量写成 n 个伯努利变量之和，立得 np。泊松变量直接计算：$\\sum_{k\\ge1}k e^{-\\lambda}\\lambda^k/k!=\\lambda\\sum_{j\\ge0}e^{-\\lambda}\\lambda^j/j!=\\lambda$。指数期望以分部积分得 $\\int_0^\\infty x\\lambda e^{-\\lambda x}dx=1/\\lambda$。",
+            "example": "把 10 封信随机装入 10 个信封，令 $I_i$ 表示第 i 封装对。虽各 $I_i$ 不独立，但每个成功概率 1/10，装对总数的期望为 $\\sum_i E(I_i)=1$。",
+            "pitfall": "计算总数的期望不必先求总数分布，也不必证明各项独立。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "4.2",
+        "title": "方差",
+        "concepts": [
+          {
+            "id": "variance-properties",
+            "title": "方差、标准差与最小均方误差",
+            "en": "Variance and standard deviation",
+            "plain": "方差衡量离均值的平方距离，标准差恢复原来的单位。",
+            "statement": "若 $E(X^2)<\\infty$，定义 $D(X)=\\operatorname{Var}(X)=E[(X-E(X))^2]$，标准差 $\\sigma_X=\\sqrt{D(X)}$。方差非负；为零当且仅当 $P(X=E(X))=1$。有 $D(aX+b)=a^2D(X)$。独立变量的和满足方差相加；一般情形还要加协方差项。常用方差：伯努利 $p(1-p)$，二项 $np(1-p)$，泊松 $\\lambda$，均匀 $(b-a)^2/12$，指数 $1/\\lambda^2$，正态 $\\sigma^2$。",
+            "formula": "D(X)=E(X^2)-[E(X)]^2,\\qquad E[(X-c)^2]=D(X)+(E(X)-c)^2",
+            "conditions": "要求二阶矩有限。方差为零描述几乎必然恒定，而不必在每个样本点上都相等。",
+            "proof": "展开平方并用线性性质：$E(X^2-2\\mu X+\\mu^2)=E(X^2)-\\mu^2$。又 $X-c=(X-\\mu)+(\\mu-c)$，交叉项期望为 0，故均方误差分解成立，且取 $c=\\mu$ 最小。缩放性质来自 $aX+b-E(aX+b)=a(X-\\mu)$。若非负变量 $(X-\\mu)^2$ 的期望为 0，则它以概率 1 为 0。泊松变量有 $E[X(X-1)]=\\lambda^2$，故 $E(X^2)=\\lambda^2+\\lambda$。",
+            "example": "若 $E(X)=3,D(X)=4$，则 $E(X^2)=13$，$D(2X-5)=16$，用常数 0 预测 X 的均方误差为 13，用常数 3 则为 4。",
+            "pitfall": "$D(X+Y)$ 不是总等于 $D(X)+D(Y)$；$D(2X)=4D(X)$，不是 $2D(X)$。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "4.3",
+        "title": "协方差及相关系数",
+        "concepts": [
+          {
+            "id": "covariance-correlation",
+            "title": "协方差、相关系数与不相关",
+            "en": "Covariance and correlation",
+            "plain": "相关系数只测量线性同向或反向变化，不负责识别所有依赖。",
+            "statement": "定义 $\\operatorname{Cov}(X,Y)=E[(X-\\mu_X)(Y-\\mu_Y)]=E(XY)-E(X)E(Y)$。它对两变量分别线性，对称，且 $\\operatorname{Cov}(X,X)=D(X)$。方差和公式为 $D(X+Y)=D(X)+D(Y)+2\\operatorname{Cov}(X,Y)$。若两个方差均正，定义 $\\rho=\\operatorname{Cov}(X,Y)/(\\sigma_X\\sigma_Y)$。$\\rho=0$ 叫不相关；独立可推出不相关，逆命题一般不成立。",
+            "formula": "-1\\le\\rho\\le1,\\qquad D\\left(\\sum_i a_iX_i\\right)=\\sum_i\\sum_j a_ia_j\\operatorname{Cov}(X_i,X_j)",
+            "conditions": "二阶矩有限；相关系数还要求方差均不为 0。$|\\rho|=1$ 当且仅当存在 $a\\ne0,b$，使 $Y=aX+b$ 几乎必然成立。",
+            "proof": "令 $U=(X-\\mu_X)/\\sigma_X,V=(Y-\\mu_Y)/\\sigma_Y$。由 $E[(U-V)^2]=2-2\\rho\\ge0$ 与 $E[(U+V)^2]=2+2\\rho\\ge0$ 得界。等号时对应的平方期望为 0，即 $U=V$ 或 $U=-V$ 几乎必然，得线性关系。协方差双线性由展开与期望线性得到，再把和的中心化平方展开，得一般方差和公式。",
+            "example": "若 $X\\sim U(-1,1),Y=X^2$，则 $E(X)=E(X^3)=0$，因此协方差为 0。但 Y 完全由 X 决定，二者不独立。",
+            "pitfall": "相关不代表因果；不相关不代表独立；常量与任何变量协方差为零，但相关系数未定义。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "4.4",
+        "title": "协方差矩阵与多元正态分布",
+        "concepts": [
+          {
+            "id": "covariance-matrix-normal",
+            "title": "协方差矩阵与多元正态的线性封闭性",
+            "en": "Covariance matrix and multivariate normal",
+            "plain": "矩阵把所有方差和协方差一起保存，线性变换后可以统一计算。",
+            "statement": "随机向量 $\\mathbf X$ 的均值向量为各分量期望；协方差矩阵 $\\Sigma=E[(\\mathbf X-\\mu)(\\mathbf X-\\mu)^T]$，第 ij 元为 $\\operatorname{Cov}(X_i,X_j)$。它对称且半正定。多元正态可定义为任意线性组合 $a^T\\mathbf X$ 都服从一维正态（允许退化）。若 $\\Sigma$ 正定，其密度为 $(2\\pi)^{-p/2}|\\Sigma|^{-1/2}\\exp[-(x-\\mu)^T\\Sigma^{-1}(x-\\mu)/2]$。仿射变换 $A\\mathbf X+b$ 仍多元正态；在联合正态前提下，不相关的分量相互独立。",
+            "formula": "E(A\\mathbf X+b)=A\\mu+b,\\qquad \\operatorname{Cov}(A\\mathbf X+b)=A\\Sigma A^T",
+            "conditions": "协方差矩阵公式只需二阶矩有限，不要求正态；正态的密度公式需要正定，奇异协方差时没有全维密度。分别正态不等于联合正态。",
+            "proof": "对任意 a，有 $a^T\\Sigma a=E[(a^T(\\mathbf X-\\mu))^2]\\ge0$。变换后的中心化向量为 $A(\\mathbf X-\\mu)$，外积再取期望即得 $A\\Sigma A^T$。任取 c，$c^T(A\\mathbf X+b)=(A^Tc)^T\\mathbf X+c^Tb$ 为正态，故满足定义。若正态协方差矩阵为对角阵，密度指数与归一化因子分别分解，得到边缘密度乘积，故独立；退化情况可把常量分量单独去掉。",
+            "example": "若 $\\mu=(1,2)^T,\\Sigma=\\begin{pmatrix}4&1\\\\1&9\\end{pmatrix}$，则 $X_1+2X_2\\sim N(5,44)$。方差是 $4+4\\times9+4\\times1=44$。",
+            "pitfall": "任意对称矩阵未必是协方差矩阵；需要半正定。一般分布不能用零协方差直接宣告独立。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "4.5",
+        "title": "其他数字特征",
+        "concepts": [
+          {
+            "id": "moments-quantiles",
+            "title": "原点矩、中心矩、分位数、偏度与峰度",
+            "en": "Moments and quantiles",
+            "plain": "均值和方差之外，还可以描述分布的位置、偏斜和尾部形状。",
+            "statement": "k 阶原点矩为 $E(X^k)$，k 阶中心矩为 $E[(X-\\mu)^k]$，要求对应绝对矩有限。一阶原点矩是均值，二阶中心矩是方差。若 $\\sigma>0$，偏度为 $\\gamma_1=E[(X-\\mu)^3]/\\sigma^3$，峰度为 $\\beta_2=E[(X-\\mu)^4]/\\sigma^4$，超额峰度为 $\\beta_2-3$。正态分布的偏度为 0、峰度为 3。下侧 p 分位数可定义为 $q_p=\\inf\\{x:F(x)\\ge p\\}$，中位数为 $q_{0.5}$ 的一种规范选择；四分位距为 $q_{0.75}-q_{0.25}$。众数为概率质量或密度的峰值位置，可能不唯一。",
+            "formula": "\\gamma_1=\\frac{E[(X-\\mu)^3]}{\\sigma^3},\\qquad \\beta_2=\\frac{E[(X-\\mu)^4]}{\\sigma^4}",
+            "conditions": "分位数不需要矩存在。对称且相应矩有限可推出奇数中心矩为零；零偏度不能反推对称。峰度定义是否减 3 必须看清。",
+            "proof": "对称于 $\\mu$ 时，$X-\\mu$ 与 $-(X-\\mu)$ 同分布；奇数次幂期望等于其相反数，所以为零。标准化后 $Z=(X-\\mu)/\\sigma$ 满足 $E(Z^2)=1$；由 $E[(Z^2-1)^2]\\ge0$ 得 $E(Z^4)\\ge1$，故峰度至少为 1。若 $a>0$，变换 $Y=aX+b$ 的分位数为 $aq_p+b$，因为其分布函数为 $F_X((y-b)/a)$。",
+            "example": "$X\\sim U(0,1)$ 时中位数 1/2、四分位距 1/2，偏度 0；四阶中心矩为 1/80、方差为 1/12，故峰度为 $(1/80)/(1/12)^2=9/5$，超额峰度为 −6/5。",
+            "pitfall": "峰度不能仅凭“顶峰更尖”解释；它对极端尾部值敏感。离散分布的 p 分位数不一定满足 $F(q_p)=p$。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "大数定律及中心极限定理",
+    "summary": "区分平均值趋向哪里，与围绕均值的误差呈什么形状。",
+    "sections": [
+      {
+        "id": "5.1",
+        "title": "大数定律",
+        "concepts": [
+          {
+            "id": "chebyshev-lln",
+            "title": "切比雪夫不等式与大数定律",
+            "en": "Chebyshev inequality and weak law",
+            "plain": "只知道均值和方差，也能限制大偏差概率；样本平均的方差缩小后得到大数定律。",
+            "statement": "**依概率收敛**：对每个 $\\varepsilon>0$，$P(|X_n-X|\\ge\\varepsilon)\\to0$，记 $X_n\\xrightarrow{P}X$。若 $E(X)=\\mu,D(X)=\\sigma^2<\\infty$，切比雪夫不等式给出 $P(|X-\\mu|\\ge\\varepsilon)\\le\\sigma^2/\\varepsilon^2$。若 $X_i$ 两两不相关，均有有限方差，且 $n^{-2}\\sum_{i=1}^n D(X_i)\\to0$，则 $n^{-1}\\sum_i(X_i-E(X_i))\\xrightarrow P0$。尤其各方差有统一上界时成立。",
+            "formula": "P(|\\overline X_n-\\mu|\\ge\\varepsilon)\\le\\frac{\\sigma^2}{n\\varepsilon^2}\\quad\\text{（独立同分布、有限方差）}",
+            "conditions": "切比雪夫界不是正态近似，也不要求分布正态。界超过 1 时只能采用平凡上界 1。",
+            "proof": "在事件 $A=\\{|X-\\mu|\\ge\\varepsilon\\}$ 上有 $(X-\\mu)^2\\ge\\varepsilon^2$。因此 $\\sigma^2\\ge E[(X-\\mu)^2I_A]\\ge\\varepsilon^2P(A)$。再对中心化平均应用此式：两两不相关保证其方差是 $n^{-2}\\sum_iD(X_i)$，由条件趋于 0，故每个固定误差阈值之外的概率趋于 0。",
+            "example": "独立同分布测量的方差为 4，要求平均误差小于 0.2 的概率至少为 0.95，保守地取 $4/(n\\times0.04)\\le0.05$，即 $n\\ge2000$。",
+            "pitfall": "大数定律说偏差概率趋于 0，不是说每次新观测都更靠近均值，也不是说一定从某次起不再偏离。",
+            "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "bernoulli-khinchin",
+            "title": "伯努利与辛钦大数定律",
+            "en": "Bernoulli and Khinchin laws",
+            "plain": "频率稳定是样本平均稳定的一种情形；有限均值已足够支持独立同分布的弱大数定律。",
+            "statement": "伯努利大数定律：独立重复试验中事件 A 的概率为 p，发生次数 $N_n$ 满足 $N_n/n\\xrightarrow Pp$。辛钦大数定律：独立同分布的 $X_i$ 若 $E|X_i|<\\infty$、均值为 μ，则 $\\bar X_n\\xrightarrow P\\mu$，无需方差存在。频率结论是后一结论的特例，也可直接由切比雪夫证明。",
+            "formula": "\\frac{N_n}{n}\\xrightarrow{P}p,\\qquad\\frac1n\\sum_{i=1}^nX_i\\xrightarrow{P}E(X_1)",
+            "conditions": "辛钦定理要求独立同分布和绝对一阶矩有限。对无限均值或柯西分布，不能套用。",
+            "proof": "伯努利情形：令 $I_i$ 为事件发生的指标，则均值 p、方差 $p(1-p)$。切比雪夫给出误差概率不超过 $p(1-p)/(n\\varepsilon^2)\\to0$。辛钦的证明思路可严格化如下：固定 M，截断 $Y_i=X_iI(|X_i|\\le M)$ 有有限方差，平均收敛到 $E(Y_i)$；尾项的平均绝对值由 Markov 不等式控制，其概率上界由 $E[|X|I(|X|>M)]/\\varepsilon$ 给出。此尾期望随 M 增大趋于 0。先令 n 增大，再令 M 增大，结合 $E(Y_i)\\to E(X)$ 即得结论。",
+            "example": "公平硬币连续出现多次正面后，下一次正面概率仍为 1/2；大数定律不要求“后面必须多出现反面补偿”。早先有限次结果对长期平均的影响随总次数增大而减小。",
+            "pitfall": "不得把长期频率稳定解释为短期“欠账补偿”；也不能把依概率收敛直接换成每条样本路径上的收敛。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "5.2",
+        "title": "中心极限定理",
+        "concepts": [
+          {
+            "id": "central-limit",
+            "title": "中心极限定理、标准化与连续性修正",
+            "en": "Central limit theorem",
+            "plain": "大量小误差相加，标准化后的分布常趋近标准正态；近似质量不能只看 n。",
+            "statement": "独立同分布的 $X_i$ 满足均值 μ、有限正方差 $\\sigma^2$，则 $Z_n=(\\sum_iX_i-n\\mu)/(\\sigma\\sqrt n)$ 的分布函数在每个实数 x 处趋于 $\\Phi(x)$。因此可近似 $\\bar X_n\\sim N(\\mu,\\sigma^2/n)$，但这是分布近似而非有限 n 的恒等式。棣莫弗—拉普拉斯定理是伯努利变量情形：固定 $0<p<1$，二项计数标准化后趋于标准正态。整数区间 $a\\le B_n\\le b$ 可用边界 $a-0.5,b+0.5$ 做连续性修正。",
+            "formula": "P\\left(\\frac{\\sum_{i=1}^nX_i-n\\mu}{\\sigma\\sqrt n}\\le x\\right)\\longrightarrow\\Phi(x)",
+            "conditions": "独立同分布、均值和方差有限且方差非零。二项近似需 np 和 n(1−p) 都足够大；不存在对所有分布都可靠的统一“n≥30”。",
+            "proof": "**使用特征函数的证明**：令 $Y=(X-\\mu)/\\sigma$，则 $E(Y)=0,E(Y^2)=1$。有限二阶矩可推出其特征函数在 0 附近为 $\\varphi_Y(t)=1-t^2/2+o(t^2)$。独立性给出 $\\varphi_{Z_n}(t)=[\\varphi_Y(t/\\sqrt n)]^n=[1-t^2/(2n)+o(1/n)]^n\\to e^{-t^2/2}$。最后依赖**特征函数连续性定理**，得到分布收敛。该连续性定理在此作为前置结论，不把它的证明省略伪装成初等证明。伯努利的均值 p、方差 $p(1-p)$ 代入即得二项形式。",
+            "example": "$B\\sim\\mathrm{Bin}(100,1/2)$，近似 $P(45\\le B\\le55)\\approx\\Phi(1.1)-\\Phi(-1.1)\\approx0.7287$；其中均值 50、标准差 5，修正后区间为 [44.5,55.5]。",
+            "pitfall": "和的标准差是 $\\sigma\\sqrt n$，平均的标准差是 $\\sigma/\\sqrt n$。CLT 没有说单次观测本身趋于正态。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "样本及抽样分布",
+    "summary": "数据是样本的一次实现；统计量的随机性来自反复抽样。",
+    "sections": [
+      {
+        "id": "6.1",
+        "title": "随机样本",
+        "concepts": [
+          {
+            "id": "random-sample-statistics",
+            "title": "总体、样本、统计量与经验分布",
+            "en": "Random sample and statistics",
+            "plain": "总体描述生成数据的规律，样本是随机变量，观测值才是已经得到的数字。",
+            "statement": "从总体 X 抽取容量 n 的简单随机样本，指 $X_1,\\ldots,X_n$ 独立且与 X 同分布；观测值记 $x_1,\\ldots,x_n$。不含未知参数的样本函数称**统计量**。样本均值 $\\bar X=n^{-1}\\sum X_i$，样本方差 $S^2=(n-1)^{-1}\\sum(X_i-\\bar X)^2$，样本标准差 S。样本 k 阶原点矩为 $n^{-1}\\sum X_i^k$。经验分布函数 $F_n(x)=n^{-1}\\sum I(X_i\\le x)$ 是阶梯函数，在每个观测值处跳跃，重复值的跳跃量合并。",
+            "formula": "E(\\bar X)=\\mu,\\quad D(\\bar X)=\\sigma^2/n,\\quad E(S^2)=\\sigma^2",
+            "conditions": "上述矩结论只要求独立同分布且二阶矩有限，$S^2$ 还需 n≥2。有限总体无放回抽样通常不独立，不能直接套全部公式。",
+            "proof": "均值结论来自期望线性与独立方差相加。恒等式 $\\sum(X_i-\\bar X)^2=\\sum(X_i-\\mu)^2-n(\\bar X-\\mu)^2$ 两边取期望得 $n\\sigma^2-n(\\sigma^2/n)=(n-1)\\sigma^2$，再除以 n−1 即得样本方差无偏。对每个固定 x，$nF_n(x)$ 为二项变量，故 $E[F_n(x)]=F(x)$，方差为 $F(x)(1-F(x))/n$。",
+            "example": "观测 1、2、2、5，有 $\\bar x=2.5$，$\\sum(x_i-\\bar x)^2=9$，$s^2=3$，$F_n(2)=3/4$。$\\sum(X_i-\\mu)^2$ 若 μ 未知就不是统计量。",
+            "pitfall": "统计量不能含未知参数；样本方差 n−1 与描述性平均平方离差 n 的约定不可混用。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "6.2",
+        "title": "直方图和箱线图",
+        "concepts": [
+          {
+            "id": "histogram-boxplot",
+            "title": "直方图的面积与箱线图的四分位数",
+            "en": "Histogram and box plot",
+            "plain": "直方图看分布形状，箱线图用稳健的位置与分散指标作概括。",
+            "statement": "将数轴分组，第 j 组宽度 $h_j$、频数 $n_j$，频率密度直方图的高度为 $n_j/(nh_j)$，故面积等于频率，全部面积为 1。等宽时可比较柱高，不等宽时必须考虑面积。箱线图以中位数、第一和第三四分位数构成箱体，$IQR=Q_3-Q_1$。常用 Tukey 约定把低于 $Q_1-1.5IQR$ 或高于 $Q_3+1.5IQR$ 的观测值单列为潜在异常点，须线延伸到界内最远观测值；软件也可能用其他须线或分位数算法。",
+            "formula": "\\text{柱面积}=\\frac{n_j}{nh_j}h_j=\\frac{n_j}{n}",
+            "conditions": "绘图前说明区间端点归属、分组宽度、四分位数算法；异常标记仅供检查，不能自动据此删除真实观测。",
+            "proof": "直方图的归一化由 $\\sum_j n_j=n$ 直接推出。箱线图对正比例变换 $y=ax+b$（a>0）保持相对结构：四分位数变为 $aQ_j+b$，IQR 变为 a 倍，内围栏也按同样方式变换，所以潜在异常点的判定不受计量单位影响。这里是构造与性质解释，不是对真实总体密度的精确证明。",
+            "example": "采用“上下半组各自中位数”法，数据 1、2、3、4、5、6、7、20 的中位数 4.5，$Q_1=2.5,Q_3=6.5,IQR=4$。上围栏 12.5，所以 20 被标为潜在异常；上须到 7。",
+            "pitfall": "箱长反映中间一半数据的跨度，不是标准差；直方图柱面积而非任意柱高表示概率质量。",
+            "proofTitle": "构造依据与性质"
+          }
+        ]
+      },
+      {
+        "id": "6.3",
+        "title": "抽样分布",
+        "concepts": [
+          {
+            "id": "chi-t-f-distributions",
+            "title": "χ²、t、F 分布与分位数",
+            "en": "Chi-square, t and F distributions",
+            "plain": "这三种分布描述正态样本中平方和及标准化比值的随机变化。",
+            "statement": "若 $Z_1,\\ldots,Z_\\nu$ 独立标准正态，则 $V=\\sum Z_i^2\\sim\\chi^2(\\nu)$，ν 为自由度；其均值 ν、方差 2ν，独立卡方变量相加后自由度相加。若 $Z\\sim N(0,1)$、$V\\sim\\chi^2(\\nu)$ 独立，则 $T=Z/\\sqrt{V/\\nu}\\sim t(\\nu)$，关于 0 对称，有限自由度下比正态尾重。若独立 $U\\sim\\chi^2(m),V\\sim\\chi^2(n)$，则 $(U/m)/(V/n)\\sim F(m,n)$，倒数服从 $F(n,m)$。统一用下侧分位数 $q_p(G)$ 表示 $P(G\\le q_p(G))=p$；若表采用上侧 α 分位数，等于本处 $q_{1-\\alpha}$。",
+            "formula": "T=\\frac{Z}{\\sqrt{V/\\nu}},\\qquad F=\\frac{U/m}{V/n}",
+            "conditions": "构造中的独立性不可省略。自由度为正整数时有上述正态构造。t 的均值仅在 ν>1 时存在，方差仅在 ν>2 时存在。",
+            "proof": "标准正态的平方均值为 1、四阶矩为 3，故 $D(Z^2)=3-1=2$，相加得卡方矩。卡方可加性直接来自合并两组独立标准正态平方。t 对称性来自 Z 与 −Z 同分布，分母不变。F 倒数交换分子分母即得结论，因此 $q_p(F(m,n))=1/q_{1-p}(F(n,m))$。当 ν 增大，$V/\\nu\\xrightarrow P1$，借助 Slutsky 定理，t 分布趋于标准正态。",
+            "example": "若 $U\\sim\\chi^2(4),V\\sim\\chi^2(6)$ 独立，则 $U+V\\sim\\chi^2(10)$，$3U/(2V)\\sim F(4,6)$。",
+            "pitfall": "F 的自由度有顺序；F 比值必须先各自除自由度。查表前先看上尾还是下尾。",
+            "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "normal-sampling-theorem",
+            "title": "正态样本均值与方差：独立性从哪里来",
+            "en": "Normal sampling theorem",
+            "plain": "正态总体使样本均值和样本方差独立，这是精确 t 推断的关键。",
+            "statement": "若 $X_i$ 独立同分布于 $N(\\mu,\\sigma^2)$，$\\sigma^2>0,n\\ge2$，则 $\\bar X\\sim N(\\mu,\\sigma^2/n)$，$(n-1)S^2/\\sigma^2\\sim\\chi^2(n-1)$，且 $\\bar X$ 与 $S^2$ 独立。因此 $\\sqrt n(\\bar X-\\mu)/S\\sim t(n-1)$。两个独立正态样本的样本方差比，经总体方差比标准化，服从 F 分布。",
+            "formula": "\\frac{\\sqrt n(\\bar X-\\mu)}S\\sim t(n-1),\\qquad\\frac{S_1^2/\\sigma_1^2}{S_2^2/\\sigma_2^2}\\sim F(n_1-1,n_2-1)",
+            "conditions": "这是正态总体下的有限样本精确结论；一般总体即使样本均值近似正态，也不保证方差的卡方结论精确。",
+            "proof": "令 $Z_i=(X_i-\\mu)/\\sigma$，组成标准多元正态向量 Z。取第一行等于 $(1/\\sqrt n,\\ldots,1/\\sqrt n)$ 的正交矩阵 Q，则 $Y=QZ$ 仍由独立标准正态分量组成，因为协方差为 $QQ^T=I$。$Y_1=\\sqrt n(\\bar X-\\mu)/\\sigma$。由正交变换保持平方和，$\\sum Z_i^2-Y_1^2=\\sum_{j=2}^nY_j^2=(n-1)S^2/\\sigma^2$。右侧为 n−1 个独立标准正态平方和，并独立于 $Y_1$，故卡方分布与独立性同时得到。再按 t、F 定义取比值即得公式。",
+            "example": "n=10 时 $9S^2/\\sigma^2$ 的自由度为 9，而均值标准化除以 S 后是 $t(9)$，不是 $N(0,1)$。",
+            "pitfall": "残差有 n 个，但其和为 0，只有 n−1 个独立方向；自由度不能直接写 n。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "参数估计",
+    "summary": "由样本估计未知参数，并把估计误差表达出来。",
+    "sections": [
+      {
+        "id": "7.1",
+        "title": "点估计",
+        "concepts": [
+          {
+            "id": "moment-estimation",
+            "title": "矩估计：用样本矩匹配总体矩",
+            "en": "Method of moments",
+            "plain": "先写参数决定的理论矩，再用观测矩替换并解方程。",
+            "statement": "参数 θ 未知时，用统计量 $\\hat\\theta(X_1,\\ldots,X_n)$ 估计它，称估计量；代入观测数据得到估计值。矩估计选择与未知参数个数相同的矩方程，把总体原点矩 $E(X^k)$ 替换为样本原点矩 $A_k=n^{-1}\\sum X_i^k$，解出参数。方程不一定有唯一解，也可能出现超出参数空间的解，须检查。",
+            "formula": "E_\\theta(X^k)=A_k,\\qquad k=1,\\ldots,r",
+            "conditions": "所用理论矩应存在，参数可由这些矩识别。样本方差 S² 与二阶中心样本矩 $A_2-A_1^2$ 相差因子 n/(n−1)。",
+            "proof": "独立同分布且所用矩可积时，大数定律给出 $A_k\\xrightarrow P E(X^k)$。如果由矩到参数的反函数在真值附近连续，则连续映射定理给出矩估计的一致性。对 $U(0,\\theta)$，总体均值为 θ/2，故估计为 $2\\bar X$。对正态总体，用 μ=A₁、μ²+σ²=A₂，得 $\\hat\\mu=\\bar X,\\hat\\sigma^2=A_2-A_1^2$。",
+            "example": "样本为 1、2、3，假设来自 $U(0,\\theta)$，矩估计为 $\\hat\\theta=4$，满足参数不小于最大观测 3 的支持限制。其他样本下矩估计未必满足此支持限制，必须检查。",
+            "pitfall": "矩估计是一种构造方法，不自动保证无偏、最有效或始终落在合理参数空间。",
+            "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "maximum-likelihood",
+            "title": "最大似然估计：似然、对数与边界",
+            "en": "Maximum likelihood estimation",
+            "plain": "固定已经观察到的数据，选择使它最相容的参数。",
+            "statement": "独立样本的似然为 $L(\\theta;x)=\\prod_i f(x_i;\\theta)$（离散时用概率质量）。数据固定，θ 是自变量。最大似然估计在参数空间内最大化 L；常最大化对数似然 $\\ell=\\log L$。解导数等于 0 只是寻找内部候选点，还必须比较边界、支持集和极值是否存在。极大化后的参数函数 $g(\\hat\\theta)$ 是 g(θ) 的相应最大似然估计（以轮廓似然理解）。",
+            "formula": "\\hat\\theta\\in\\underset{\\theta\\in\\Theta}{\\operatorname{argmax}}\\ L(\\theta;x)",
+            "conditions": "似然不是参数的概率分布。支持集依赖参数时，必须保留指示条件，不能只对光滑部分求导。",
+            "proof": "伯努利样本有 r 次成功，$\\ell(p)=r\\log p+(n-r)\\log(1-p)$。当 0<r<n 时，导数为 $r/p-(n-r)/(1-p)$，唯一零点 r/n；二阶导数严格为负，故为最大值。r=0 或 n 时检查边界得 0 或 1。$U(0,\\theta)$ 的似然在 $\\theta\\ge x_{(n)}$ 时为 $\\theta^{-n}$，随 θ 下降，因此端点 $x_{(n)}$ 是最大值（采用包含端点的密度版本；连续模型端点单点不影响分布）。",
+            "example": "8 次试验成功 6 次，$\\hat p=3/4$。正态样本两个参数未知时，$\\hat\\mu=\\bar X$，$\\hat\\sigma^2=n^{-1}\\sum(X_i-\\bar X)^2$，方差 MLE 的分母为 n。",
+            "pitfall": "“解似然方程”不等于已证明最大值；方差 MLE 通常有偏，这与它最大化似然不矛盾。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.2",
+        "title": "*基于截尾样本的最大似然估计",
+        "concepts": [
+          {
+            "id": "censored-likelihood",
+            "title": "截尾寿命样本：未失效个体也提供信息",
+            "en": "Likelihood with censored observations",
+            "plain": "不知道确切失效时间，并不等于没有信息；仍知道它至少活到停止时刻。",
+            "statement": "**定时截尾**：n 个个体同时开始，到时刻 T 停止，记录 r 个失效时刻及其余 n−r 个仍存活。似然忽略与参数无关的因子为 $\\prod_{i=1}^r f(t_i;\\theta)[1-F(T;\\theta)]^{n-r}$。**定数截尾**：第 r 个失效时停止，停止时刻为 $t_{(r)}$，将上式 T 换为该时刻。这里“截尾”指寿命试验中的右删失，不等同于总体中短寿命个体根本不能入样的截断抽样。",
+            "formula": "\\hat\\lambda=\\frac{r}{W},\\qquad W=\\sum_{i=1}^r t_i+(n-r)T",
+            "conditions": "公式针对独立指数寿命、共同率参数 λ，截尾规则固定且非信息性，r>0。定数截尾用 $T=t_{(r)}$。若 r=0，λ>0 参数空间内无有限正最大点，似然的上确界在 λ→0。",
+            "proof": "每个已失效个体贡献密度 $\\lambda e^{-\\lambda t_i}$；未失效个体贡献存活概率 $e^{-\\lambda T}$。相乘得 $L=C\\lambda^r e^{-\\lambda W}$。对数导数 $r/\\lambda-W=0$ 得 r/W，二阶导数 $-r/\\lambda^2<0$，所以为唯一最大值。若用均值参数 θ=1/λ，估计为 W/r。W 是全部个体累计受观察的总时长。",
+            "example": "n=5，T=10，三次失效发生于 2、4、7，则 $W=2+4+7+2\\times10=33$，率估计 3/33=1/11，平均寿命估计 11。",
+            "pitfall": "只对已失效的 2、4、7 求平均，会丢掉仍存活个体的信息，系统性低估平均寿命。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.3",
+        "title": "估计量的评选标准",
+        "concepts": [
+          {
+            "id": "estimator-criteria",
+            "title": "无偏性、有效性、一致性与均方误差",
+            "en": "Bias, efficiency, consistency and MSE",
+            "plain": "评价估计量要分清长期平均偏差、抽样波动与样本增多后的表现。",
+            "statement": "偏差为 $\\operatorname{Bias}_\\theta(\\hat\\theta)=E_\\theta(\\hat\\theta)-\\theta$；对所有参数均为零叫无偏。两个无偏估计量比较方差，较小者较有效；“最小方差无偏”要求对所有候选无偏估计量与参数值成立。一致性指 $\\hat\\theta_n\\xrightarrow P\\theta$。均方误差 $\\operatorname{MSE}=E[(\\hat\\theta-\\theta)^2]$ 同时考虑偏差和方差；有偏估计可能 MSE 更小。",
+            "formula": "\\operatorname{MSE}(\\hat\\theta)=D(\\hat\\theta)+[E(\\hat\\theta)-\\theta]^2",
+            "conditions": "比较时必须明确总体模型、参数范围和损失函数。若偏差→0且方差→0，则 MSE→0，从而一致；无偏本身不保证一致。",
+            "proof": "写 $\\hat\\theta-\\theta=(\\hat\\theta-E\\hat\\theta)+(E\\hat\\theta-\\theta)$，展开平方后交叉项期望为 0，得到分解。由 Markov 不等式 $P(|\\hat\\theta-\\theta|\\ge\\varepsilon)\\le\\operatorname{MSE}/\\varepsilon^2$，MSE 趋零即可推出一致。样本均值无偏且方差 $\\sigma^2/n$ 趋零，所以一致；固定只用第一个观测的估计量 $X_1$ 虽无偏，但方差不随 n 减少，非退化总体下一般不一致。",
+            "example": "正态样本的方差 MLE $\\hat\\sigma^2=(n-1)S^2/n$ 的期望为 $(n-1)\\sigma^2/n$，有向下偏差，但此偏差随 n 增大消失。",
+            "pitfall": "无偏描述反复抽样的平均，不保证某次估计接近真值；一致性也不表示有限样本一定无偏。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.4",
+        "title": "区间估计",
+        "concepts": [
+          {
+            "id": "confidence-pivot",
+            "title": "置信区间与枢轴量",
+            "en": "Confidence interval and pivotal quantity",
+            "plain": "置信度描述重复抽样方法的覆盖率；已经算出的区间是这套方法的一次结果。",
+            "statement": "若由样本构造区间 $[L(X),U(X)]$，使对参数 θ 有 $P_\\theta(L\\le\\theta\\le U)=1-\\alpha$，称置信系数为 1−α 的置信区间；保守区间可将等号换为不小于。L、U 是统计量。枢轴量 $Q(X;\\theta)$ 含待估参数，但其分布不依赖未知参数。选出其已知概率区间，再把不等式对 θ 求解，是构造区间的常用方法。",
+            "formula": "P_\\theta(a\\le Q(X;\\theta)\\le b)=1-\\alpha",
+            "conditions": "参数在频率学派模型中固定；随机的是抽样得到的端点。观察数据之后不能简单解释成固定参数有 95% 概率落入这个固定区间。",
+            "proof": "若 $X_i\\sim N(\\mu,\\sigma^2)$ 且 σ 已知，$Z=\\sqrt n(\\bar X-\\mu)/\\sigma\\sim N(0,1)$。令 $z=q_{1-\\alpha/2}(N(0,1))$，有 $P(-z\\le Z\\le z)=1-\\alpha$。依次乘正数 $\\sigma/\\sqrt n$、移项，即得 $\\bar X-z\\sigma/\\sqrt n\\le\\mu\\le\\bar X+z\\sigma/\\sqrt n$。事件完全等价，覆盖率随之保留。",
+            "example": "σ=2、n=100、均值 10 时，95% 区间为 $10\\pm1.96\\times0.2=[9.608,10.392]$。样本量扩大到 400，其他条件相同时区间半宽减半。",
+            "pitfall": "95% 置信区间不是覆盖 95% 个体观测值的区间；后者属于预测或容忍区间的问题。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.5",
+        "title": "正态总体均值与方差的区间估计",
+        "concepts": [
+          {
+            "id": "normal-confidence-intervals",
+            "title": "正态均值、方差与两个总体的区间",
+            "en": "Normal-model confidence intervals",
+            "plain": "先判断估计什么，再判断方差已知与否、样本是否独立及是否等方差。",
+            "statement": "统一记下侧分位数 $q_p$。单个正态总体：σ 未知时，均值区间 $\\bar X\\pm q_{1-\\alpha/2}(t(n-1))S/\\sqrt n$；方差区间见下式。两个独立正态总体：方差均已知时，均值差区间为 $(\\bar X-\\bar Y)\\pm z\\sqrt{\\sigma_1^2/n_1+\\sigma_2^2/n_2}$。方差未知但相等时，令 $S_p^2=[(n_1-1)S_1^2+(n_2-1)S_2^2]/(n_1+n_2-2)$，用 $t(n_1+n_2-2)$ 与标准误 $S_p\\sqrt{1/n_1+1/n_2}$。方差比区间为 $[R/q_{1-\\alpha/2}(F),R/q_{\\alpha/2}(F)]$，其中 $R=S_1^2/S_2^2$，F 自由度依次为 n₁−1、n₂−1。",
+            "formula": "\\frac{(n-1)S^2}{q_{1-\\alpha/2}(\\chi^2(n-1))}\\le\\sigma^2\\le\\frac{(n-1)S^2}{q_{\\alpha/2}(\\chi^2(n-1))}",
+            "conditions": "正态假定使这些区间精确。未知且不等方差时不能套合并方差 t 区间，可用 Welch 的近似；配对数据应先取差，不能当作两个独立样本。",
+            "proof": "方差区间由 $a\\le(n-1)S^2/\\sigma^2\\le b$ 求解；因均为正数，取倒数后不等号反向，得 $(n-1)S^2/b\\le\\sigma^2\\le(n-1)S^2/a$。两样本相等方差时，两个独立卡方量相加得自由度 n₁+n₂−2，并与均值差独立，因而形成 t 枢轴。方差比由 F 枢轴同样反演；两个分母分位数的位置不能交换。",
+            "example": "n=10、$s^2=4$，取 $q_{0.025}(\\chi^2(9))=2.700$、$q_{0.975}=19.023$，95% 方差区间约为 $[36/19.023,36/2.700]=[1.892,13.333]$。",
+            "pitfall": "方差区间不关于样本方差对称；标准差区间应将两个端点开平方。合并方差法必须有相等总体方差依据。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.6",
+        "title": "(0–1)分布参数的区间估计",
+        "concepts": [
+          {
+            "id": "bernoulli-confidence",
+            "title": "比例区间：正态近似与边界问题",
+            "en": "Confidence interval for a proportion",
+            "plain": "比例是 0–1 样本的均值，但接近 0 或 1 时简单对称近似可能很差。",
+            "statement": "独立伯努利样本成功 r 次，$\\hat p=r/n$。由 CLT 得传统 Wald 近似区间 $\\hat p\\pm z\\sqrt{\\hat p(1-\\hat p)/n}$。它不是有限样本精确结果；成功或失败数少时尤其不稳。反演以未知 p 为标准误的正态检验，可得 Wilson 区间，通常更稳健。还可反演二项尾概率得到保守的精确二项区间；离散性通常使实际覆盖率高于标称值。",
+            "formula": "\\hat p\\pm z\\sqrt{\\frac{\\hat p(1-\\hat p)}n},\\qquad z=q_{1-\\alpha/2}(N(0,1))",
+            "conditions": "需独立同分布伯努利观测；Wald 仅作为大样本近似。当 r=0 或 r=n，其零宽区间显然不可靠。",
+            "proof": "由 $\\sqrt n(\\hat p-p)/\\sqrt{p(1-p)}\\approx N(0,1)$，再用一致估计 $\\hat p$ 代替 p，利用 Slutsky 定理得到 Wald 近似。若保留分母中的 p，平方后为 $n(\\hat p-p)^2\\le z^2p(1-p)$，移项解二次不等式，Wilson 中心为 $(\\hat p+z^2/(2n))/(1+z^2/n)$，半宽为 $z\\sqrt{\\hat p(1-\\hat p)/n+z^2/(4n^2)}/(1+z^2/n)$。",
+            "example": "n=100、r=40，Wald 95% 区间约为 $0.4\\pm1.96\\sqrt{0.24/100}=[0.3040,0.4960]$。若 n=10、r=0，不应报告“p=0 已无不确定性”。",
+            "pitfall": "把越界端点裁到 [0,1] 不能自动修复覆盖率；“精确”二项区间也不保证覆盖率恰好等于 95%。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.7",
+        "title": "单侧置信区间",
+        "concepts": [
+          {
+            "id": "one-sided-confidence",
+            "title": "单侧置信上限与下限",
+            "en": "One-sided confidence bounds",
+            "plain": "只关心至少多少或至多多少时，把允许漏覆盖的概率放到一侧。",
+            "statement": "单侧下限 L 满足 $P_\\theta(L\\le\\theta)=1-\\alpha$，区间为 $[L,\\infty)$；单侧上限 U 满足 $P_\\theta(\\theta\\le U)=1-\\alpha$。正态均值 σ 未知时，下限为 $\\bar X-t_{1-\\alpha,n-1}S/\\sqrt n$，上限为 $\\bar X+t_{1-\\alpha,n-1}S/\\sqrt n$（这里 t 下标是下侧分位数）。方差下限为 $(n-1)S^2/q_{1-\\alpha}(\\chi^2)$，上限为 $(n-1)S^2/q_\\alpha(\\chi^2)$。",
+            "formula": "L_\\mu=\\bar X-q_{1-\\alpha}(t(n-1))\\frac S{\\sqrt n}",
+            "conditions": "方向应由问题预先决定。单侧 95% 与双侧 95% 用的分位数不同，分别为 0.95 和 0.975。",
+            "proof": "令 $T=\\sqrt n(\\bar X-\\mu)/S$。由 $P(T\\le t_{1-\\alpha})=1-\\alpha$，移项得 $P(\\mu\\ge\\bar X-t_{1-\\alpha}S/\\sqrt n)=1-\\alpha$，即下限。对上限利用 t 的对称性。方差下限取卡方事件 $V\\le q_{1-\\alpha}$，反演得到 $\\sigma^2\\ge(n-1)S^2/q_{1-\\alpha}$；上限同理。",
+            "example": "σ=2 已知，n=100、均值 10，取 z₀.₉₅=1.645，均值 95% 下限为 $10-1.645\\times0.2=9.671$。",
+            "pitfall": "不能先看样本结果朝哪边，再把双侧检验或区间改为单侧以获得更有利结论。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "7.8",
+        "title": "贝叶斯估计",
+        "concepts": [
+          {
+            "id": "bayesian-estimation",
+            "title": "先验、后验与平方损失下的贝叶斯估计",
+            "en": "Bayesian estimation",
+            "plain": "先验给出参数的初始分布，似然纳入数据，后验表达更新后的不确定性。",
+            "statement": "贝叶斯模型中参数 Θ 也用概率分布描述，先验密度 $\\pi(\\theta)$，观测后的后验正比于 $L(\\theta;x)\\pi(\\theta)$，再归一化。给定损失函数，最小化后验期望损失得到贝叶斯估计。平方损失下为后验均值，绝对损失下可取后验中位数；后验众数是 MAP，并非任意损失下的通用最优值。伯努利样本配 Beta(a,b) 先验时，后验为 Beta(a+r,b+n−r)。",
+            "formula": "\\pi(\\theta\\mid x)=\\frac{L(\\theta;x)\\pi(\\theta)}{\\int L(u;x)\\pi(u)du},\\qquad\\hat\\theta_B=E(\\Theta\\mid x)",
+            "conditions": "后验须可归一化，所需后验矩须存在。贝叶斯可信区间可以解释为给定数据的后验概率区间；它与频率置信区间概念不同。",
+            "proof": "平方损失分解为 $E[(\\Theta-a)^2\\mid x]=D(\\Theta\\mid x)+(E[\\Theta\\mid x]-a)^2$，故 a 取后验均值时最小。Beta 先验核为 $p^{a-1}(1-p)^{b-1}$，乘上伯努利似然 $p^r(1-p)^{n-r}$ 得 $p^{a+r-1}(1-p)^{b+n-r-1}$，认出更新后的 Beta。其均值 $(a+r)/(a+b+n)$ 可写成先验均值 a/(a+b) 与样本比例 r/n 的加权平均。",
+            "example": "均匀先验 Beta(1,1)，10 次中成功 7 次，后验 Beta(8,4)，平方损失估计为 8/12=2/3，MLE 则为 0.7。",
+            "pitfall": "先验必须说明；后验均值、后验众数和最大似然估计通常不同。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "假设检验",
+    "summary": "用原假设下的抽样规律判断观测偏差，并区分统计证据与真实效应。",
+    "sections": [
+      {
+        "id": "8.1",
+        "title": "假设检验",
+        "concepts": [
+          {
+            "id": "hypothesis-testing-errors",
+            "title": "原假设、拒绝域与两类错误",
+            "en": "Hypothesis tests and errors",
+            "plain": "检验预先规定多强的反证才拒绝原假设，并控制错误拒绝的风险。",
+            "statement": "原假设 $H_0$ 与备择假设 $H_1$ 划分待比较的参数情形。统计量落入拒绝域 C 时拒绝 $H_0$。**第一类错误**是在 $H_0$ 为真时拒绝；**第二类错误**是在某个备择参数为真时未拒绝。显著性水平 α 控制 $\\sup_{\\theta\\in\\Theta_0}P_\\theta(X\\in C)\\le\\alpha$。功效函数 $\\pi(\\theta)=P_\\theta(X\\in C)$；在备择下第二类错误概率为 $\\beta(\\theta)=1-\\pi(\\theta)$。",
+            "formula": "\\alpha\\text{ 控制误拒真 }H_0,\\qquad\\operatorname{power}(\\theta)=1-\\beta(\\theta)",
+            "conditions": "假设、方向、统计量和 α 应在看到结果前确定。固定样本量时，降低 α 往往会牺牲功效；增加样本量常可改善两者。",
+            "proof": "已知方差正态均值，检验 $H_0:\\mu\\le\\mu_0$ 对 $H_1:\\mu>\\mu_0$。拒绝域为 $\\bar X>\\mu_0+z_{1-\\alpha}\\sigma/\\sqrt n$。在边界 μ₀，拒绝概率恰为 α；对更小 μ，该上尾概率更小，故复合原假设整体受到控制。在备择 μ₁ 下，功效为 $1-\\Phi(z_{1-\\alpha}-(\\mu_1-\\mu_0)\\sqrt n/\\sigma)$。",
+            "example": "若 α=0.05，意为在原假设模型确实时，该方法反复使用约有不超过 5% 的错误拒绝率；不是说本次原假设为真的概率为 5%。",
+            "pitfall": "未拒绝不等于证明原假设；统计显著不自动意味着实际影响很大。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "8.2",
+        "title": "正态总体均值的假设检验",
+        "concepts": [
+          {
+            "id": "normal-mean-tests",
+            "title": "单个正态均值：Z 检验与 t 检验",
+            "en": "One-sample normal mean tests",
+            "plain": "总体方差已知用 Z；方差未知且总体正态，用估计标准误得到 t。",
+            "statement": "检验 $H_0:\\mu=\\mu_0$：σ 已知时 $Z=(\\bar X-\\mu_0)/(\\sigma/\\sqrt n)\\sim N(0,1)$；σ 未知时 $T=(\\bar X-\\mu_0)/(S/\\sqrt n)\\sim t(n-1)$。双侧备择在绝对值大于下侧 $1-\\alpha/2$ 分位数时拒绝；右侧备择用 $T>q_{1-\\alpha}$，左侧用 $T<q_\\alpha$。这些分布是 $H_0$ 边界成立时的分布。",
+            "formula": "T=\\frac{\\bar X-\\mu_0}{S/\\sqrt n},\\qquad |T|>q_{1-\\alpha/2}(t(n-1))",
+            "conditions": "样本独立同分布，精确小样本 t 检验需正态总体；不是“n 小用 t、n 大用 Z”这么简单。配对前后比较可对每对差值使用此法。",
+            "proof": "由正态抽样定理，标准化均值为标准正态并与残差卡方独立，所以代入 S 后为 t。对称分布的两尾各安排 α/2，得到拒绝域总概率 α。单侧情况下把全部 α 安排到研究方向的一尾；另一方向的极端值并不支持这个备择。",
+            "example": "n=16，$\\bar x=10.5,s=2$，检验均值是否为 10，得 t=1。双侧 5% 临界值 $t_{0.975,15}\\approx2.131$，因此未拒绝均值为 10。",
+            "pitfall": "未拒绝只说明数据反证不足；不能写成“证明均值恰等于 10”。",
+            "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "two-sample-mean-tests",
+            "title": "独立两样本、配对样本与 Welch 方法",
+            "en": "Two-sample and paired tests",
+            "plain": "数据如何配对和两个方差是否相同，决定均值差的标准误。",
+            "statement": "独立正态样本、两个方差已知时，均值差用 Z 标准化。两个方差未知但相等时，采用合并方差 $S_p^2$，统计量见下式，原假设为 $\\mu_1-\\mu_2=\\Delta_0$。若方差不等，用 Welch 统计量，标准误 $\\sqrt{S_1^2/n_1+S_2^2/n_2}$，并采用近似自由度。若来自同一对象前后测量，应对差值 $D_i=X_i-Y_i$ 做单样本 t 检验。",
+            "formula": "T=\\frac{\\bar X-\\bar Y-\\Delta_0}{S_p\\sqrt{1/n_1+1/n_2}}\\sim t(n_1+n_2-2)",
+            "conditions": "合并法依赖总体方差相等及两组独立。Welch 自由度为 $(v_1+v_2)^2/[v_1^2/(n_1-1)+v_2^2/(n_2-1)]$，其中 $v_j=S_j^2/n_j$，属近似方法。",
+            "proof": "独立样本给出均值差方差为 $\\sigma_1^2/n_1+\\sigma_2^2/n_2$。相等方差时提取共同 σ²，并将两个独立残差平方和相加，得到自由度相加的卡方变量；它独立于均值差，形成精确 t。配对情形则 $D(X-Y)=D(X)+D(Y)-2\\operatorname{Cov}(X,Y)$，保留配对协方差可更准确地度量变化。Welch 用矩匹配近似分母分布，不能宣称任意方差下精确 t。",
+            "example": "n₁=n₂=10，s₁²=s₂²=4，均值差 1，则合并标准误为 $2\\sqrt{1/10+1/10}=\\sqrt{0.8}$，t≈1.118，自由度 18。",
+            "pitfall": "“两组容量相同”不等于“总体方差相等”；同一对象的两次测量也不应当作独立。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "8.3",
+        "title": "正态总体方差的假设检验",
+        "concepts": [
+          {
+            "id": "variance-tests",
+            "title": "单方差 χ² 检验与方差比 F 检验",
+            "en": "Tests of normal variances",
+            "plain": "方差过大和过小都可能与原假设不符，双侧尾部并不对称。",
+            "statement": "单正态总体检验 $H_0:\\sigma^2=\\sigma_0^2$，$V=(n-1)S^2/\\sigma_0^2\\sim\\chi^2(n-1)$。双侧拒绝域为 $V<q_{\\alpha/2}$ 或 $V>q_{1-\\alpha/2}$；检验方差增大只用右尾。两个独立正态总体检验方差比为 r₀，统计量 $F=(S_1^2/S_2^2)/r_0\\sim F(n_1-1,n_2-1)$，按相应左右尾分位数作判断。",
+            "formula": "V=\\frac{(n-1)S^2}{\\sigma_0^2},\\qquad F=\\frac{S_1^2/S_2^2}{r_0}",
+            "conditions": "精确分布依赖正态性，方差检验对非正态较敏感。两样本 F 法还要求独立。",
+            "proof": "将正态抽样枢轴中的未知方差替换为原假设给定值即可得到 $H_0$ 下的分布。连续分布的下侧 α/2 尾和上侧 α/2 尾互斥，总概率 α；这正是双侧拒绝域控制第一类错误的理由。F 由两个独立卡方量按自由度缩放后相除得到，顺序由样本编号决定。",
+            "example": "n=10、s²=4，检验 σ₀²=1，V=36，大于 χ²(9) 的 0.975 分位数 19.023，因此双侧 5% 水平拒绝。",
+            "pitfall": "χ² 与 F 不对称，不能写成“绝对值大于同一个临界值”；擅自把较大样本方差放分子后必须同步调整尾概率。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "8.4",
+        "title": "*置信区间与假设检验之间的关系",
+        "concepts": [
+          {
+            "id": "test-interval-duality",
+            "title": "反演检验得到置信集合",
+            "en": "Test–confidence set duality",
+            "plain": "把所有未被同一检验规则拒绝的参数值收集起来，就得到对应置信集合。",
+            "statement": "对每个 θ₀ 构造水平 α 的检验，令 $C(X)=\\{\\theta_0:\\text{数据未拒绝 }H_0:\\theta=\\theta_0\\}$。则 C 是覆盖率至少 1−α 的置信集合；在常见单参数连续问题中它往往是区间。双侧等尾 t 检验与双侧等尾 t 区间互为反演。单侧检验对应单侧置信界，不能任意拿另一个区间来比较。",
+            "formula": "\\theta_0\\notin C(X)\\quad\\Longleftrightarrow\\quad\\text{对应检验拒绝 }\\theta_0",
+            "conditions": "需保持同一模型、同一显著性水平与同一尾部约定；保守或离散检验对应的覆盖率可能大于 1−α。",
+            "proof": "当真参数为 θ 时，事件“θ 不在 C(X)”按定义就是“检验真原假设 θ 时拒绝”。其概率不超过 α，故 $P_\\theta(\\theta\\in C(X))\\ge1-\\alpha$。t 情形的未拒绝条件 $|\\bar X-\\mu_0|\\le tS/\\sqrt n$，对 μ₀ 解不等式即得均值置信区间。",
+            "example": "均值 95% 区间为 [1.2,2.8]，则同一双侧 5% 检验拒绝 μ=1，未拒绝 μ=2。不能据此断言所有区间内值都具有同样的后验概率。",
+            "pitfall": "双侧 95% 区间与单侧 5% 检验并非直接的一一对应，方向和尾概率必须一致。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "8.5",
+        "title": "*样本容量的选取",
+        "concepts": [
+          {
+            "id": "power-sample-size",
+            "title": "样本量：同时指定显著性、功效与效应大小",
+            "en": "Power and sample size",
+            "plain": "只给显著性水平不能决定样本量，还需说明希望检出的差异有多大。",
+            "statement": "已知 σ 的正态均值右侧检验，设最小关注提升 $\\delta=\\mu_1-\\mu_0>0$，希望水平 α、在 μ₁ 下功效至少 1−β，则样本量满足下式。结果应向上取整。若目标是双侧置信区间半宽不超过 d，已知 σ 时需 $n\\ge(z_{1-\\alpha/2}\\sigma/d)^2$。两者分别面向检出能力与估计精度。",
+            "formula": "n\\ge\\left(\\frac{\\sigma(z_{1-\\alpha}+z_{1-\\beta})}{\\delta}\\right)^2",
+            "conditions": "此功效公式对已知 σ、正态单侧均值检验精确；未知 σ、小样本 t 检验需以相应功效分布计算，不能无条件直接套用。",
+            "proof": "拒绝阈值为 $c=\\mu_0+z_{1-\\alpha}\\sigma/\\sqrt n$。在 μ₁ 下第二类错误概率为 $P_{\\mu_1}(\\bar X\\le c)=\\Phi(z_{1-\\alpha}-\\delta\\sqrt n/\\sigma)$。要求它不超过 β，利用 $z_\\beta=-z_{1-\\beta}$，移项得 $\\delta\\sqrt n/\\sigma\\ge z_{1-\\alpha}+z_{1-\\beta}$，平方后得样本量条件。",
+            "example": "σ=10，希望检出 δ=5，α=0.05、功效 0.8，取 z₀.₉₅=1.645、z₀.₈=0.842，得 $n\\ge[10(1.645+0.842)/5]^2\\approx24.74$，故取 25。",
+            "pitfall": "样本量不能四舍五入向下；实际效应比规划值更小时，即使照计划取样也可能功效不足。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      },
+      {
+        "id": "8.6",
+        "title": "分布拟合检验",
+        "concepts": [
+          {
+            "id": "goodness-of-fit",
+            "title": "Pearson χ² 分布拟合检验",
+            "en": "Chi-square goodness-of-fit test",
+            "plain": "比较各类别的观测频数与原假设所预测的频数，并按预测规模标准化差异。",
+            "statement": "将样本划分为 k 个互斥且穷尽的类别，原假设概率为 pⱼ，观测频数 Oⱼ、期望频数 Eⱼ=npⱼ。Pearson 统计量为各组 $(O_j-E_j)^2/E_j$ 的和。概率完全给定且类别固定、pⱼ>0 时，大样本下近似 χ²(k−1)。若从同一分组频数中用正则最大似然方法估计 m 个可识别参数，通常自由度为 k−1−m；参数估计方法与正则条件影响这一结论。",
+            "formula": "X^2=\\sum_{j=1}^k\\frac{(O_j-E_j)^2}{E_j}",
+            "conditions": "独立观测、固定类别、期望频数不宜过小；“各组至少 5”是常用保守经验检查而非数学定理。稀疏类别宜按预定合理规则合并，或使用精确/模拟校准。",
+            "proof": "在完全给定概率下，多项频数的中心极限定理给出标准化误差向量渐近多元正态。总频数固定使它满足一个线性约束，因此协方差只有 k−1 个有效方向；在这些正交方向上平方和趋于 χ²(k−1)。估计参数进一步拟合掉 m 个方向，得到通常的自由度扣减；严格结论依赖正则多项模型的渐近理论，此处给出推导结构而非冒充完整高阶证明。",
+            "example": "四类别理论等可能，n=100，观测 20、30、25、25，则期望各 25，$X^2=(25+25)/25=2$，自由度 3；5% 临界值约 7.815，未拒绝等可能模型。",
+            "pitfall": "未拒绝不能证明分布正确；连续数据分组会损失信息。不能忽略已经估计的参数，也不能随意把全部原始数据 MLE 的结论当成分组 MLE 的精确自由度定理。",
+            "proofTitle": "渐近依据与使用步骤"
+          }
+        ]
+      },
+      {
+        "id": "8.7",
+        "title": "*列联表的独立性检验和齐一性检验",
+        "concepts": [
+          {
+            "id": "contingency-tests",
+            "title": "列联表：独立性与齐一性检验",
+            "en": "Contingency-table tests",
+            "plain": "独立性问两个分类变量是否关联；齐一性问不同总体的类别比例是否相同。",
+            "statement": "r×c 列联表观测频数 Oᵢⱼ，行和 Oᵢ₊、列和 O₊ⱼ、总数 n。独立性原假设为 $p_{ij}=p_{i+}p_{+j}$，拟合期望频数 $E_{ij}=O_{i+}O_{+j}/n$。齐一性从多个独立总体分别抽样，原假设为各总体的类别概率向量相同；使用相同形式统计量与自由度，但抽样设计及解释不同。",
+            "formula": "X^2=\\sum_{i=1}^r\\sum_{j=1}^c\\frac{(O_{ij}-E_{ij})^2}{E_{ij}}\\ \\dot\\sim\\ \\chi^2((r-1)(c-1))",
+            "conditions": "观测单位应独立；不能把同一人的多次计数当作独立单位。零边际行列需处理，期望频数过小会使渐近近似变差。",
+            "proof": "独立模型中极大似然边缘概率由相应边际比例给出，相乘得到 Eᵢⱼ/n。一般 rc 类多项概率有 rc−1 个自由参数，独立模型有 (r−1)+(c−1) 个，差为 (r−1)(c−1)，对应渐近残差维数。齐一性有固定的各行样本量，比较各行完整概率模型与共同概率模型，同样得到该维数。完整 χ² 极限依赖多项模型渐近理论。",
+            "example": "2×2 表两行分别为 (30,20)、(20,30)，行列和均为 50，总数 100，期望均 25，统计量为 4，自由度 1；5% 临界值 3.841，拒绝独立性。",
+            "pitfall": "显著关联不证明因果；不要把观测频数 O 与期望频数 E 混淆，稀疏条件检查的是 E。",
+            "proofTitle": "期望频数与自由度的推导"
+          }
+        ]
+      },
+      {
+        "id": "8.8",
+        "title": "假设检验问题的p值法",
+        "concepts": [
+          {
+            "id": "p-value",
+            "title": "p 值：原假设下更极端结果的概率",
+            "en": "p-value",
+            "plain": "p 值衡量当前统计量在原假设下有多极端，不是原假设为真的概率。",
+            "statement": "给定预先约定的检验方向，p 值是在原假设下得到“至少与观测结果一样支持备择”的统计量的概率；也可理解为使该数据被拒绝的最小显著性水平。连续单侧右尾检验为 $p=P_0(T\\ge t_{obs})$；对称的双侧 Z、t 检验为两倍绝对统计量对应的上尾。若 p≤α 则拒绝，否则未拒绝。",
+            "formula": "p_{\\text{双侧 Z}}=2[1-\\Phi(|z_{obs}|)]",
+            "conditions": "“更极端”的定义取决于统计量与备择方向。双侧 χ² 或 F 等不对称问题必须说明尾部规则，不可机械套正态绝对值公式。",
+            "proof": "连续简单原假设下，若 T 的原假设分布函数为 F₀，概率积分变换给出 F₀(T) 服从 U(0,1)，故右尾 p=1−F₀(T) 也均匀，从而 $P_0(p\\le\\alpha)=\\alpha$。离散检验通常使 p 值保守，满足该概率不超过 α。双侧对称检验两尾等概率，故把单侧上尾乘 2。",
+            "example": "z=2 时右尾 p≈0.0228，双侧 p≈0.0455；若备择原先指定左尾，p≈0.9772。相同数据的 p 值随研究方向而不同，但方向不能看到数据后随意选择。",
+            "pitfall": "p=0.03 不表示 H₀ 只有 3% 概率为真，也不表示效应大小为 3%；多次挑选检验会改变整体错误率。",
+            "proofTitle": "性质与分步推导"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "方差分析及回归分析",
+    "summary": "把数据波动拆开：比较组均值，建立回归关系，并检查模型能否支撑推断。",
+    "sections": [
+      {
+        "id": "9.1",
+        "title": "单因素试验的方差分析",
+        "concepts": [
+          {
+            "id": "one-way-anova",
+            "title": "单因素方差分析：平方和如何产生 F 检验",
+            "en": "One-way ANOVA",
+            "plain": "同一因素有多个水平；比较组间差异是否超过组内随机波动。",
+            "statement": "**因素**是研究的条件，**水平**是该条件的具体取值，**响应**是观测结果。固定效应模型 $Y_{ij}=\\mu_i+\\varepsilon_{ij}$，$i=1,\\ldots,a$，各组样本量为 $n_i$，总量 $N=\\sum n_i$。检验 $H_0:\\mu_1=\\cdots=\\mu_a$。\n\n记总均值 $\\bar Y=\\sum n_i\\bar Y_i/N$。总平方和 $S_T=\\sum_{ij}(Y_{ij}-\\bar Y)^2$，组间平方和 $S_A=\\sum_i n_i(\\bar Y_i-\\bar Y)^2$，组内（误差）平方和 $S_E=\\sum_{ij}(Y_{ij}-\\bar Y_i)^2$。**自由度**分别为 $N-1,a-1,N-a$；平方和除以对应自由度得到**均方**。拒绝总体均值相等只说明至少一组不同，不能直接断言所有组两两不同。",
+            "formula": "F=\\frac{S_A/(a-1)}{S_E/(N-a)}\\sim F(a-1,N-a)\\quad(H_0)",
+            "conditions": "经典精确 F 检验要求误差相互独立且均为 $N(0,\\sigma^2)$，$a\\ge2,N>a$。正态、等方差与独立性是模型假设，不是样本均值接近就自动成立。",
+            "proof": "先写 $Y_{ij}-\\bar Y=(Y_{ij}-\\bar Y_i)+(\\bar Y_i-\\bar Y)$。展开平方后交叉项为 $2\\sum_i(\\bar Y_i-\\bar Y)\\sum_j(Y_{ij}-\\bar Y_i)=0$，故 $S_T=S_A+S_E$。\n\n在 $H_0$ 下，观测向量减去共同均值是球形正态向量。将它投影到“各组常数且与全 1 向量正交”的空间（维数 $a-1$）和“每组内和为 0”的空间（维数 $N-a$）；二者正交。取正交标准基后，各坐标是独立的 $N(0,\\sigma^2)$，因此 $S_A/\\sigma^2$ 与 $S_E/\\sigma^2$ 分别是上述自由度的卡方变量且独立，其均方比即 F 分布。",
+            "example": "两组数据 $(1,2,3)$ 与 $(4,5,6)$：总均值 3.5，$S_A=13.5,S_E=4,S_T=17.5$，故 $F=13.5/(4/4)=13.5$，自由度为 $(1,4)$。",
+            "pitfall": "把多次来自同一实验单位的测量当作独立重复，会低估误差；逐对做许多 t 检验还会增加整体误报概率。"
+          }
+        ]
+      },
+      {
+        "id": "9.2",
+        "title": "双因素试验的方差分析",
+        "concepts": [
+          {
+            "id": "two-way-anova",
+            "title": "双因素：主效应、交互作用与重复试验",
+            "en": "Two-way ANOVA",
+            "plain": "一个因素的效果可能随另一个因素的水平而改变，这就是交互作用。",
+            "statement": "平衡固定效应模型 $Y_{ijk}=\\mu+\\alpha_i+\\beta_j+\\gamma_{ij}+\\varepsilon_{ijk}$，$i\\le a,j\\le b,k\\le r$。约束 $\\sum\\alpha_i=\\sum\\beta_j=0$，交互项每行、每列和为 0。**主效应**是对另一因素各水平平均后的差异；**交互作用** $\\gamma_{ij}$ 是偏离可加模型的部分。\n\n$S_A=br\\sum_i(\\bar Y_{i..}-\\bar Y_{...})^2$，$S_B=ar\\sum_j(\\bar Y_{.j.}-\\bar Y_{...})^2$，$S_{AB}=r\\sum_{ij}(\\bar Y_{ij.}-\\bar Y_{i..}-\\bar Y_{.j.}+\\bar Y_{...})^2$，$S_E=\\sum_{ijk}(Y_{ijk}-\\bar Y_{ij.})^2$。四个自由度是 $a-1,b-1,(a-1)(b-1),ab(r-1)$。各效应的均方与误差均方之比，在该效应为零的原假设下服从相应 F 分布。\n\n**无重复试验 $r=1$**：完整含交互模型的误差自由度为 0，不能独立估计纯误差并检验交互。仅在额外假定无交互时，才可将剩余平方和用作加性模型误差，自由度为 $(a-1)(b-1)$。",
+            "formula": "S_T=S_A+S_B+S_{AB}+S_E",
+            "conditions": "经典精确检验要求独立、正态、同方差误差；上述正交分解和简单 F 比针对每格同样重复数的平衡设计。显著交互存在时应结合简单效应解释，不能只看平均主效应。",
+            "proof": "将偏差分成“行均值偏差＋列均值偏差＋单元格交互偏差＋格内残差”。每一部分在另一部分变化的指标上求和为 0，所以所有交叉乘积求和均为 0，得平方和分解。每个单元格 r 个残差和为 0，提供 $r-1$ 个自由度；交互矩阵的行、列约束共有 $a+b-1$ 个独立约束，故交互自由度为 $ab-(a+b-1)=(a-1)(b-1)$。正态向量在这些正交空间的投影独立；零效应下相应平方和除以 $\\sigma^2$ 为中心卡方，因而得到 F 比。",
+            "example": "$2\\times3$ 设计每格重复 4 次，四个自由度为 $1,2,2,18$，总和 $23=N-1$。若每格仅一次则误差自由度降为 0，不能仍使用含交互模型的 F 检验。",
+            "pitfall": "无重复不能凭软件输出“补出”交互误差；随机效应或混合效应设计的 F 分母也不能照抄固定效应模型。"
+          }
+        ]
+      },
+      {
+        "id": "9.3",
+        "title": "一元线性回归",
+        "concepts": [
+          {
+            "id": "simple-regression",
+            "title": "一元回归：估计、斜率检验和两类区间",
+            "en": "Simple linear regression",
+            "plain": "拟合平均趋势与预测一个新观测，是两件不确定性不同的事。",
+            "statement": "模型 $Y_i=\\beta_0+\\beta_1x_i+\\varepsilon_i$。记 $S_{xx}=\\sum(x_i-\\bar x)^2,S_{xy}=\\sum(x_i-\\bar x)(Y_i-\\bar Y)$；最小二乘估计 $\\hat\\beta_1=S_{xy}/S_{xx},\\hat\\beta_0=\\bar Y-\\hat\\beta_1\\bar x$。残差 $e_i=Y_i-\\hat Y_i$，$s^2=\\sum e_i^2/(n-2)$。\n\n斜率检验用 $T=(\\hat\\beta_1-\\beta_{10})/(s/\\sqrt{S_{xx}})$。在 $x_0$ 处，均值估计 $\\hat m_0=\\hat\\beta_0+\\hat\\beta_1x_0$ 的标准误为 $s\\sqrt{h_0}$，$h_0=1/n+(x_0-\\bar x)^2/S_{xx}$；新个体预测标准误为 $s\\sqrt{1+h_0}$。两类双侧区间分别为估计值加减 $t_{1-\\alpha/2,n-2}$ 乘对应标准误。这里 t 下标表示下侧累计概率分位数。含截距时 $R^2=1-S_E/S_T$ 是拟合解释的变异比例，不能解释为因果效应。",
+            "formula": "\\hat\\beta_1=\\frac{S_{xy}}{S_{xx}},\\qquad T\\sim t(n-2)\\quad(H_0)",
+            "conditions": "$n>2,S_{xx}>0$；固定设计或条件于设计，误差均值 0、独立同方差保证无偏与方差公式；精确 t 区间再要求正态。新观测的误差需与原样本独立且同方差。",
+            "proof": "对 $Q=\\sum(Y_i-b_0-b_1x_i)^2$ 分别求导置零，得 $\\sum e_i=\\sum x_ie_i=0$；解正规方程即得估计式。代入模型，$\\hat\\beta_1-\\beta_1=\\sum(x_i-\\bar x)\\varepsilon_i/S_{xx}$，所以方差为 $\\sigma^2/S_{xx}$。又 $\\bar\\varepsilon$ 与此加权误差的协方差为 0，故 $\\operatorname{Var}(\\hat m_0)=\\sigma^2h_0$。正态下拟合部分和残差投影独立，残差平方和除以方差为 $\\chi^2(n-2)$，标准化比值得 t 分布。预测误差还含一个独立新误差，故多出 $\\sigma^2$，形成 $1+h_0$。",
+            "example": "数据 $(x,y)=(0,1),(1,2),(2,2)$：$S_{xx}=2,S_{xy}=1$，故 $\\hat y=7/6+x/2$，残差平方和为 $1/6$，$s^2=1/6$。在样本均值 $x_0=1$ 处估计均值最精确。",
+            "pitfall": "预测区间不能用均值置信区间替代；远离观测范围的外推即使代入公式也可能因模型失效而不可信。"
+          }
+        ]
+      },
+      {
+        "id": "9.4",
+        "title": "多元线性回归",
+        "concepts": [
+          {
+            "id": "multiple-regression",
+            "title": "多元回归与一般线性假设",
+            "en": "Multiple regression",
+            "plain": "多个解释变量一起进入模型；一个系数表示控制其余变量后的线性差异。",
+            "statement": "模型 $Y=X\\beta+\\varepsilon$，设计矩阵 X 有 n 行、p 列（p 包括截距列）。满列秩时最小二乘解为 $(X^TX)^{-1}X^TY$；$H=X(X^TX)^{-1}X^T$ 为投影矩阵，$\\hat Y=HY,e=(I-H)Y$。\n\n$\\operatorname{Cov}(\\hat\\beta)=\\sigma^2(X^TX)^{-1}$，$s^2=e^Te/(n-p)$。比较嵌套的约束模型 R 与完整模型 F，约束有 q 个独立条件时，用 $[(SSE_R-SSE_F)/q]/[SSE_F/(n-p)]$ 检验。整体斜率检验的约束是所有非截距系数为 0。某个系数显著，不等于该变量具有已证明的因果作用。",
+            "formula": "\\hat\\beta=(X^TX)^{-1}X^TY,\\qquad F=\\frac{(SSE_R-SSE_F)/q}{SSE_F/(n-p)}",
+            "conditions": "$\\operatorname{rank}(X)=p<n$；比较必须使用同一批观测和嵌套模型。误差条件均值 0、协方差 $\\sigma^2I$；精确 t/F 推断要求条件正态。",
+            "proof": "梯度 $-2X^T(Y-Xb)=0$ 给出正规方程。满列秩保证 $X^TX$ 正定，驻点是唯一极小值。代入 $Y=X\\beta+\\varepsilon$ 得估计误差 $(X^TX)^{-1}X^T\\varepsilon$，直接计算期望与协方差给出无偏及方差公式。H 对称且幂等，所以其秩为 p，I−H 的秩为 n−p。在正态模型中投影到正交子空间的误差独立；在约束成立时，新增 q 维拟合空间只解释噪声，故增量平方和和完整残差平方和是独立的缩放卡方，由此得到 F 分布。",
+            "example": "同一批 20 个观测，完整模型含截距和 3 个斜率（p=4），$SSE_F=32$；只保留截距的模型 $SSE_R=80$。整体检验 $F=[(80-32)/3]/(32/16)=8$，自由度 $(3,16)$。",
+            "pitfall": "删去缺失值后，两模型可能用了不同观测，这时不能直接相减 SSE 作嵌套 F 检验。"
+          }
+        ]
+      },
+      {
+        "id": "9.5",
+        "title": "*多重共线性",
+        "concepts": [
+          {
+            "id": "multicollinearity",
+            "title": "多重共线性：系数为何不稳定",
+            "en": "Multicollinearity",
+            "plain": "解释变量彼此近似重复，数据很难区分每个变量各自的贡献。",
+            "statement": "**完全共线性**是 X 的列存在非零线性组合等于 0，系数不能唯一识别；**近似共线性**是某列接近其余列的线性组合，估计方差可能很大。对含截距模型，将第 j 个解释变量用其余变量回归，记辅助回归决定系数为 $R_j^2$，**方差膨胀因子** $VIF_j=1/(1-R_j^2)$。较大的 VIF 是诊断线索，不能单靠任意固定阈值判定模型一定无效。",
+            "formula": "\\operatorname{Var}(\\hat\\beta_j)=\\frac{\\sigma^2}{\\sum_i(x_{ij}-\\bar x_j)^2(1-R_j^2)}",
+            "conditions": "方差公式针对满秩固定设计、同方差不相关误差。辅助回归包含截距。共线性与误差自相关是不同问题。",
+            "proof": "令 $r_j$ 是 x 的第 j 列对其他列投影后的残差。正规方程消去其他系数后，$\\hat\\beta_j=r_j^TY/(r_j^Tr_j)$。因为 $r_j$ 与其他列正交，估计误差为 $r_j^T\\varepsilon/(r_j^Tr_j)$，方差为 $\\sigma^2/(r_j^Tr_j)$。辅助回归的残差平方和是该列总离差平方和乘 $(1-R_j^2)$，代入即得公式。若 $R_j^2=1$，残差方向消失，单独系数无法识别。",
+            "example": "若 $R_j^2=0.96$，VIF=25；在该列总离差平方和固定的比较下，方差为无相关解释变量情形的 25 倍，标准误为 5 倍。",
+            "pitfall": "高 R² 与各个斜率不显著可以同时发生；“多收集高度重复的变量”不一定增加可识别的信息。"
+          }
+        ]
+      },
+      {
+        "id": "9.6",
+        "title": "*岭估计",
+        "concepts": [
+          {
+            "id": "ridge-regression",
+            "title": "岭估计：用偏差交换稳定性",
+            "en": "Ridge regression",
+            "plain": "给过大的系数加惩罚，减轻近共线性带来的估计波动。",
+            "statement": "先中心化响应和解释变量，通常还需标准化各解释变量；截距单独恢复且通常不受惩罚。**岭估计**最小化 $\\lVert Y-Xb\\rVert^2+\\lambda\\lVert b\\rVert^2$，$\\lambda>0$。其偏差是 $-\\lambda(X^TX+\\lambda I)^{-1}\\beta$，所以一般不再无偏。调参可使用训练集内交叉验证，测试集应保留用于最终评估。",
+            "formula": "\\hat\\beta_\\lambda=(X^TX+\\lambda I)^{-1}X^TY",
+            "conditions": "此式只惩罚中心化后的斜率；若模型保留截距列，惩罚矩阵的截距位置应为 0。λ 依赖损失函数是否除以 n 的约定，不能跨软件直接比较数值。",
+            "proof": "目标函数求导得 $(X^TX+\\lambda I)b=X^TY$。对任意非零 v，$v^T(X^TX+\\lambda I)v=\\lVert Xv\\rVert^2+\\lambda\\lVert v\\rVert^2>0$，故解唯一，即使 X 不满秩也成立。设 $X^TX$ 某特征方向的特征值为 d>0，OLS 在该方向的方差为 $\\sigma^2/d$，岭估计方差为 $\\sigma^2d/(d+\\lambda)^2$，因而下降；但该方向均值被乘以 $d/(d+\\lambda)$，产生偏差。均方误差等于方差加偏差平方，故任意 λ 并不都改善任意参数的误差。",
+            "example": "若中心化设计满足 $X^TX=10I$，λ=2，则 $\\hat\\beta_\\lambda=(5/6)\\hat\\beta_{OLS}$。当 λ 趋于无穷大时斜率趋于 0，拟合趋向响应均值。",
+            "pitfall": "岭估计通常缩小但不会将系数精确压为 0；不能直接沿用普通最小二乘的标准误和 t 检验。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "bootstrap 方法（自助法）",
+    "summary": "用可重复的重抽样近似统计量的抽样规律，并明确近似依赖什么假设。",
+    "sections": [
+      {
+        "id": "10.1",
+        "title": "非参数bootstrap方法",
+        "concepts": [
+          {
+            "id": "nonparametric-bootstrap",
+            "title": "非参数 bootstrap：把经验分布当作临时总体",
+            "en": "Nonparametric bootstrap",
+            "plain": "从已观测样本中有放回地重抽样，模拟“再做一次抽样”。",
+            "statement": "经验分布 $F_n(x)=n^{-1}\\sum_i I(X_i\\le x)$ 在每个观测位置放质量 $1/n$（重复值合并质量）。给定原样本，从 $F_n$ 独立抽取 n 个值得到 bootstrap 样本；重复 B 次，分别计算 $T_b^*$。条件分布中常比较 $T^*-\\hat\\theta$ 与真实抽样中 $\\hat\\theta-\\theta$。偏差估计为 $\\bar T^*-\\hat\\theta$，标准误估计为 bootstrap 统计量的样本标准差。百分位区间取 $T^*$ 的两端经验分位数，但并非所有统计量都具有良好覆盖率。",
+            "formula": "\\widehat{se}_{boot}=\\sqrt{\\frac{1}{B-1}\\sum_{b=1}^B(T_b^*-\\bar T^*)^2}",
+            "conditions": "普通逐点重抽样适用于独立同分布抽样及相应规则性条件。相关时间序列通常需要区组等方法；样本极值、边界参数等可能使普通 bootstrap 失效。B 增大只减少模拟误差，不能修复抽样偏差。",
+            "proof": "以样本均值为可直接核验的例子。给定数据，$E_*(X_i^*)=\\bar X$，$\\operatorname{Var}_*(X_i^*)=n^{-1}\\sum(X_i-\\bar X)^2$。重抽样独立，所以 $E_*(\\bar X^*)=\\bar X$ 且 $\\operatorname{Var}_*(\\bar X^*)=n^{-2}\\sum(X_i-\\bar X)^2$。这说明 bootstrap 在均值问题中怎样用经验离差代替未知总体方差；一般统计量的一致性需要另外证明，不能由此例一概推出。",
+            "example": "数据为 $(0,2)$，抽 2 个并允许重复，四个等可能有序样本产生均值 $0,1,1,2$，bootstrap 均值为 1、条件方差为 $1/2$。",
+            "pitfall": "不放回抽 n 个只是打乱原样本，均值完全不变，不能估计其抽样标准误。",
+            "proofTitle": "方法依据与可核验的推导"
+          }
+        ]
+      },
+      {
+        "id": "10.2",
+        "title": "参数bootstrap方法",
+        "concepts": [
+          {
+            "id": "parametric-bootstrap",
+            "title": "参数 bootstrap：先拟合模型，再模拟样本",
+            "en": "Parametric bootstrap",
+            "plain": "重抽样的对象变为拟合出来的概率模型，而不是经验分布。",
+            "statement": "假设数据来自参数族 $F_\\theta$，先用原样本估计 $\\hat\\theta$，每次从 $F_{\\hat\\theta}$ 独立生成 n 个值，并按原流程重新拟合、重新计算统计量。它可用于标准误、偏差、置信区间及复杂估计量的抽样分布近似。与非参数方法相比，它加入分布族假设，能生成未在原样本出现的数值，也更依赖模型正确性。",
+            "formula": "X_1^*,\\ldots,X_n^*\\mid X\\overset{iid}{\\sim}F_{\\hat\\theta}",
+            "conditions": "拟合模型应能合理描述数据，样本量与重新拟合流程必须保持对应；固定估计参数用于生成样本，不代表重抽样内不再估计参数。",
+            "proof": "若 $X_i\\sim\\operatorname{Poisson}(\\lambda)$，MLE 为 $\\hat\\lambda=\\bar X$。参数 bootstrap 生成独立 $\\operatorname{Poisson}(\\bar X)$ 样本，故重估量 $\\hat\\lambda^*=\\bar X^*$ 的条件均值为 $\\bar X$、条件方差为 $\\bar X/n$。真实估计方差为 $\\lambda/n$；此处以一致估计量替换未知 λ，直接揭示近似机制。这是该模型下的推导，不是任意参数族、任意统计量的万能保证。",
+            "example": "泊松样本 n=25、样本均值 4 时，bootstrap 估计均值的理论条件标准差为 $\\sqrt{4/25}=0.4$；实际有限 B 的模拟值应在其附近波动。",
+            "pitfall": "只对原数据加任意正态噪声不自动成为合法的参数 bootstrap；噪声模型必须和抽样模型一致。",
+            "proofTitle": "方法依据与可核验的推导"
+          }
+        ]
+      },
+      {
+        "id": "10.3",
+        "title": "bootstrap假设检验方法举例",
+        "concepts": [
+          {
+            "id": "bootstrap-null-test",
+            "title": "bootstrap 检验：必须在原假设下生成参照分布",
+            "en": "Bootstrap hypothesis testing",
+            "plain": "检验问的是“原假设为真时，这么极端的数据多常见”，所以模拟模型必须满足原假设。",
+            "statement": "检验 $H_0:\\mu=\\mu_0$ 时，可在适当的独立同分布均值模型下先中心化数据为 $Z_i=X_i-\\bar X+\\mu_0$，再从这些值有放回重抽样。采用学生化统计量 $T=(\\bar X-\\mu_0)/(S/\\sqrt n)$，每次重抽样都重新计算 $T_b^*$。双侧比较通常使用绝对值尾部 $\\lvert T_b^*\\rvert\\ge\\lvert T_{obs}\\rvert$；参数模型检验则需用原假设约束下拟合的参数生成数据。\n\n有限 B 可报告带加一修正的模拟尾部比例 $(1+\\sum I)/(B+1)$，避免模拟中零次命中被写成“概率为零”。这是一般 bootstrap 情形的近似 p 值，不自动成为精确水平检验。",
+            "formula": "\\hat p=\\frac{1+\\sum_{b=1}^{B}I(\\lvert T_b^*\\rvert\\ge\\lvert T_{obs}\\rvert)}{B+1}",
+            "conditions": "均值中心化方法需要适合均值推断的 iid 样本与有限非零方差；不能把这一变换原封不动用于任意非线性原假设。若重抽样标准差为 0，应诊断数据退化并调整方法，而非静默删去失败样本。",
+            "proof": "中心化数据的经验均值为 $n^{-1}\\sum(X_i-\\bar X+\\mu_0)=\\mu_0$，所以它满足待检验的均值约束，同时保留样本内部的中心离差。普通未中心化重抽样却以 $\\bar X$ 为中心，不能直接充当 H0 的尾部参照。每次重新学生化让统计量以自身精度计量偏差。条件于拟合的零假设模型，各重复独立，尾部命中数近似按二项模拟波动，未修正比例的模拟标准误约为 $\\sqrt{p(1-p)/B}$。",
+            "example": "B=999 时有 39 次不小于观测绝对统计量，则修正比例为 40/1000=0.04。它同时有模型近似误差与 Monte Carlo 误差，不能因三位小数就认为结论精确。",
+            "pitfall": "把普通重抽样均值落在 0 一侧的比例直接叫“双侧 p 值”，既可能没满足 H0，也可能选错尾部。",
+            "proofTitle": "方法依据与可核验的推导"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "在数理统计中应用 R 软件",
+    "summary": "让计算服务于统计推理：明确数据结构、函数默认值与输出的含义。",
+    "sections": [
+      {
+        "id": "11.1",
+        "title": "概述",
+        "concepts": [
+          {
+            "id": "r-basics",
+            "title": "R 数据对象、缺失值与可重复计算",
+            "en": "R basics",
+            "plain": "先核对输入是什么，再解释软件算出的数字。",
+            "statement": "R 中向量保存同类元素，`data.frame` 按列保存变量，`factor` 表示分类水平，`NA` 表示缺失。`mean` 求均值，`var` 与 `sd` 使用分母 n−1 的样本方差和标准差。`set.seed` 控制伪随机流的起点；记录 R 版本、包版本、数据与代码比仅记录一个种子更完整。\n\n示例代码（教学代码，未在本页宣称已运行）：\n```r\nx <- c(2, 4, NA, 6)\nok <- !is.na(x)\nc(n = sum(ok), mean = mean(x[ok]), variance = var(x[ok]))\nset.seed(2026)\nsample.int(3, size = 3, replace = TRUE)\nsessionInfo()\n```\n直接删除缺失值是计算选择，也需要统计上解释缺失机制；它不自动消除偏差。",
+            "formula": "s^2=\\frac{1}{n-1}\\sum_{i=1}^n(x_i-\\bar x)^2",
+            "conditions": "方差至少要两个有效观测；样本数量应按有效值而非原向量长度计算。种子可复现的前提还包括兼容的算法版本和相同调用顺序。",
+            "proof": "将离差平方和展开得到 $\\sum(x_i-\\bar x)^2=\\sum x_i^2-n\\bar x^2$。在 iid 有限方差模型下，期望为 $n(\\sigma^2+\\mu^2)-n(\\sigma^2/n+\\mu^2)=(n-1)\\sigma^2$，因此分母 n−1 给出总体方差的无偏估计。这也解释 `var` 为何不使用经验分布方差的分母 n。",
+            "example": "有效数据 (2,4,6) 的均值为 4，样本方差为 4；将 NA 当作 0 会改变数据含义和计算结果。",
+            "pitfall": "sample(x) 默认不放回；对长度为 1 的正整数 x，sample 有抽取 1:x 的特殊行为。使用 sample.int(length(x),...) 抽索引更明确。",
+            "proofTitle": "方法依据 / 软件参数说明"
+          }
+        ]
+      },
+      {
+        "id": "11.2",
+        "title": "箱线图",
+        "concepts": [
+          {
+            "id": "r-boxplot",
+            "title": "箱线图：铰链、须与潜在离群点",
+            "en": "Box plots",
+            "plain": "箱体概括中间一半数据；须和散点帮助发现尾部与异常。",
+            "statement": "箱线图以中位数和上下铰链概括位置与离散程度；默认须延至距箱体端点不超过 1.5 倍箱宽的最远实际观测，超出者画成散点。R 的 `boxplot.stats` 使用 Tukey 风格铰链，小样本时不保证与默认 `quantile` 算出的四分位数完全一致。离群标记是探索线索，不是自动删点规则。\n```r\nx <- c(1, 2, 3, 4, 20)\nboxplot(x, horizontal = TRUE)\nboxplot.stats(x)$stats\nboxplot.stats(x)$out\n```",
+            "formula": "\\text{下围栏}=Q_L-1.5(Q_U-Q_L),\\quad\\text{上围栏}=Q_U+1.5(Q_U-Q_L)",
+            "conditions": "这里 QL、QU 指绘图实际使用的上下铰链。比较组间箱线图时还需查看样本量；箱体重叠与否不直接等于显著性检验结论。",
+            "proof": "对严格正的线性变换 $y=a+bx,b>0$，所有次序统计量及其平均形成的铰链都变为 $a+bQ$，箱宽乘 b，围栏也作同样变换；因此哪些观测越界保持不变。可见箱线图标记对改变原点和正比例单位不变。但非线性变换会改变相对间距，可能改变标记。",
+            "example": "数据 (1,2,3,4,20) 的铰链为 2 与 4，中位数 3，箱宽 2，上围栏 7。上须止于 4，20 单独标记；上须不是直接画到 7。",
+            "pitfall": "围栏是阈值，须端通常是某个实际观测；潜在离群点既可能是错误，也可能是真实且有价值的结果。",
+            "proofTitle": "方法依据 / 软件参数说明"
+          }
+        ]
+      },
+      {
+        "id": "11.3",
+        "title": "假设检验",
+        "concepts": [
+          {
+            "id": "r-hypothesis-tests",
+            "title": "t.test 的默认值与检验设计",
+            "en": "R hypothesis tests",
+            "plain": "软件函数同名，独立样本、配对样本与等方差设定却对应不同模型。",
+            "statement": "`t.test(x, mu=...)` 是单总体均值检验；`t.test(x,y)` 默认双侧 **Welch 两独立样本检验**，并不默认合并方差。`paired=TRUE` 对差值执行单样本 t 检验；`var.equal=TRUE` 才使用两组共同方差估计。`alternative=\"greater\"` 对两样本表示 x 的总体均值较大。\n```r\nx <- c(7, 8, 10, 11, 14)\ny <- c(6, 9, 9, 10, 12)\nt.test(x, y)                 # 独立样本 Welch\nt.test(x, y, paired = TRUE)  # 仅当逐项确为配对观测\n```\n以上两行展示不同设计的语法，不表示同一数据应任选较小的 p 值。",
+            "formula": "T_{Welch}=\\frac{\\bar X-\\bar Y-\\Delta_0}{\\sqrt{S_X^2/n_X+S_Y^2/n_Y}}",
+            "conditions": "选择检验前确定抽样设计与单双侧假设。Welch 的 t 自由度为近似值；配对要求每一对有实际对应，且不同对之间独立。",
+            "proof": "独立样本下均值差方差为 $\\sigma_X^2/n_X+\\sigma_Y^2/n_Y$，以两组样本方差代替得到 Welch 分母，其自由度用 Satterthwaite 近似。配对时令 $D_i=X_i-Y_i$，则 $\\operatorname{Var}(D)=\\sigma_X^2+\\sigma_Y^2-2\\operatorname{Cov}(X,Y)$，应由差值样本方差估计；忽略协方差将得到不同标准误。若差值 iid 正态，则 $(\\bar D-\\Delta_0)/(S_D/\\sqrt n)$ 精确服从 t(n−1)。",
+            "example": "上面示例差值为 (1,−1,1,1,2)，均值为 0.8；配对模型只分析这五个差值。两向量长度相同本身不足以证明配对成立。",
+            "pitfall": "p 值不是“原假设为真的概率”；未拒绝也不等于证明两个总体相同。",
+            "proofTitle": "方法依据 / 软件参数说明"
+          }
+        ]
+      },
+      {
+        "id": "11.4",
+        "title": "方差分析",
+        "concepts": [
+          {
+            "id": "r-anova",
+            "title": "在 R 中表达因素、主效应与交互",
+            "en": "ANOVA in R",
+            "plain": "公式写法决定模型空间，分类变量必须明确编码。",
+            "statement": "`aov(y ~ A, data=d)` 拟合单因素模型；`A+B` 仅主效应，`A*B` 展开为 `A+B+A:B`，包含交互。分类水平若用数字录入，应显式转为 factor。`aov` 基于线性模型；平衡设计的正交解释最清楚。非平衡设计中的顺序平方和可能随公式项顺序变化，不能把任意输出都当成唯一的“因素贡献”。\n```r\nd <- data.frame(y = c(1,2,3,4,5,6),\n                A = factor(rep(c(\"低\", \"高\"), each = 3)))\nfit <- aov(y ~ A, data = d)\nsummary(fit)\nplot(fitted(fit), residuals(fit))\n```",
+            "formula": "\\text{F 值}=\\frac{\\text{因素平方和}/\\text{因素自由度}}{\\text{残差平方和}/\\text{残差自由度}}",
+            "conditions": "示例只提供可审阅代码，未声称在当前环境运行 R。残差图用于发现问题，不能证明独立、正态或等方差；独立性首先来自实验设计。",
+            "proof": "a 水平因素在含截距模型中需要 a−1 个独立对比列；与截距共同张成“每组均值可独立变化”的 a 维空间。所以把数字 1、2、3 当一个数值预测量，只增加一维线性趋势，不能表示三个任意组均值。A*B 增加的交互空间有 (a−1)(b−1) 维，平衡设计时与主效应空间正交，对应第九章的平方和分解。",
+            "example": "三个剂量水平 1、2、3 若目标是任意组均值比较，用 factor；若目标明确是每单位剂量的线性趋势，可用数值变量。两者回答的问题不同。",
+            "pitfall": "每格只有一次观测却拟合 A*B，残差自由度可能为 0；不能依靠更换函数名解决设计缺少重复的问题。",
+            "proofTitle": "方法依据 / 软件参数说明"
+          }
+        ]
+      },
+      {
+        "id": "11.5",
+        "title": "线性回归",
+        "concepts": [
+          {
+            "id": "r-regression",
+            "title": "lm、残差诊断与 predict 的区间类型",
+            "en": "Regression in R",
+            "plain": "拟合、诊断、区间预测应围绕同一个统计模型进行。",
+            "statement": "`lm(y ~ x1 + x2, data=d)` 拟合含截距的加性回归。`coef` 提取系数，`residuals` 提取残差，`summary` 提供模型依赖的标准误与检验。`predict(...,interval=\"confidence\")` 为条件均值区间，`interval=\"prediction\"` 为新观测预测区间。\n```r\nd <- data.frame(x = 0:2, y = c(1,2,2))\nfit <- lm(y ~ x, data = d)\ncoef(fit)\npredict(fit, newdata = data.frame(x = 1), interval = \"confidence\")\npredict(fit, newdata = data.frame(x = 1), interval = \"prediction\")\n```\n应检查残差与拟合值关系、异常影响点、设计范围；不能因输出了 p 值便认为模型成立。",
+            "formula": "\\hat m(x_0)\\pm t_{1-\\alpha/2,n-p}s\\sqrt{x_0^T(X^TX)^{-1}x_0}",
+            "conditions": "此 x0 为含截距分量的列向量。区间公式要求满秩设计及正态同方差独立误差；新个体预测还加一个独立误差方差。",
+            "proof": "$\\hat m(x_0)=x_0^T\\hat\\beta$，由协方差矩阵得到 $\\operatorname{Var}(\\hat m)=\\sigma^2x_0^T(X^TX)^{-1}x_0$。新观测 $Y_0=x_0^T\\beta+\\varepsilon_0$ 与估计误差独立，因此 $Y_0-\\hat m$ 的方差再增加 $\\sigma^2$。这从数学上解释了 predict 两种 interval 选项的宽度差异。",
+            "example": "当 x=1 为样本中心时，均值区间围绕预测均值 5/3；新个体区间中心相同，但比均值区间更宽。",
+            "pitfall": "训练集拟合好不保证新数据预测好；若新数据因子出现训练集中没有的水平，也不能假装其系数已被估计。",
+            "proofTitle": "方法依据 / 软件参数说明"
+          }
+        ]
+      },
+      {
+        "id": "11.6",
+        "title": "bootstrap 方法",
+        "concepts": [
+          {
+            "id": "r-bootstrap",
+            "title": "用索引重抽样，实现可核对的 bootstrap",
+            "en": "Bootstrap in R",
+            "plain": "每次重抽样必须重复同一套统计量计算流程，不能只复制最终数字。",
+            "statement": "`boot::boot` 的普通非参数模式常将数据与重抽样索引传给统计函数；也可用基础 R 写出索引抽样。多列数据应整行抽样以保留观测内配对关系。\n```r\nx <- c(1, 3, 5, 7)\nset.seed(2026)\nB <- 2000\ntb <- replicate(B, {\n  ix <- sample.int(length(x), length(x), replace = TRUE)\n  mean(x[ix])\n})\nc(boot_mean = mean(tb), boot_se = sd(tb))\nquantile(tb, c(0.025, 0.975))\n# 包版本的等价统计函数：\n# boot::boot(x, statistic = function(d, i) mean(d[i]), R = B)\n```\n末行分位数为百分位区间示例，不自动保证准确的 95% 覆盖率。以上代码尚未在本任务环境执行 R。",
+            "formula": "\\operatorname{Var}_*(\\bar X^*)=\\frac{1}{n^2}\\sum_i(x_i-\\bar x)^2",
+            "conditions": "本代码用于 iid 数据均值标准误估计，不是原假设检验代码。模拟次数 B 应与精度目标相称，并报告种子、样本量和失败重抽样情况。",
+            "proof": "给定数据，索引 $I_1,\\ldots,I_n$ 独立均匀取自 1 到 n，因此 $X_j^*=x_{I_j}$ 的分布恰为经验分布。均值条件方差用独立性相加并除以 $n^2$，得上式。数据 (1,3,5,7) 的均值为 4、离差平方和 20，因此 bootstrap 均值条件方差为 20/16=1.25；大量模拟的标准差应趋近 $\\sqrt{1.25}$。",
+            "example": "模拟得到的 boot_se 不要求精确等于 $\\sqrt{1.25}$；有限 B 有随机误差。若误写 replace=FALSE，所有 tb 都为 4，标准误错误地变为 0。",
+            "pitfall": "回归的“抽行 pairs bootstrap”与固定设计下“抽残差 residual bootstrap”依赖不同模型；不能混淆。",
+            "proofTitle": "方法依据 / 软件参数说明"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "随机过程",
+    "summary": "从单个随机变量走向随时间变化的一族随机变量。",
+    "sections": [
+      {
+        "id": "12.1",
+        "title": "随机过程的概念",
+        "concepts": [
+          {
+            "id": "process-definition",
+            "title": "随机过程、状态空间与样本函数",
+            "en": "Stochastic processes",
+            "plain": "固定时间看随机变量，固定一次试验结果看一条时间轨迹。",
+            "statement": "**随机过程** $\\{X(t):t\\in T\\}$ 是定义在同一概率空间上的一族随机变量；T 为指标集（常是时间），每个变量的可能取值构成**状态空间**。固定 t 得到随机变量 $X(t)$；固定样本点 ω 得到**样本函数/轨道** $t\\mapsto X(t,\\omega)$。时间与状态都可各自离散或连续，这是两种独立的分类维度。",
+            "formula": "X:T\\times\\Omega\\longrightarrow\\mathbb R,\\qquad(t,\\omega)\\longmapsto X(t,\\omega)",
+            "conditions": "讨论均值、方差需对应矩存在；时间连续不意味着每条样本函数连续。给定单时刻分布仍不足以唯一确定过程。",
+            "proof": "反例说明联合结构不可缺：令 A 为等概率 ±1。过程一 $X_n=A$ 对所有 n 共用一个随机符号；过程二 $Y_n$ 为独立等概率 ±1。每个时刻它们的分布完全相同，但 $P(X_0=X_1)=1$，而 $P(Y_0=Y_1)=1/2$。所以必须用多时刻联合分布才能描述时间依赖。",
+            "example": "泊松计数过程：时间连续、状态为非负整数、轨道是阶梯函数。布朗运动：时间连续、状态连续，并具有几乎处处连续的轨道。",
+            "pitfall": "“连续时间过程”与“轨道连续过程”不是同一概念；只画一条轨道不能读出完整概率规律。"
+          }
+        ]
+      },
+      {
+        "id": "12.2",
+        "title": "随机过程的统计描述",
+        "concepts": [
+          {
+            "id": "process-moments",
+            "title": "有限维分布、均值、相关与协方差",
+            "en": "Statistical description of processes",
+            "plain": "均值描述平均轨迹，协方差描述不同时刻共同偏离均值的方式。",
+            "statement": "一维分布 $F_t(x)=P\\{X(t)\\le x\\}$；n 维分布记录 $P\\{X(t_1)\\le x_1,\\ldots,X(t_n)\\le x_n\\}$。二阶描述包括均值 $m(t)=EX(t)$、相关函数 $R(s,t)=E[X(s)X(t)]$、协方差函数 $C(s,t)=E[(X(s)-m(s))(X(t)-m(t))]$。方差是 $C(t,t)$。这里“相关函数”没有除以标准差，不等于相关系数。",
+            "formula": "C(s,t)=R(s,t)-m(s)m(t)",
+            "conditions": "本节讨论实值、有限二阶矩过程。相关系数还需两时刻方差非零；零协方差通常不等于独立，联合高斯时例外。",
+            "proof": "展开乘积并用 $EX(s)=m(s)$，即得 C 与 R 的关系。任取实系数 $a_i$ 与时刻 $t_i$，$\\sum_{ij}a_ia_jC(t_i,t_j)=\\operatorname{Var}(\\sum_i a_iX(t_i))\\ge0$，因此协方差矩阵必半正定。特别取两个时刻，二阶主子式非负，得 $\\lvert C(s,t)\\rvert\\le\\sqrt{C(s,s)C(t,t)}$。",
+            "example": "若 $X(t)=A+Bt$，A、B 独立，均值均 0、方差分别 1、4，则 $m(t)=0,C(s,t)=1+4st$，方差为 $1+4t^2$。",
+            "pitfall": "随意写一个对称函数不一定能作协方差；还必须满足任意有限时刻构成的矩阵半正定。"
+          }
+        ]
+      },
+      {
+        "id": "12.3",
+        "title": "泊松过程和维纳过程",
+        "concepts": [
+          {
+            "id": "poisson-process",
+            "title": "泊松过程：独立平稳增量与等待时间",
+            "en": "Poisson process",
+            "plain": "把小概率到达累计成一条随时间增加的计数轨迹。",
+            "statement": "强度 $\\lambda>0$ 的齐次**泊松过程**满足 $N(0)=0$，非重叠区间增量相互独立，且 $N(t+h)-N(t)\\sim\\operatorname{Poisson}(\\lambda h)$。增量分布只依赖区间长度称**平稳增量**。相邻到达的等待时间独立且服从 rate 为 λ 的指数分布；第 k 次到达时间为其和，服从形状 k、rate λ 的 Erlang 分布。\n\n计数均值和方差都是 λt，$\\operatorname{Cov}(N(s),N(t))=\\lambda\\min(s,t)$；因此它的增量平稳，但过程本身不是宽平稳过程。",
+            "formula": "P\\{N(t)=k\\}=e^{-\\lambda t}\\frac{(\\lambda t)^k}{k!},\\qquad P\\{T_1>t\\}=e^{-\\lambda t}",
+            "conditions": "齐次模型要求强度不随时间变化。区间增量独立不意味着 N(s) 与 N(t) 独立，因为累计计数共享过去。",
+            "proof": "第一等待时间超过 t 当且仅当时长 t 内没有到达，故 $P(T_1>t)=P(N(t)=0)=e^{-\\lambda t}$。由独立平稳增量和指数无记忆性可构造独立同分布等待时间；其和的密度为 $\\lambda^kt^{k-1}e^{-\\lambda t}/(k-1)!$。对于 $s\\le t$，写 $N(t)=N(s)+[N(t)-N(s)]$，第二项与 N(s) 独立，因此协方差等于 $\\operatorname{Var}N(s)=\\lambda s$。也可由小区间关系 $p_k(t+h)=p_k(t)(1-\\lambda h)+p_{k-1}(t)\\lambda h+o(h)$ 得 $p_k'=-\\lambda p_k+\\lambda p_{k-1}$，递推得到泊松概率式。",
+            "example": "每小时平均 3 次到达，则半小时计数均值为 1.5，半小时没有到达的概率为 $e^{-1.5}$；首个到达的平均等待时间为 1/3 小时。",
+            "pitfall": "独立的是不重叠时间段内的新增计数；不要把累计计数当作独立样本。"
+          },
+          {
+            "id": "wiener-process",
+            "title": "维纳过程：连续轨道与独立高斯增量",
+            "en": "Wiener process",
+            "plain": "噪声沿时间累积，增量方差与时间长度成正比。",
+            "statement": "标准**维纳过程（布朗运动）** W(t)，t≥0，满足 W(0)=0，独立增量，$W(t)-W(s)\\sim N(0,t-s)$（t>s），且轨道几乎必然连续。由此 $EW(t)=0,\\operatorname{Var}W(t)=t$，$\\operatorname{Cov}(W(s),W(t))=\\min(s,t)$。带漂移扩散模型 $X(t)=\\mu t+\\sigma W(t)$ 的均值为 μt、协方差为 $\\sigma^2\\min(s,t)$。",
+            "formula": "W(t+h)-W(t)\\sim N(0,h),\\qquad C(s,t)=\\min(s,t)",
+            "conditions": "“轨道连续”不是可微。维纳过程有平稳增量，但方差随 t 改变，所以本身不宽平稳。",
+            "proof": "对 s≤t，将 W(t) 写为 W(s) 加独立零均值增量；协方差立即为 Var(W(s))=s。任意有限时刻的 W 值是独立正态增量的线性组合，因此构成联合正态向量。考察差商 $[W(t+h)-W(t)]/h$：其二阶矩为 $h/h^2=1/h$，当 h→0 发散，故不可能在均方意义下收敛到有限二阶矩导数。更强的“轨道几乎处处不可微”是另一条定理，此处这个计算只证明无均方导数。",
+            "example": "$W(3)-W(1)\\sim N(0,2)$，独立于 W(1)；但 W(3) 不独立于 W(1)，其协方差为 1。",
+            "pitfall": "正态分布第二个参数在本站表示方差；把长度 h 当成标准差会把尺度写错。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "马尔可夫链",
+    "summary": "用当前状态概括预测下一步所需的信息，并区分平稳分布与长期极限。",
+    "sections": [
+      {
+        "id": "13.1",
+        "title": "定义与例子",
+        "concepts": [
+          {
+            "id": "markov-chain",
+            "title": "马尔可夫性、转移矩阵与初始分布",
+            "en": "Markov chains",
+            "plain": "已知现在，过去历史不再额外改变下一步的条件分布。",
+            "statement": "离散时间、可数状态的过程若满足 $P(X_{n+1}=j\\mid X_n=i,\\ldots,X_0=i_0)=P(X_{n+1}=j\\mid X_n=i)$，称为**马尔可夫链**（只对有定义的条件概率讨论）。若右边与 n 无关，称**齐次链**，转移概率记 $p_{ij}$。每行非负且和为 1；初始行向量 $\\pi^{(0)}$ 与 P 一起决定全部有限维分布。",
+            "formula": "P(X_0=i_0,\\ldots,X_n=i_n)=\\pi^{(0)}_{i_0}\\prod_{k=1}^np_{i_{k-1}i_k}",
+            "conditions": "本章转移矩阵按“行是出发状态、列是到达状态”约定。齐次性是额外条件，不能仅由马尔可夫性推出。",
+            "proof": "将路径概率用条件概率链式法则展开；每一步由马尔可夫性把全历史条件缩减为前一状态，再由齐次性用相同矩阵条目表示，即得乘积公式。对末状态求和会用到行和为 1，说明这些路径概率与较短路径分布相容。",
+            "example": "状态晴、雨，$P=\\begin{pmatrix}0.8&0.2\\\\0.4&0.6\\end{pmatrix}$。若今天晴，未来两天“雨、晴”的概率为 0.2×0.4=0.08。",
+            "pitfall": "马尔可夫性不表示各时刻独立；下一步通常强烈依赖当前状态。"
+          }
+        ]
+      },
+      {
+        "id": "13.2",
+        "title": "多步转移概率的确定",
+        "concepts": [
+          {
+            "id": "chapman-kolmogorov",
+            "title": "Chapman–Kolmogorov 方程与矩阵幂",
+            "en": "Multi-step transition probabilities",
+            "plain": "走多步可以先到某个中间状态，再从那里继续走。",
+            "statement": "n 步转移概率 $p_{ij}^{(n)}=P(X_{m+n}=j\\mid X_m=i)$ 对齐次链与 m 无关。对中间状态分类可得 Chapman–Kolmogorov 方程，矩阵形式为 $P^{(m+n)}=P^{(m)}P^{(n)}$，因此 $P^{(n)}=P^n$。n 时刻分布为 $\\pi^{(n)}=\\pi^{(0)}P^n$。",
+            "formula": "p_{ij}^{(m+n)}=\\sum_kp_{ik}^{(m)}p_{kj}^{(n)}",
+            "conditions": "中间状态需遍历全部状态；可数状态时是收敛非负级数。非齐次链需按时间顺序乘各时刻转移矩阵，不能用单个 P 的幂。",
+            "proof": "以 X_m=k 将从 i 到 j 的事件分割。全概率公式给 $P(X_{m+n}=j\\mid X_0=i)=\\sum_k P(X_m=k\\mid X_0=i)P(X_{m+n}=j\\mid X_m=k,X_0=i)$。马尔可夫性将第二因子化为从 k 出发的 n 步概率；齐次性保证统一的转移矩阵。令 m=1 递推，得到矩阵幂表达式。",
+            "example": "若 $P=\\begin{pmatrix}0.8&0.2\\\\0.4&0.6\\end{pmatrix}$，两步由晴到雨的概率为 0.8×0.2+0.2×0.6=0.28，已包含两条互斥中间路径。",
+            "pitfall": "一步转移概率逐元素平方不是两步转移矩阵；矩阵乘法必须对中间状态求和。"
+          }
+        ]
+      },
+      {
+        "id": "13.3",
+        "title": "遍历性",
+        "concepts": [
+          {
+            "id": "markov-ergodicity",
+            "title": "平稳分布、常返与遍历极限",
+            "en": "Stationary and limiting distributions",
+            "plain": "平稳分布保持不变；从任意起点收敛到它还需要额外条件。",
+            "statement": "**可达**指某步转移概率为正；相互可达称**互通**；所有状态互通为**不可约**。状态返回步数集合的最大公约数为**周期**，周期 1 为**非周期**。以概率 1 返回为**常返**，平均返回时间有限为**正常返（正常返/正再生）**；否则可有零常返。**平稳分布** π 满足 πP=π、各项非负且和为 1。\n\n有限不可约链存在唯一平稳分布，且所有状态正常返；再加非周期性，$p_{ij}^{(n)}\\to\\pi_j$。可数无限状态时，不可约和非周期还不够，需正常返。即便周期链不具有逐步分布极限，有限不可约链的长期状态占用比例仍可收敛到 π，不能混为一谈。",
+            "formula": "\\pi P=\\pi,\\quad\\sum_j\\pi_j=1;\\qquad P^n\\longrightarrow\\boldsymbol1\\pi\\quad\\text{(有限、不可约、非周期)}",
+            "conditions": "矩阵极限结论以有限状态为主；无限链须检查正常返。这里只给有限链收敛的证明路线，不声称已经证明全部一般可数状态定理。",
+            "proof": "有限不可约、非周期保证存在 m 使 Q=P^m 每个条目都正。令状态数为 d，δ 为 Q 的最小条目，ε=dδ>0。若 ε<1，可写 $Q=\\varepsilon U+(1-\\varepsilon)R$，U 每行都是均匀分布，R 为随机矩阵；任意两分布 u、v 的全变差距离经 Q 后至多缩为原来的 1−ε，因为 $(u-v)U=0$。故 Q 在分布单纯形上有唯一不动点 π，各初始分布迭代收敛到 π；ε=1 情况一步即为均匀分布。又 πP 也是 Q 的不动点，唯一性推出 πP=π。将 n 写成 km+r，即得到 P 的所有子序列都收敛到 π。此论证使用的“有限不可约非周期矩阵某幂全正”是有限链结构定理。",
+            "example": "两状态矩阵 $\\begin{pmatrix}0.8&0.2\\\\0.4&0.6\\end{pmatrix}$ 平稳分布为 $(2/3,1/3)$，因条目全正，从任意起点收敛。反例 $\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}$ 有平稳分布 $(1/2,1/2)$，但从单点起步交替振荡，逐步分布无极限。",
+            "pitfall": "解出 πP=π 不等于证明收敛；有吸收类时还可能有多个平稳分布。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "平稳随机过程",
+    "summary": "用时差简化二阶结构，再研究时间平均与频率域描述。",
+    "sections": [
+      {
+        "id": "14.1",
+        "title": "平稳随机过程的概念",
+        "concepts": [
+          {
+            "id": "stationary-process",
+            "title": "严平稳与宽平稳：定义和相互关系",
+            "en": "Strict and wide-sense stationarity",
+            "plain": "严平稳要求全部有限维分布不随平移变化；宽平稳只约束一、二阶结构。",
+            "statement": "**严平稳**要求任意有限时刻 $t_1,\\ldots,t_n$ 的联合分布与同时平移 h 后相同。**宽平稳（二阶平稳）**要求有限二阶矩、均值为常数 m，且 $R(s,t)=R(t-s)$ 仅依赖时差。严平稳且二阶矩有限可推出宽平稳；一般宽平稳不能推出严平稳。若过程为高斯过程，均值和协方差决定所有有限维正态分布，因此宽平稳可推出严平稳。",
+            "formula": "EX(t)=m,\\qquad E[X(t)X(t+\\tau)]=R(\\tau)",
+            "conditions": "平移必须仍落在定义域内。不要将“增量分布只依赖时间长度”与过程自身的平稳性等同。",
+            "proof": "严平稳先取一个时刻，边际分布不变给均值和二阶矩不变；再取两个时刻，联合分布平移不变给相关函数只依赖时差。反向的一般反例：离散过程各时刻独立，偶数时刻取等概率 ±1，奇数时刻取标准正态。其均值全为 0、方差全为 1、不同时间协方差为 0，所以宽平稳；边际分布随奇偶变化，故不严平稳。高斯情形没有这种自由度，因为联合正态分布由均值向量与协方差矩阵唯一决定。",
+            "example": "$X(t)=a\\cos(\\omega t+\\Theta)$，$\\Theta\\sim U(0,2\\pi)$、a 与 ω 固定，均值 0，$R(\\tau)=a^2\\cos(\\omega\\tau)/2$。相位模 2π 的均匀性还可证明严平稳。",
+            "pitfall": "方差随时间变化的维纳过程和齐次泊松过程均不宽平稳，尽管它们具有平稳增量。"
+          }
+        ]
+      },
+      {
+        "id": "14.2",
+        "title": "各态历经性",
+        "concepts": [
+          {
+            "id": "mean-ergodicity",
+            "title": "各态历经性：时间平均能否代表总体平均",
+            "en": "Ergodicity in the mean",
+            "plain": "平稳说明统计规律不变，各态历经性进一步问一条长轨迹能否估计总体统计量。",
+            "statement": "宽平稳过程均值 m，时间均值 $\\bar X_T=T^{-1}\\int_0^T X(t)dt$。若 $E(\\bar X_T-m)^2\\to0$，称**均值均方各态历经**。这是一种明确的收敛概念；几乎必然各态历经是另一个更强形式，不能不加说明混用。相关函数各态历经还要研究 $T^{-1}\\int_0^T X(t)X(t+\\tau)dt$ 是否收敛到 R(τ)，均值各态历经不自动保证它。\n\n记协方差 $C(\\tau)=R(\\tau)-m^2$。若 $\\int_0^\\infty\\lvert C(\\tau)\\rvert d\\tau<\\infty$，则均值均方各态历经；这是充分条件，不是必要条件。",
+            "formula": "E(\\bar X_T-m)^2=\\frac{2}{T}\\int_0^T\\left(1-\\frac{\\tau}{T}\\right)C(\\tau)\\,d\\tau",
+            "conditions": "假定时间积分在均方意义下存在，并允许期望与积分交换，例如二阶结构连续的情形。这里讨论实值宽平稳过程。",
+            "proof": "因为均值常数，$E\\bar X_T=m$，均方误差就是方差。展开双积分得 $T^{-2}\\int_0^T\\int_0^T C(t-s)dsdt$。利用 C 为偶函数，具有同一时差 τ 的积分条带长度为 T−τ，得到上式。若协方差绝对可积，绝对值不超过 $(2/T)\\int_0^\\infty|C(\\tau)|d\\tau$，故趋于 0。反例 $X(t)=A$（Var(A)>0）：它严平稳，但时间平均始终是 A，均方误差为 Var(A)，不各态历经。",
+            "example": "若零均值过程的 $C(\\tau)=\\sigma^2e^{-a\\lvert\\tau\\rvert}$，a>0，则时间平均方差不超过 $2\\sigma^2/(aT)$，长时间平均可在均方意义逼近 0。",
+            "pitfall": "“平稳所以一条轨迹足够”是错误推理；也不能把期望值为 m 当作估计误差已经趋零。"
+          }
+        ]
+      },
+      {
+        "id": "14.3",
+        "title": "相关函数的性质",
+        "concepts": [
+          {
+            "id": "correlation-properties",
+            "title": "相关函数的偶性、有界性与非负定性",
+            "en": "Autocorrelation properties",
+            "plain": "可作为相关函数的曲线必须满足一组概率约束。",
+            "statement": "对实值宽平稳过程，$R(0)=EX(t)^2\\ge0$，$R(-\\tau)=R(\\tau)$，$\\lvert R(\\tau)\\rvert\\le R(0)$。任取有限时刻和实系数，$\\sum_{ij}a_ia_jR(t_i-t_j)\\ge0$，称**非负定性**。协方差 C 具有相同的这些性质，且 $C(0)=Var(X(t))$。若过程均方连续，则 R 在原点连续；反过来原点连续可给均方连续。",
+            "formula": "E[X(t+h)-X(t)]^2=2[R(0)-R(h)]",
+            "conditions": "复值过程应在相关定义中加入复共轭，此时偶性改为共轭对称；本节仅讨论实值。相关函数可以为负，非负定性不表示每个函数值都非负。",
+            "proof": "偶性来自交换乘法顺序和时间平移。有界性由 Cauchy–Schwarz：$|E[X(t)X(t+\\tau)]|\\le\\sqrt{EX(t)^2EX(t+\\tau)^2}=R(0)$。非负定性由 $E(\\sum_i a_iX(t_i))^2\\ge0$ 展开得到。最后展开平方差并利用平稳性，得 $E[X(t+h)-X(t)]^2=2R(0)-2R(h)$，这将均方连续性与 R 在 0 的连续性联系起来。",
+            "example": "$R(\\tau)=\\cos\\tau$ 可取负值，但由独立零均值、方差 1 的 A、B 构成 $X(t)=A\\cos t+B\\sin t$，其相关恰为 cos τ，所以它确实是合法相关函数。",
+            "pitfall": "仅满足偶函数且原点最大还不足以保证是合法相关函数；所有有限矩阵的非负定性是更强约束。"
+          }
+        ]
+      },
+      {
+        "id": "14.4",
+        "title": "平稳随机过程的功率谱密度",
+        "concepts": [
+          {
+            "id": "power-spectrum",
+            "title": "功率谱密度与 Wiener–Khinchin 关系",
+            "en": "Power spectral density",
+            "plain": "相关函数描述时差，功率谱将同一二阶信息表示为频率分布。",
+            "statement": "本页采用**角频率** ω（弧度/时间）：$S(\\omega)=\\int_{-\\infty}^{\\infty}R(\\tau)e^{-i\\omega\\tau}d\\tau$，反变换含 $1/(2\\pi)$。实值宽平稳过程的谱密度非负、为偶函数，总功率为 $R(0)=EX^2$。若使用普通频率 f，则指数改为 $e^{-i2\\pi f\\tau}$、反变换不带 $1/(2\\pi)$；两种约定不能混搭。\n\n若均值 m 非零，相关函数含常数 $m^2$，谱中有 $2\\pi m^2\\delta(\\omega)$ 的零频谱线。并非每个平稳过程都有普通函数形式的谱密度：随机相位正弦的功率集中在谱线上，需要谱测度或广义函数表述。",
+            "formula": "R(\\tau)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}S(\\omega)e^{i\\omega\\tau}d\\omega,\\qquad R(0)=\\frac{1}{2\\pi}\\int S(\\omega)d\\omega",
+            "conditions": "以下普通积分推导假定 R 绝对可积，并满足相应傅里叶反演条件；一般谱线情形需以测度理解。定义谱不要求先有各态历经性，各态历经性关系到能否从单轨迹估计它。",
+            "proof": "令 $Z_T(\\omega)=\\int_0^T X(t)e^{-i\\omega t}dt$。展开模平方期望，平稳性给 $T^{-1}E|Z_T|^2=\\int_{-T}^T(1-|\\tau|/T)R(\\tau)e^{-i\\omega\\tau}d\\tau$。左边非负，R 绝对可积时由控制收敛得到右边趋于 S(ω)，所以 S 非负。这是 Wiener–Khinchin 关系的有限窗口推导。由 R 实且偶可得 S 实且偶；反变换令 τ=0 给总功率公式。例 $R(\\tau)=\\sigma^2e^{-a|\\tau|}$，拆成正负半轴，$S(\\omega)=\\sigma^2[(a+i\\omega)^{-1}+(a-i\\omega)^{-1}]=2a\\sigma^2/(a^2+\\omega^2)$。",
+            "example": "若 $R(\\tau)=4e^{-2|\\tau|}$，则 $S(\\omega)=16/(4+\\omega^2)$。积分为 $8\\pi$，乘 $1/(2\\pi)$ 回到平均功率 4。",
+            "pitfall": "功率谱不是样本轨迹傅里叶变换本身；也不能把非零均值的零频谱线漏掉，或将方差误作总二阶矩。"
+          }
+        ]
+      }
+    ]
   }
 ]

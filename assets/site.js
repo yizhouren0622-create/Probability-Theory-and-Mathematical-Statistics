@@ -257,3 +257,5 @@
   window.ProbabilityMath = Object.freeze({normalCDF, cdf, pdf});
   updateProgress(); filterExercises(); renderRecall();
 })();
+
+document.getElementById("chapter-jump")?.addEventListener("change", e => { if (/^chapter-\d+\.html$/.test(e.target.value)) location.href=e.target.value; });
