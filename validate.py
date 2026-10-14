@@ -68,6 +68,15 @@ exact_cdf=sum(math.comb(500,k)*0.004**k*0.996**(500-k) for k in range(2))
 assert math.isclose(exact_cdf,0.4054634230,abs_tol=1e-10)
 assert math.isclose(abs(exact_cdf-3*math.exp(-2)),0.0005424267,abs_tol=1e-10)
 assert math.isclose((1+math.erf(1.96/math.sqrt(2)))/2,0.975,abs_tol=3e-6)
+# Enumerate the new waiting-time and without-replacement exercises independently.
+assert math.isclose((3/4)**4/4,81/1024)
+assert math.isclose(((3/4)**4/4)/((3/4)**3),3/16)
+from itertools import combinations
+hyper_counts=[sum(i<4 for i in picked) for picked in combinations(range(12),3)]
+assert len(hyper_counts)==220
+assert math.isclose(sum(k>=1 for k in hyper_counts)/len(hyper_counts),41/55)
+assert math.isclose(sum(hyper_counts)/len(hyper_counts),1)
+assert math.isclose(sum((k-1)**2 for k in hyper_counts)/len(hyper_counts),6/11)
 # Direct finite-n binomial probabilities approach the stated fixed-k Poisson limit.
 for k in (0,1,2,5):
     target=math.exp(-2)*2**k/math.factorial(k)
