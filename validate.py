@@ -77,6 +77,10 @@ assert len(hyper_counts)==220
 assert math.isclose(sum(k>=1 for k in hyper_counts)/len(hyper_counts),41/55)
 assert math.isclose(sum(hyper_counts)/len(hyper_counts),1)
 assert math.isclose(sum((k-1)**2 for k in hyper_counts)/len(hyper_counts),6/11)
+# Uniform area in the triangular support 0<x<y<1.
+midpoints=[(i+.5)/10000 for i in range(10000)]
+assert math.isclose(sum(2*(1-x) for x in midpoints)/10000,1,abs_tol=1e-10)
+assert math.isclose(sum(2*(1-2*x) for x in midpoints if x<.5)/10000,.5,abs_tol=1e-10)
 # Direct finite-n binomial probabilities approach the stated fixed-k Poisson limit.
 for k in (0,1,2,5):
     target=math.exp(-2)*2**k/math.factorial(k)
