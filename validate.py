@@ -112,6 +112,22 @@ assert 'normal-variance-mse' in pages['chapter-7.html'].ids
 assert 'fisher-cramer-rao' in pages['chapter-7.html'].ids
 assert all(x in pages['practice-7.html'].ids for x in ('P7-10','P7-11'))
 
+# Chapter 8: independently check the grouped multinomial example and the
+# rank-(k-1) projection behind Pearson's limiting degrees of freedom.
+probs=[1/2,1/3,1/6]
+counts=[27,23,10]
+expected=[60*p for p in probs]
+assert sum(counts)==sum(expected)==60
+pearson=sum((o-e)**2/e for o,e in zip(counts,expected))
+assert math.isclose(pearson,.75)
+assert math.isclose(math.exp(-pearson/2),.6872892787909722)
+q=[math.sqrt(p) for p in probs]
+projection=[[float(i==j)-q[i]*q[j] for j in range(3)] for i in range(3)]
+assert math.isclose(sum(projection[i][i] for i in range(3)),2)
+assert all(math.isclose(sum(projection[i][k]*projection[k][j] for k in range(3)),projection[i][j]) for i in range(3) for j in range(3))
+assert 'pearson-df-proof' in pages['chapter-8.html'].ids
+assert 'P8-10' in pages['practice-8.html'].ids
+
 # Bound a Poisson tail without using its PMF, then independently evaluate that PMF.
 poisson_tail=1-math.exp(-2)*sum(2**k/math.factorial(k) for k in range(5))
 assert 0<poisson_tail<2/9<2/5
