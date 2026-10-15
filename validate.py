@@ -182,6 +182,14 @@ for k in (0,1,2,5):
         error.append(abs(value-target))
     assert error[2]<error[1]<error[0], (k,error)
 assert 'poisson-limit' in pages['chapter-2.html'].ids
+# Enumerate the stated inverse-CDF quantiles independently of the interval formulas.
+boot_values = sorted([8, 9, 9, 10, 11, 12, 12, 13])
+from math import ceil
+q25, q75 = (boot_values[ceil(u * len(boot_values)) - 1] for u in (.25, .75))
+assert (q25, q75) == (9, 12)
+assert (q25, q75) == (9, 12) and (20 - q75, 20 - q25) == (8, 11)
+assert 'bootstrap-ci-inversion' in pages['chapter-10.html'].ids
+assert 'P10-04' in pages['practice-10.html'].ids
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
