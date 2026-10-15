@@ -128,6 +128,38 @@ assert all(math.isclose(sum(projection[i][k]*projection[k][j] for k in range(3))
 assert 'pearson-df-proof' in pages['chapter-8.html'].ids
 assert 'P8-10' in pages['practice-8.html'].ids
 
+# Chapter 9: recompute a planned contrast and the regression ANOVA identity
+# from raw observations, including the distinction between contrast t² and
+# the overall three-group F statistic.
+contrast_groups=[[1,2,3],[4,5,6],[2,3,4]]
+contrast_means=[sum(g)/len(g) for g in contrast_groups]
+contrast_coeff=[-.5,1,-.5]
+contrast_estimate=sum(c*m for c,m in zip(contrast_coeff,contrast_means))
+anova_sse=sum((y-m)**2 for g,m in zip(contrast_groups,contrast_means) for y in g)
+anova_mse=anova_sse/(9-3)
+contrast_se2=anova_mse*sum(c*c/len(g) for c,g in zip(contrast_coeff,contrast_groups))
+grand_mean=sum(map(sum,contrast_groups))/9
+anova_ssb=sum(len(g)*(m-grand_mean)**2 for g,m in zip(contrast_groups,contrast_means))
+assert math.isclose(contrast_estimate,2.5)
+assert math.isclose(anova_mse,1) and math.isclose(contrast_se2,.5)
+assert math.isclose(contrast_estimate**2/contrast_se2,12.5)
+assert math.isclose((anova_ssb/2)/anova_mse,7)
+reg_x=[0,1,2];reg_y=[1,2,2]
+x_bar=sum(reg_x)/3;y_bar=sum(reg_y)/3
+reg_sxx=sum((x-x_bar)**2 for x in reg_x)
+reg_sxy=sum((x-x_bar)*(y-y_bar) for x,y in zip(reg_x,reg_y))
+reg_syy=sum((y-y_bar)**2 for y in reg_y)
+reg_ssr=reg_sxy**2/reg_sxx
+reg_sse=reg_syy-reg_ssr
+reg_mse=reg_sse/(3-2)
+reg_t2=(reg_sxy/reg_sxx)**2*reg_sxx/reg_mse
+reg_f=reg_ssr/reg_mse
+assert math.isclose(reg_syy,2/3) and math.isclose(reg_ssr,.5)
+assert math.isclose(reg_sse,1/6) and math.isclose(reg_ssr/reg_syy,.75)
+assert math.isclose(reg_t2,reg_f) and math.isclose(reg_f,3)
+assert all(x in pages['chapter-9.html'].ids for x in ('anova-contrasts','regression-ss-identity'))
+assert all(x in pages['practice-9.html'].ids for x in ('P9-07','P9-08'))
+
 # Bound a Poisson tail without using its PMF, then independently evaluate that PMF.
 poisson_tail=1-math.exp(-2)*sum(2**k/math.factorial(k) for k in range(5))
 assert 0<poisson_tail<2/9<2/5
