@@ -89,6 +89,18 @@ between=sum(weight*(p-mu)**2 for weight,p in mixture)
 direct=sum(weight*(p*(1-mu)**2+(1-p)*mu**2) for weight,p in mixture)
 assert math.isclose(mu,.5) and math.isclose(within,.16)
 assert math.isclose(between,.09) and math.isclose(direct,within+between)
+# Bound a Poisson tail without using its PMF, then independently evaluate that PMF.
+poisson_tail=1-math.exp(-2)*sum(2**k/math.factorial(k) for k in range(5))
+assert 0<poisson_tail<2/9<2/5
+assert math.isclose(poisson_tail,.052653017343711084,abs_tol=1e-12)
+# Check the continuity-corrected binomial example against exact enumeration.
+binom_cdf=sum(math.comb(36,k) for k in range(22))/2**36
+normal_cdf=lambda z:(1+math.erf(z/math.sqrt(2)))/2
+uncorrected=normal_cdf(1)
+corrected=normal_cdf(7/6)
+assert math.isclose(binom_cdf,.8785075229825452,abs_tol=1e-12)
+assert abs(corrected-binom_cdf)<abs(uncorrected-binom_cdf)
+assert math.isclose(abs(corrected-binom_cdf),.0001800275569265,abs_tol=1e-12)
 # Direct finite-n binomial probabilities approach the stated fixed-k Poisson limit.
 for k in (0,1,2,5):
     target=math.exp(-2)*2**k/math.factorial(k)

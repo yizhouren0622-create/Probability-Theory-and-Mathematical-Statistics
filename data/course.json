@@ -821,6 +821,19 @@
         "title": "大数定律",
         "concepts": [
           {
+            "id": "markov-inequality",
+            "title": "拓展：马尔可夫不等式与切比雪夫不等式的联系",
+            "en": "Markov inequality",
+            "plain": "只知道非负变量的均值，也能为它超过阈值的概率划一条上界。",
+            "statement": "若随机变量 $Y\\ge0$、$E(Y)<\\infty$，则对任意 $a>0$，$P(Y\\ge a)\\le E(Y)/a$。它是一个与具体分布无关的尾概率上界。更一般地，若 $E|X|^r<\\infty$、$r>0$，对非负变量 $Y=|X|^r$ 应用此式，得 $P(|X|\\ge a)\\le E|X|^r/a^r$。取 $Y=(X-\\mu)^2$、$a=\\varepsilon^2$，就得到切比雪夫不等式。",
+            "formula": "P(Y\\ge a)\\le\\frac{E(Y)}{a}\\quad(Y\\ge0)",
+            "conditions": "阈值必须 $a>0$，原变量 Y 必须非负且期望有限；不要求独立或正态。上界若大于 1，应与平凡上界 1 取较小者。",
+            "proof": "在事件 $A=\\{Y\\ge a\\}$ 上，$Y\\ge a$；在 $A^c$ 上，$Y\\ge0$。于是逐点有 $Y\\ge a\\mathbf1_A$，两边取期望得到 $E(Y)\\ge aE(\\mathbf1_A)=aP(A)$。对于 $Y=(X-\\mu)^2$，事件 $Y\\ge\\varepsilon^2$ 恰是 $|X-\\mu|\\ge\\varepsilon$，且 $E(Y)=D(X)$，代入就得到 $P(|X-\\mu|\\ge\\varepsilon)\\le D(X)/\\varepsilon^2$。",
+            "example": "若 Y 以概率 $3/4$ 取 4，以概率 $1/4$ 取 0，则 $E(Y)=3$，对阈值 4，马尔可夫界为 $3/4$，恰好等于真实概率 $P(Y\\ge4)$。但上界也可能很宽。",
+            "pitfall": "它给的是上界，不是尾概率的近似值；这里的“马尔可夫”不指马尔可夫链。此卡为独立编写的拓展，尚未与盛骤教材正文逐页核对。",
+            "proofTitle": "从指示变量证明上界，再推出切比雪夫"
+          },
+          {
             "id": "chebyshev-lln",
             "title": "切比雪夫不等式与大数定律",
             "en": "Chebyshev inequality and weak law",
@@ -864,6 +877,19 @@
             "example": "$B\\sim\\mathrm{Bin}(100,1/2)$，近似 $P(45\\le B\\le55)\\approx\\Phi(1.1)-\\Phi(-1.1)\\approx0.7287$；其中均值 50、标准差 5，修正后区间为 [44.5,55.5]。",
             "pitfall": "和的标准差是 $\\sigma\\sqrt n$，平均的标准差是 $\\sigma/\\sqrt n$。CLT 没有说单次观测本身趋于正态。",
             "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "de-moivre-laplace",
+            "title": "棣莫弗—拉普拉斯定理：二项分布的正态近似",
+            "en": "De Moivre–Laplace theorem",
+            "plain": "固定成功率反复试验时，标准化的成功次数趋向正态；计算整数概率时，把边界向外移半格。",
+            "statement": "令 $B_n\\sim\\operatorname{Bin}(n,p)$，其中 $0<p<1$ 固定。均值为 $np$、方差为 $np(1-p)$，则标准化后的 $B_n$ 依分布收敛到标准正态，这就是棣莫弗—拉普拉斯定理。有限 n 时，设 $s=\\sqrt{np(1-p)}$，对整数 $a\\le b$，常用连续性修正：先把整数区间 $[a,b]$ 扩展为 $[a-0.5,b+0.5]$，把两个边界分别减去 $np$ 再除以 s，最后用标准正态分布函数的值相减。半格修正是离散柱形与连续面积配对的近似方法，不是二项概率的精确恒等式。",
+            "formula": "\\frac{B_n-np}{\\sqrt{np(1-p)}}\\Rightarrow N(0,1)",
+            "conditions": "极限定理要求固定 $0<p<1$ 且 $n\\to\\infty$。实际近似需 $np$ 与 $n(1-p)$ 都不太小；不存在对所有 p 和尾部事件都可靠的固定样本量门槛。若 $p=p_n\\to0$ 而 $np_n\\to\\lambda$，应考虑第 2 章的泊松极限定理，而非套用固定 p 的这个结论。",
+            "proof": "把 $B_n$ 写成独立同分布的伯努利变量 $I_1+\\cdots+I_n$。每个 $I_i$ 的均值为 p，方差为 $p(1-p)>0$；第 5.2 节的一般中心极限定理直接给出 $(B_n-np)/\\sqrt{np(1-p)}\\Rightarrow N(0,1)$。这一步证明的是标准化分布函数的极限。有限 n 的连续性修正另作数值近似：整数 k 的柱子对应长度为 1 的区间 $[k-0.5,k+0.5]$，故从 a 到 b 的整柱对应 $[a-0.5,b+0.5]$，令 $z_+=(b+0.5-np)/s$、$z_-=(a-0.5-np)/s$，用 $\\Phi(z_+)-\\Phi(z_-)$ 近似这块面积。不能把这个几何近似误说成由中心极限定理给出的有限 n 等式。",
+            "example": "若 $B\\sim\\operatorname{Bin}(36,0.5)$，则 $E(B)=18$、标准差为 3。$P(B\\le21)$ 的精确值约为 0.878508；不修正的 $\\Phi(1)\\approx0.841345$，半格修正的 $\\Phi(7/6)\\approx0.878327$。",
+            "pitfall": "二项正态近似用于固定 p、n 增大；二项泊松近似用于成功率变稀、np 趋于有限常数。两种极限不可混为一谈。",
+            "proofTitle": "由伯努利和推出极限，并解释半格修正"
           }
         ]
       }
