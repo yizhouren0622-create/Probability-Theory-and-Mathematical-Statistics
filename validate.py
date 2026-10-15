@@ -89,6 +89,29 @@ between=sum(weight*(p-mu)**2 for weight,p in mixture)
 direct=sum(weight*(p*(1-mu)**2+(1-p)*mu**2) for weight,p in mixture)
 assert math.isclose(mu,.5) and math.isclose(within,.16)
 assert math.isclose(between,.09) and math.isclose(direct,within+between)
+# Chapter 7: independently check the normal-variance MSE example and the
+# Bernoulli information bound used in the new guided exercises.
+true_variance=4
+n_variance=5
+sigma_fourth=true_variance**2
+q_mean=(n_variance-1)*true_variance
+q_var=2*(n_variance-1)*sigma_fourth
+s2_mse=q_var/(n_variance-1)**2
+t_bias=q_mean/n_variance-true_variance
+t_var=q_var/n_variance**2
+t_mse=t_var+t_bias**2
+assert math.isclose(s2_mse,8) and math.isclose(t_bias,-.8)
+assert math.isclose(t_var,5.12) and math.isclose(t_mse,5.76)
+assert math.isclose(s2_mse-t_mse,(3*n_variance-1)*sigma_fourth/(n_variance**2*(n_variance-1)))
+for p in (.1,.3,.8):
+    n_bern=20
+    fisher=n_bern/(p*(1-p))
+    bernoulli_mean_var=p*(1-p)/n_bern
+    assert math.isclose(1/fisher,bernoulli_mean_var)
+assert 'normal-variance-mse' in pages['chapter-7.html'].ids
+assert 'fisher-cramer-rao' in pages['chapter-7.html'].ids
+assert all(x in pages['practice-7.html'].ids for x in ('P7-10','P7-11'))
+
 # Bound a Poisson tail without using its PMF, then independently evaluate that PMF.
 poisson_tail=1-math.exp(-2)*sum(2**k/math.factorial(k) for k in range(5))
 assert 0<poisson_tail<2/9<2/5

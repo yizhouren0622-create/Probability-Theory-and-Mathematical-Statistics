@@ -1044,6 +1044,32 @@
             "example": "正态样本的方差 MLE $\\hat\\sigma^2=(n-1)S^2/n$ 的期望为 $(n-1)\\sigma^2/n$，有向下偏差，但此偏差随 n 增大消失。",
             "pitfall": "无偏描述反复抽样的平均，不保证某次估计接近真值；一致性也不表示有限样本一定无偏。",
             "proofTitle": "性质与分步推导"
+          },
+          {
+            "id": "normal-variance-mse",
+            "title": "正态样本方差：无偏与均方误差不一定同向",
+            "en": "MSE of the normal sample variance estimators",
+            "plain": "同一组正态样本，除以 n−1 的样本方差无偏；除以 n 的极大似然估计有偏，却可能有更小的均方误差。",
+            "statement": "设 $X_1,\\ldots,X_n$ 独立同分布于 $N(\\mu,\\sigma^2)$，$n\\ge2$，$Q=\\sum_i(X_i-\\bar X)^2$。无偏样本方差 $S^2=Q/(n-1)$，方差的极大似然估计 $T=Q/n$。二者估计的都是 $\\sigma^2$；比较准则必须先说清。对平方损失，$S^2$ 无偏，但 $T$ 的 MSE 更小。这只是此模型内两种具体估计量的比较，不能推出“有偏估计总更好”或“MLE 总更好”。",
+            "formula": "\\operatorname{MSE}(T)=\\frac{(2n-1)\\sigma^4}{n^2}",
+            "conditions": "正态、独立同分布、$n\\ge2$，并用平方损失比较同一参数 $\\sigma^2$。关键抽样定理为 $Q/\\sigma^2\\sim\\chi^2_{n-1}$，因而 $E(Q)=(n-1)\\sigma^2$、$D(Q)=2(n-1)\\sigma^4$。非正态总体不能直接套用卡方结论。",
+            "proof": "令 $\\nu=n-1$。由 $Q/\\sigma^2\\sim\\chi^2_\\nu$ 以及卡方分布的均值 $\\nu$、方差 $2\\nu$，得 $E(S^2)=\\sigma^2$ 和 $D(S^2)=2\\sigma^4/(n-1)$，无偏使其 MSE 等于方差。再由 $T=Q/n$ 得 $E(T)=\\nu\\sigma^2/n$、$\\operatorname{Bias}(T)=-\\sigma^2/n$、$D(T)=2\\nu\\sigma^4/n^2$。用 MSE 分解式，$\\operatorname{MSE}(T)=\\{2(n-1)+1\\}\\sigma^4/n^2$。最后相减：$\\operatorname{MSE}(S^2)-\\operatorname{MSE}(T)=(3n-1)\\sigma^4/[n^2(n-1)]>0$。这里的 $\\sigma^4$ 表示 $(\\sigma^2)^2$。",
+            "example": "**例** $n=5$，真方差 $\\sigma^2=4$：$\\operatorname{MSE}(S^2)=2\\times16/4=8$。$T$ 的偏差为 $-4/5=-0.8$，方差为 $2\\times4\\times16/25=5.12$，故 MSE 为 $5.12+0.64=5.76$。",
+            "pitfall": "无偏性是重复抽样下的平均性质，不是某一次估计必定更接近真值。把 $S^2$ 的方差公式用于非正态总体，或把 $T$ 的方差误当作 MSE，都会改变结论。",
+            "proofTitle": "从正态抽样卡方分布推出两种 MSE"
+          },
+          {
+            "id": "fisher-cramer-rao",
+            "title": "拓展：费舍尔信息与 Cramér–Rao 下界",
+            "en": "Fisher information and Cramér–Rao lower bound (extension)",
+            "plain": "对满足正则条件的模型，无偏估计量的方差有信息下界；伯努利样本比例恰好达到这个下界。此卡是外部参考的拓展，并未核对为指定教材正文。",
+            "statement": "设密度或概率质量函数为 $f(x;\\theta)$，得分函数 $U(\\theta)=\\partial_\\theta\\log f(X;\\theta)$，费舍尔信息 $I(\\theta)=E_\\theta[U(\\theta)^2]$。若 $T(X)$ 对 $g(\\theta)$ 无偏，即 $E_\\theta T=g(\\theta)$，并满足可交换求导与积分等正则条件，则 $D_\\theta(T)\\ge[g'(\\theta)]^2/I(\\theta)$。独立样本的信息量相加：$I_n=nI_1$。它给的是方差下界，不是任意有偏估计的 MSE 下界。",
+            "formula": "D_\\theta(T)\\ge\\frac{[g\\prime(\\theta)]^2}{I_n(\\theta)}",
+            "conditions": "参数在开区间内部；样本支持集不随参数改变；$f$ 足够光滑且可把参数求导移入求和或积分；$0<I_n(\\theta)<\\infty$、$D(T)<\\infty$。这些是常用充分正则条件；例如 $U(0,\\theta)$ 的支持集依赖 $\\theta$，不能直接套用此证明。本站依据 MIT 公开讲义独立编写此拓展，未将其标为盛骤第六版已核对内容。",
+            "proof": "归一化式 $\\int f(x;\\theta)\\,dx=1$ 对 $\\theta$ 求导，得 $E_\\theta U=0$。对 $E_\\theta T=g(\\theta)$ 求导，得 $g'(\\theta)=\\int T\\,\\partial_\\theta f\\,dx=E_\\theta(TU)=\\operatorname{Cov}_\\theta(T,U)$。离散模型把积分换成求和。Cauchy–Schwarz 不等式给出 $[g'(\\theta)]^2\\le D_\\theta(T)D_\\theta(U)=D_\\theta(T)I_n(\\theta)$，移项即得。对独立样本，联合得分为各单样本得分之和，各项均值为零，交叉项期望为零，所以信息量相加。",
+            "example": "**例** $X_i\\sim\\operatorname{Bernoulli}(p)$ 独立，$0<p<1$。若 $R=\\sum_iX_i$，则 $U=(R-np)/[p(1-p)]$，$I_n=n/[p(1-p)]$。估计 $g(p)=p$ 时下界为 $p(1-p)/n$；$\\bar X$ 无偏且 $D(\\bar X)=p(1-p)/n$，所以达到下界。",
+            "pitfall": "下界成立的正则条件不能省略；参数相关支持集、边界点、不可微模型都需另行分析。达到下界也只是在指定模型、参数及无偏估计类中有效。",
+            "proofTitle": "得分恒等式与 Cauchy–Schwarz 证明"
           }
         ]
       },
