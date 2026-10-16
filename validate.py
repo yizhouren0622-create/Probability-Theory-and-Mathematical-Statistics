@@ -190,6 +190,16 @@ assert (q25, q75) == (9, 12)
 assert (q25, q75) == (9, 12) and (20 - q75, 20 - q25) == (8, 11)
 assert 'bootstrap-ci-inversion' in pages['chapter-10.html'].ids
 assert 'P10-04' in pages['practice-10.html'].ids
+# Conditional Poisson counts are binomial; thinning gives independent classes.
+from math import comb
+conditional = comb(4, 2) * (1/3)**2 * (2/3)**2
+joint = (math.exp(-2)*2**2/math.factorial(2))*(math.exp(-4)*4)
+conditional_mark = comb(3, 2)*(1/3)**2*(2/3)
+assert math.isclose(conditional, 8/27)
+assert math.isclose(joint, 8*math.exp(-6))
+assert math.isclose(conditional_mark, 2/9)
+assert all(x in pages['chapter-12.html'].ids for x in ('poisson-conditional-binomial','poisson-thinning-superposition'))
+assert all(x in pages['practice-12.html'].ids for x in ('P12-05','P12-06'))
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
