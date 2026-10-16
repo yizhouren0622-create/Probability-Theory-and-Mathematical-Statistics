@@ -200,6 +200,19 @@ assert math.isclose(joint, 8*math.exp(-6))
 assert math.isclose(conditional_mark, 2/9)
 assert all(x in pages['chapter-12.html'].ids for x in ('poisson-conditional-binomial','poisson-thinning-superposition'))
 assert all(x in pages['practice-12.html'].ids for x in ('P12-05','P12-06'))
+# First-step absorption equations and detailed balance, calculated independently.
+q = ((0, .5), (.25, 0))
+t1, t2 = 12/7, 10/7
+assert math.isclose(t1, 1 + q[0][1]*t2)
+assert math.isclose(t2, 1 + q[1][0]*t1)
+balance_p = ((.5,.5,0),(.25,.5,.25),(0,.5,.5))
+balance_pi = (.25,.5,.25)
+for i in range(3):
+    for j in range(3):
+        assert math.isclose(balance_pi[i]*balance_p[i][j],balance_pi[j]*balance_p[j][i])
+assert all(math.isclose(sum(balance_pi[i]*balance_p[i][j] for i in range(3)),balance_pi[j]) for j in range(3))
+assert all(x in pages['chapter-13.html'].ids for x in ('markov-absorption-time','markov-detailed-balance'))
+assert all(x in pages['practice-13.html'].ids for x in ('P13-04','P13-05'))
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
