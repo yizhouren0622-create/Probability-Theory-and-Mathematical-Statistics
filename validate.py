@@ -213,6 +213,20 @@ for i in range(3):
 assert all(math.isclose(sum(balance_pi[i]*balance_p[i][j] for i in range(3)),balance_pi[j]) for j in range(3))
 assert all(x in pages['chapter-13.html'].ids for x in ('markov-absorption-time','markov-detailed-balance'))
 assert all(x in pages['practice-13.html'].ids for x in ('P13-04','P13-05'))
+# Independent AR(1) covariance and discrete-spectrum checks.
+phi, innovation_var = .5, 3
+c0 = innovation_var / (1-phi**2)
+assert math.isclose(c0, 4)
+assert math.isclose(c0*phi, 2) and math.isclose(c0*phi**2, 1)
+ar_spectrum = lambda w: innovation_var/(1+phi**2-2*phi*math.cos(w))
+assert math.isclose(ar_spectrum(0), 12)
+assert math.isclose(ar_spectrum(math.pi), 4/3)
+# Midpoint integration over one period independently recovers the lag-zero covariance.
+grid = 20000
+average = sum(ar_spectrum(-math.pi+(j+.5)*2*math.pi/grid) for j in range(grid))/grid
+assert math.isclose(average, 4, abs_tol=1e-8)
+assert all(x in pages['chapter-14.html'].ids for x in ('stationary-ar1','ar1-discrete-spectrum'))
+assert all(x in pages['practice-14.html'].ids for x in ('P14-05','P14-06'))
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
