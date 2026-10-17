@@ -86,14 +86,14 @@ const { pathToFileURL } = require('node:url');
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
             4: ['count-factorial-moments','hypergeometric-variance','median-absolute-loss','expectation-properties','variance-properties'],
             6: ['student-t-density','f-density-t-square'],
-            7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update','slutsky-studentization','wilson-score-interval','clopper-pearson-interval'],
+            7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update','slutsky-studentization','wilson-score-interval','clopper-pearson-interval','type2-exponential-pivot'],
             8: ['pvalue-calibration','pearson-fitted-df'],
-            9: ['gauss-markov','normal-regression-projections'],
+            9: ['gauss-markov','normal-regression-projections','correlation-exact-test','linear-constraint-f','ridge-risk-existence'],
             11: ['r-boxplot','r-anova','r-regression'],
-            12: ['poisson-small-increments','poisson-arrival-times','gaussian-process-definition'],
+            12: ['poisson-small-increments','poisson-arrival-times','gaussian-process-definition','poisson-conditional-arrivals'],
             13: ['markov-return-criterion','markov-positive-power','markov-return-mean'],
             10: ['bootstrap-ci-inversion','bootstrap-maximum-failure'],
-            14: ['mean-ergodicity','mean-versus-correlation-ergodicity','wiener-window-process'],
+            14: ['mean-ergodicity','mean-versus-correlation-ergodicity','wiener-window-process','mean-square-continuity'],
           }[chapter.id] || [];
           await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
           for (const id of screenshots) await page.locator('#' + id).screenshot({ path: path.join(output, id + '.png') });

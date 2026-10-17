@@ -379,6 +379,109 @@
         "pearson-fitted-df"
       ],
       "scope": "阅读固定概率 Pearson 引入、未知分组参数的练习 9.7 与投影相关段落。本站在明确的一致内点 MLE 假设下独立展开一般得分/Hessian 及残差投影证明，并另用四类原创例子；未声称原讲义该部分已提供同一一般证明或已读整本讲义。"
+    },
+    {
+      "id": "psu-correlation-exact-selected",
+      "date": "2026-10-17",
+      "title": "Penn State STAT501：样本相关与总体相关检验",
+      "url": "https://stats-web.quarto.pub/stat501q_dev/Lesson01.html",
+      "webSections": [
+        "1.6 Pearson Correlation Coefficient",
+        "1.9 Hypothesis Test for the Population Correlation Coefficient",
+        "Final Note"
+      ],
+      "concepts": [
+        "correlation-exact-test"
+      ],
+      "scope": "读取课程公开 Quarto 版本的所列定义、t 公式与二维正态/独立抽样条件；本站独立展开条件回归证明、r 密度变换和 n=6 的原创精确积分例。不标为盛骤正文核对。主站该次读取 502，未声称成功读取其正文。"
+    },
+    {
+      "id": "psu-general-f-selected",
+      "date": "2026-10-17",
+      "title": "Penn State STAT501：一般线性 F 检验",
+      "url": "https://stats-web.quarto.pub/stat501q_dev/Lesson06.html",
+      "webSections": [
+        "6.2 The General Linear F-Test"
+      ],
+      "concepts": [
+        "linear-constraint-f"
+      ],
+      "scope": "读取嵌套完整/约束模型、平方和差及自由度的课程说明；本站独立补写 Rβ=r₀ 的拉格朗日解与独立卡方证明，例子原创。未把课程网页或简单删变量情形称为指定教材正文。"
+    },
+    {
+      "id": "van-wieringen-ridge-mse-selected",
+      "date": "2026-10-17",
+      "title": "Wessel N. van Wieringen：岭回归的均方误差",
+      "url": "https://arxiv.org/pdf/1509.09169",
+      "pdfPages": [
+        18,
+        19,
+        20
+      ],
+      "concepts": [
+        "ridge-risk-existence"
+      ],
+      "scope": "选读第 1.5.3 节 MSE 及 Theorem 1.2 的存在性说明、证明相关段落，非全 166 页通读。本站采用独立的特征坐标/零点导数证明，只主张固定有限维系数欧氏风险的逐参数改进，并补写不存在通用固定正 λ 的反例；未移植高维渐近预测或矩阵风险的更强结论。"
+    },
+    {
+      "id": "mit-conditional-arrivals-selected",
+      "date": "2026-10-17",
+      "title": "MIT 6.262：条件到达密度与顺序统计量",
+      "url": "https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/3a19ce0e02d0008877351bfa24f3716a_MIT6_262S11_chap02.pdf",
+      "pdfPages": [
+        21,
+        22,
+        23
+      ],
+      "concepts": [
+        "poisson-conditional-arrivals"
+      ],
+      "scope": "选读第 2.5 节 Theorem 2.5.1、条件密度推导与均匀排序说明，正文印刷 89–91 页；未通读全 35 页。本网站另独立以间隔密度乘无后续到达概率推导、积分得到 Beta 边缘，并用四点原创例核对。不是盛骤第十二章正文。"
+    },
+    {
+      "id": "waterloo-mean-square-selected",
+      "date": "2026-10-17",
+      "title": "Michael Scott：均方连续与随机过程微分定义",
+      "url": "https://www.math.uwaterloo.ca/~mscott/Little_Notes.pdf",
+      "pdfPages": [
+        160,
+        161,
+        162,
+        163
+      ],
+      "concepts": [
+        "mean-square-continuity"
+      ],
+      "scope": "选读均方极限与依概率收敛、7.2 连续定义/平稳相关原点条件、7.3 差商定义及 OU 相关例型；非全 311 页通读。本站独立以 Cauchy–Schwarz 证明全轴一致连续，以零二阶矩证明周期，并明确逐时刻/同时轨道的量词；不沿用更一般随机微分条件的未展开表述。"
+    },
+    {
+      "id": "nist-censored-exponential-selected",
+      "date": "2026-10-17",
+      "title": "NIST：删失规则与指数寿命似然",
+      "url": "https://www.itl.nist.gov/div898/handbook/apr/section4/apr412.htm",
+      "webSections": [
+        "Likelihood Function Examples",
+        "MLEs for the Exponential Model"
+      ],
+      "concepts": [
+        "censored-likelihood",
+        "type2-exponential-pivot"
+      ],
+      "scope": "读取定时/定数删失似然及累计在试时间率估计；只采用具体指数模型部分，不将一般 MLE 的笼统大样本描述当作无条件定理。Gamma 间隔推导由本站独立展开，未标成盛骤正文。"
+    },
+    {
+      "id": "scholz-type2-exact-selected",
+      "date": "2026-10-17",
+      "title": "Fritz Scholz：完整及定数删失指数样本",
+      "url": "https://faculty.washington.edu/fscholz/Reports/weibullanalysis2002.pdf",
+      "pdfPages": [
+        70,
+        71
+      ],
+      "concepts": [
+        "type2-exponential-pivot"
+      ],
+      "scope": "选读 Complete & Type II Censored Exponential Samples 页的总在试时间、2r 自由度与精确覆盖说明，并对照下一页随机失效数方案的区别；非全 76 页通读。本站以有序密度/独立加权间隔独立证明枢轴，并另外给出倒数矩及原创数据。"
     }
   ]
 }

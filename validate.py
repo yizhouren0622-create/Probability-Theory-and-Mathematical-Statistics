@@ -683,6 +683,122 @@ for i,j in product(range(4),repeat=2):
     assert math.isclose(sum(projection[i][k]*projection[k][j] for k in range(4)),projection[i][j],abs_tol=1e-12)
 assert math.isclose(sum((o-100*p)**2/(100*p) for o,p in zip([18,22,33,27],probs)),1)
 assert math.isclose(math.exp(-.5),.6065306597126334,abs_tol=1e-12)
+# Exact zero-correlation laws: integrate after r=sin(theta), avoiding endpoint
+# singularities and checking both normalization and the null second moment.
+for n in [3,4,5,6,8,12]:
+    nu=n-2
+    constant=math.gamma((nu+1)/2)/(math.sqrt(math.pi)*math.gamma(nu/2))
+    theta_density=lambda t:constant*math.cos(t)**(n-3)
+    assert math.isclose(simpson_check(theta_density,-math.pi/2,math.pi/2),1,abs_tol=1e-10)
+    assert math.isclose(simpson_check(lambda t:math.sin(t)**2*theta_density(t),-math.pi/2,math.pi/2),1/(n-1),abs_tol=1e-10)
+    for r in [-.8,-.2,0,.3,.9]:
+        t=math.sqrt(nu)*r/math.sqrt(1-r*r)
+        t_pdf=math.gamma((nu+1)/2)/(math.sqrt(nu*math.pi)*math.gamma(nu/2))*(1+t*t/nu)**(-(nu+1)/2)
+        assert math.isclose(t_pdf*math.sqrt(nu)*(1-r*r)**(-1.5),constant*(1-r*r)**((nu-2)/2),rel_tol=1e-12)
+assert math.isclose(2*simpson_check(lambda r:.75*(1-r*r),.8,1),.056,abs_tol=1e-12)
+assert math.isclose(.8*math.sqrt(4)/math.sqrt(1-.8**2),8/3)
+# Constrained least squares: rational arithmetic on actual data with a
+# non-diagonal Gram matrix; verify constraints and both residual sums directly.
+from fractions import Fraction
+def transpose_check(a):
+    return [list(row) for row in zip(*a)]
+def matmul_check(a,b):
+    return [[sum(x*y for x,y in zip(row,col)) for col in zip(*b)] for row in a]
+def inverse_check(a):
+    n=len(a)
+    rows=[[Fraction(x) for x in row]+[Fraction(i==j) for j in range(n)] for i,row in enumerate(a)]
+    for j in range(n):
+        pivot=next(i for i in range(j,n) if rows[i][j])
+        rows[j],rows[pivot]=rows[pivot],rows[j]
+        scale=rows[j][j];rows[j]=[x/scale for x in rows[j]]
+        for i in range(n):
+            if i!=j:
+                scale=rows[i][j];rows[i]=[x-scale*y for x,y in zip(rows[i],rows[j])]
+    return [row[n:] for row in rows]
+design=[[1,x,x*x] for x in [-3,-2,-1,0,0,1,2,3]]
+response=[[v] for v in [1,2,2,1,3,4,3,6]]
+xt=transpose_check(design);gram=matmul_check(xt,design);g=inverse_check(gram)
+beta=matmul_check(g,matmul_check(xt,response))
+constraint=[[0,1,-1],[1,0,1]];target=[[Fraction(1,2)],[Fraction(1)]]
+delta=[[a[0]-b[0]] for a,b in zip(matmul_check(constraint,beta),target)]
+v=matmul_check(matmul_check(constraint,g),transpose_check(constraint))
+adjust=matmul_check(matmul_check(matmul_check(g,transpose_check(constraint)),inverse_check(v)),delta)
+restricted=[[a[0]-b[0]] for a,b in zip(beta,adjust)]
+assert matmul_check(constraint,restricted)==target
+full_fit=matmul_check(design,beta);restricted_fit=matmul_check(design,restricted)
+full_sse=sum((y[0]-f[0])**2 for y,f in zip(response,full_fit))
+restricted_sse=sum((y[0]-f[0])**2 for y,f in zip(response,restricted_fit))
+w=matmul_check(matmul_check(transpose_check(delta),inverse_check(v)),delta)[0][0]
+assert restricted_sse-full_sse==w and w>=0
+assert Fraction(1)**2/Fraction(1,10)+Fraction(-1)**2/Fraction(1,6)==16
+assert (16/2)/(18/9)==4
+# Risk is evaluated from coordinate-wise mean errors and noise variances, with
+# a second calculation by exact finite noise enumeration for a nonnormal model.
+d=10.;sigma2=1.;beta_true=4.
+risk=lambda lam:(sigma2*d+lam*lam*beta_true**2)/(d+lam)**2
+assert math.isclose(risk(1),26/121)
+assert math.isclose(risk(.01),.09981626764843547,abs_tol=1e-12)
+assert risk(.01)<risk(0)<risk(1)
+for lam in [0,.01,.1,1,5]:
+    ols_values=[beta_true+sign*math.sqrt(sigma2/d) for sign in [-1,1]]
+    finite_risk=mean((d*b/(d+lam)-beta_true)**2 for b in ols_values)
+    assert math.isclose(finite_risk,risk(lam),abs_tol=1e-12)
+step=1e-6
+assert math.isclose((risk(step)-risk(0))/step,-.02,abs_tol=1e-6)
+# Given N(T)=n: integrate beta order-statistic marginals and enumerate four
+# independent uniform subinterval labels to check conditional count dependence.
+for n in range(1,9):
+    for k in range(1,n+1):
+        constant=math.factorial(n)/(math.factorial(k-1)*math.factorial(n-k))
+        density_order=lambda u:constant*u**(k-1)*(1-u)**(n-k)
+        assert math.isclose(simpson_check(density_order,0,1),1,abs_tol=1e-9)
+        assert math.isclose(simpson_check(lambda u:u*density_order(u),0,1),k/(n+1),abs_tol=1e-9)
+labels=list(product(range(4),repeat=4))
+count_first=[sum(x==0 for x in row) for row in labels]
+count_last=[sum(x>=2 for x in row) for row in labels]
+assert sum(c==0 for c in count_first)==81
+assert sum(sum(x<2 for x in row)>=3 for row in labels)/256==5/16
+cov_conditional=mean(a*b for a,b in zip(count_first,count_last))-mean(count_first)*mean(count_last)
+assert cov_conditional==-.5
+# For a concrete random harmonic process, evaluate the actual squared
+# difference averaged over independent signs A/B, rather than only the formula.
+for t,h in product([0,.2,1,3],[-.5,.001,1,2*math.pi]):
+    increments=[a*(math.cos(t+h)-math.cos(t))+b*(math.sin(t+h)-math.sin(t)) for a,b in product([-1,1],repeat=2)]
+    assert math.isclose(mean(x*x for x in increments),2*(1-math.cos(h)),abs_tol=1e-12)
+for h in [1e-2,1e-3,1e-4]:
+    diff=-8*math.expm1(-2*h)
+    assert math.isclose((diff/h**2)*h,16,rel_tol=.011)
+    assert diff<16*h
+for h,tau in product([.001,.1,.7],[0,.2,1,2,7]):
+    r=lambda t:4*math.exp(-2*abs(t))
+    assert (r(tau+h)-r(tau))**2<=r(0)*2*(r(0)-r(h))+1e-12
+# Type-II exponential inference: integrate the gamma density and reciprocal
+# moments, and invert its CDF independently of the rounded supplied quantiles.
+failure_times=[2,4,7];n_life=5;r_life=3
+previous=0;weighted_spacings=[]
+for j,t in enumerate(failure_times):
+    weighted_spacings.append((n_life-j)*(t-previous));previous=t
+assert weighted_spacings==[10,8,9]
+assert sum(weighted_spacings)==sum(failure_times)+(n_life-r_life)*failure_times[-1]==27
+gamma_density=lambda w:w*w*math.exp(-w)/2
+assert math.isclose(simpson_check(gamma_density,0,50),1,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda w:w*gamma_density(w),0,50),3,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda w:(w-3)**2*gamma_density(w),0,50),3,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda w:w*math.exp(-w)/2,0,50),.5,abs_tol=1e-8)
+chi6_cdf=lambda x:1-math.exp(-x/2)*(1+x/2+x*x/8)
+def chi6_quantile_check(prob):
+    lo,hi=0.,60.
+    for _ in range(70):
+        mid=(lo+hi)/2
+        if chi6_cdf(mid)<prob:lo=mid
+        else:hi=mid
+    return (lo+hi)/2
+lower=chi6_quantile_check(.025);upper=chi6_quantile_check(.975)
+assert math.isclose(lower,1.237344,abs_tol=5e-7)
+assert math.isclose(upper,14.449375,abs_tol=5e-7)
+assert math.isclose(lower/54,.0229138,abs_tol=5e-8)
+assert math.isclose(upper/54,.267581,abs_tol=5e-7)
+assert math.isclose(chi6_cdf(upper)-chi6_cdf(lower),.95,abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
