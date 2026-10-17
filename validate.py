@@ -30,6 +30,7 @@ for e in exercises:
     assert e['concept'] in [c['id'] for c in concepts]
 for e in exams:
     assert sum(q['points'] for q in e['questions'])==100
+    assert e['minutes']>0 and isinstance(e['minutes'],int)
     assert all(q['solution'] and q['answer'] and q['rubric'] for q in e['questions'])
 class Page(HTMLParser):
     def __init__(self,text):
@@ -56,7 +57,7 @@ for filename,page in pages.items():
         assert (ROOT/target).exists(), (filename,link)
         if url.fragment and target.endswith('.html'):assert unquote(url.fragment) in pages[target].ids,(filename,link)
         links+=1
-assert len(pages)==40, len(pages)
+assert len(pages)==38+len(exams), len(pages)
 assert sum(x.math for x in pages.values())>300
 # Independent numerical checks for selected nontrivial examples.
 assert math.isclose(0.01*0.9/(0.01*0.9+0.99*0.05),2/13)
@@ -289,6 +290,21 @@ assert math.isclose(2.57058**2,6.60788,abs_tol=5e-6)
 assert all(f'P3-{i:02}' in pages['practice-3.html'].ids for i in range(11,20))
 assert all(f'P6-{i:02}' in pages['practice-6.html'].ids for i in (7,8))
 assert all(f'audit-3.{i}' in pages['sources.html'].ids for i in range(1,6))
+# Original chapter-3 exam: enumerate discrete cells and independently check
+# nontrivial integration regions, the Gamma tail and system reliability.
+exam_joint=[[.1,.2,.3],[.1,.1,.2]]
+assert math.isclose(sum(map(sum,exam_joint)),1)
+assert math.isclose(sum(exam_joint[0][:2]),.3)
+assert math.isclose(exam_joint[1][2]/sum(exam_joint[1]),.5)
+assert not math.isclose(exam_joint[0][0],sum(row[0] for row in exam_joint)*sum(exam_joint[0]))
+assert math.isclose(simpson_check(lambda y:3*y*y/8,0,2),1,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda x:3*(4-x*x)/16,0,2),1,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda y:3*y*y/16,0,2),.5,abs_tol=1e-10)
+# V>3 means y>3x in 0<x<y<1, a triangle with area 1/6 and density 2.
+assert math.isclose(simpson_check(lambda x:2*(1-3*x),0,1/3),1/3,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda s:4*s*s*math.exp(-2*s),2,40),13*math.exp(-4),abs_tol=1e-9)
+assert math.exp(-2)<2/math.e-math.exp(-2)<2/math.e
+assert all(q['id'] in pages[f'exam-{e["id"]}.html'].ids for e in exams for q in e['questions'])
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
@@ -326,4 +342,4 @@ r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
 assert 'boxplot.stats(x)$stats' in r_page
 assert 'CODETOKEN' not in r_page
-print(f'PASS: {len(pages)} pages, {links} local links/anchors, {sum(x.math for x in pages.values())} rendered formulas; {len(concepts)} concepts, {len(exercises)} exercises, 2 x 100-point exams; mathematical spot checks.')
+print(f'PASS: {len(pages)} pages, {links} local links/anchors, {sum(x.math for x in pages.values())} rendered formulas; {len(concepts)} concepts, {len(exercises)} exercises, {len(exams)} x 100-point exams; mathematical spot checks.')

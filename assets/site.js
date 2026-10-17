@@ -10,6 +10,7 @@
   if (reading) $('#main').prepend(reading);
   const index = window.STUDY_INDEX || [];
   const byId = new Map(index.map(x => [x.id, x]));
+  const examDurations = new Map(index.filter(x => x.kind === '模拟卷').map(x => [String(x.examId), x.examMinutes * 60000]));
   const blank = () => ({version: 1, notes: {}, progress: {}, recall: {}, scores: {}, timers: {}});
   let state = blank(), storageOK = true, toastTimeout;
   function toast(message) {
@@ -44,8 +45,9 @@
       result.scores[id] = value;
     }
     for (const [id, value] of Object.entries(raw.timers || {})) {
-      if (!['1', '2'].includes(id)) continue;
-      if (!object(value) || !Number.isFinite(value.remaining) || value.remaining < 0 || value.remaining > 3600000 || !(value.end === null || Number.isFinite(value.end))) throw new Error('计时数据不正确');
+      if (!examDurations.has(id)) continue;
+      const maxDuration = Math.max(3600000, examDurations.get(id));
+      if (!object(value) || !Number.isFinite(value.remaining) || value.remaining < 0 || value.remaining > maxDuration || !(value.end === null || Number.isFinite(value.end))) throw new Error('计时数据不正确');
       result.timers[id] = {remaining: value.remaining, end: value.end};
     }
     return result;

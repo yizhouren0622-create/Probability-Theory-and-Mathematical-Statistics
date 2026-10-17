@@ -141,12 +141,12 @@ h=re.sub(r'<p class="muted">(.*?)</p>',lambda m:'<div class="muted">'+md(html.un
 page('formulas.html','公式速查',h)
 
 # Exams
-h=heading('MOCK EXAMS','把学过的，放进一张试卷。','当前为前两章的两套原创自测卷 · 每套 100 分 · 计时、草稿与自评分数保存在本机')
+h=heading('MOCK EXAMS','把学过的，放进一张试卷。',f'当前提供 {len(exams)} 套原创自测卷 · 每套 100 分 · 计时、草稿与自评分数保存在本机')
 for e in exams:
-    h+=f'<section class="card exam-cover"><p class="eyebrow">PAPER 0{e["id"]}</p><h2>{e["title"]}</h2><p class="muted">{e["scope"]}</p><div class="exam-meta"><span>{e["minutes"]} 分钟</span><span>100 分</span><span>{len(e["questions"])} 道题</span></div><a class="primary" href="exam-{e["id"]}.html">进入模拟考场 →</a></section>'
+    h+=f'<section class="card exam-cover"><p class="eyebrow">PAPER {e["id"]:02}</p><h2>{e["title"]}</h2><p class="muted">{e["scope"]}</p><div class="exam-meta"><span>{e["minutes"]} 分钟</span><span>100 分</span><span>{len(e["questions"])} 道题</span></div><a class="primary" href="exam-{e["id"]}.html">进入模拟考场 →</a></section>'
 page('exams.html','模拟考场',h)
 for e in exams:
-    h=heading(f'PAPER 0{e["id"]} / SELF ASSESSMENT',e['title'],f'{e["minutes"]} 分钟 · 100 分 · 先独立作答，再展开解析与评分要点。')
+    h=heading(f'PAPER {e["id"]:02} / SELF ASSESSMENT',e['title'],f'{e["minutes"]} 分钟 · 100 分 · 先独立作答，再展开解析与评分要点。')
     h+=f'<div class="exam-toolbar" data-exam="{e["id"]}" data-minutes="{e["minutes"]}"><span class="timer" aria-label="剩余时间">{e["minutes"]}:00</span><button data-timer="toggle">开始计时</button><button data-timer="reset">重置计时</button><span class="exam-score">我的自评分 <strong id="exam-score">0</strong> / 100</span></div><p class="notice">倒计时到零会提醒，但不会删除草稿或锁定答案。暂停后停止计时；运行中关闭页面，重新打开仍按实际经过时间继续。</p>'
     for q in e['questions']:
         solution=detail('完成后再看：解答与评分',q['solution']+'\n\n**答案**\n\n'+q['answer']+'\n\n**评分要点**\n\n'+q['rubric'])
@@ -171,7 +171,7 @@ page('labs.html','概率实验室',h)
 # Sources
 h=heading('SOURCES & SCOPE','知道内容从哪里来，也知道它的边界。','教材版本、逐节内容清单与核对状态。')
 h+=f'<section class="card prose"><h2>教材与版本</h2><p>目标教材为浙江大学盛骤、谢式千、潘承毅编《概率论与数理统计》第六版，高等教育出版社，ISBN 9787040666892。已核对出版社公开的全部 14 章、{sum(len(c["sections"]) for c in chapters)} 节目录，包括标星选学节。</p><p><strong>第三章已逐页阅读官方第六版样章，按正文知识主题核对；全书其余章节的指定教材正文核对仍未完成。</strong>尚未取得全书可合法完整读取的正文，不能声称全书逐页核对完毕或全部知识点无遗漏。用户提供的第五版内层压缩包加密，未读取正文。</p></section>'
-h+=f'<section class="card prose"><h2>当前内容</h2><p>{len(concepts)} 张知识卡、{len(exercises)} 道原创分步练习，覆盖全书每一节；另保留前两章的 2 套模拟卷、12 道自测题，以及 3 个交互实验。扩展章节的模拟卷尚待补充。</p><p>知识卡区分定义、模型假设、证明和算法解释，配有条件、例子和易错点。P 开头是本站原创题号，不对应教材习题。旧链接和学习记录编号继续有效。R 代码为教学示例，未在本机 R 环境中实际运行。</p><p>全书内容为独立编写的复习资料。第三章的正文主题与样章逐节对照，教材例题、各节练习和章末习题未逐题复现或提供全解；其他章节继续按可读取正文审校并记录版本与页码。</p></section>'
+h+=f'<section class="card prose"><h2>当前内容</h2><p>{len(concepts)} 张知识卡、{len(exercises)} 道原创分步练习，覆盖全书每一节；另提供 {len(exams)} 套模拟卷、{sum(len(e["questions"]) for e in exams)} 道自测题，以及 3 个交互实验。尚无模拟卷的章节继续补充。</p><p>知识卡区分定义、模型假设、证明和算法解释，配有条件、例子和易错点。P 开头是本站原创题号，不对应教材习题。旧链接和学习记录编号继续有效。R 代码为教学示例，未在本机 R 环境中实际运行。</p><p>全书内容为独立编写的复习资料。第三章的正文主题与样章逐节对照，教材例题、各节练习和章末习题未逐题复现或提供全解；其他章节继续按可读取正文审校并记录版本与页码。</p></section>'
 h+='''<section class="card prose"><h2>可核实的来源</h2><ul class="sources-list"><li><a href="https://xuanshu.hep.com.cn/front/book/findBookDetails?bookId=6967ccf2e119ac97292654e8">高等教育出版社：第六版图书介绍、全书目录与官方试读入口</a>。已读取完整目录；官方试读为第三章，不能作为全书审校依据。</li><li><a href="https://xuanshu.hep.com.cn/front/h5Mobile/bookDetails?bookId=5c9a64e9f18f967ee7f3805c">高等教育出版社：第五版图书信息</a>。用于版本与目录对照。</li><li><a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html">R 官方 stats 文档</a>：统计函数定义与参数。</li><li><a href="https://stat.ethz.ch/R-manual/R-devel/library/boot/html/00Index.html">R 官方 boot 文档</a>：自助抽样与置信区间的使用说明。</li><li><a href="https://www.itl.nist.gov/div898/handbook/">NIST/SEMATECH 统计方法手册</a>：统计推断与试验分析的辅助参考。</li><li><a href="https://yizhouren0622-create.github.io/math-physics-review/">数学物理方法复习网站</a>：学习流程与布局参考。</li></ul></section>'''
 h+='<section class="card prose"><h2>第二章专项交叉核对</h2><p><a href="https://iaer.dufe.edu.cn/file/eeefaf43-8ff3-11ee-9d7b-005056a49984/概率论与数理统计教案.pdf">东北财经大学《概率论与数理统计》教案</a>采用盛骤等第五版作为教材，第二章列出几何分布、超几何分布及泊松定理等教学要点。本站据此补充两个分布的独立编写讲解与练习；教案不是第六版教材正文，不能据此宣称第六版已逐页核对。</p></section>'
 h+='<section class="card prose"><h2>第四章拓展参考</h2><p><a href="https://ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/d973b10c2587781f86ca4f2aff49098f_MITRES_6_012S18_Textbook.pdf">MIT OpenCourseWare《Introduction to Probability》公开摘要</a>列出全期望与全方差公式。本站据此独立编写离散分组下的定义、证明和练习；该资料不是盛骤教材，不能作为指定版本的正文核对记录。</p></section>'
@@ -208,6 +208,6 @@ for e in exercises:
     topic=next(x for x in concepts if x['id']==e['concept'])
     index.append(dict(id=e['id'],kind='原创练习',title=e['title'],text=e['question'],en=topic['title']+' '+topic['en'],url=f'practice-{e["chapter"]}.html#{e["id"]}',chapter=e['chapter']))
 for e in exams:
-    for q in e['questions']:index.append(dict(id=q['id'],kind='模拟卷',title=q['title'],text=q['question'],url=f'exam-{e["id"]}.html#{q["id"]}',chapter=e['id'],points=q['points']))
+    for q in e['questions']:index.append(dict(id=q['id'],kind='模拟卷',title=q['title'],text=q['question'],url=f'exam-{e["id"]}.html#{q["id"]}',chapter=e['id'],points=q['points'],examId=e['id'],examMinutes=e['minutes']))
 (ROOT/'assets/index-data.js').write_text('window.STUDY_INDEX='+json.dumps(index,ensure_ascii=False).replace('</','<\\/')+';\n',encoding='utf-8')
 print(f'Built {len(list(ROOT.glob("*.html")))} pages, {len(concepts)} concepts, {len(exercises)} exercises, {sum(len(e["questions"]) for e in exams)} exam questions.')

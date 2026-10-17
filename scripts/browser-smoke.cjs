@@ -8,6 +8,7 @@ const { pathToFileURL } = require('node:url');
   const root = path.resolve(__dirname, '..');
   const course = JSON.parse(await fs.readFile(path.join(root, 'data/course.json'), 'utf8'));
   const exercises = JSON.parse(await fs.readFile(path.join(root, 'data/exercises.json'), 'utf8'));
+  const exams = JSON.parse(await fs.readFile(path.join(root, 'data/exams.json'), 'utf8'));
   const base = process.env.SITE_BASE_URL;
   const output = path.join(root, 'artifacts/browser', base ? 'live' : 'local');
   await fs.mkdir(output, { recursive: true });
@@ -18,6 +19,7 @@ const { pathToFileURL } = require('node:url');
   });
   const errors = [];
   const report = [];
+  let pagesChecked = 0;
   try {
     if (base) {
       // Pages builds independently of this check; wait for the current content.
@@ -29,6 +31,11 @@ const { pathToFileURL } = require('node:url');
           const html = await response.text();
           return response.ok() && course[id-1].sections.flatMap(s => s.concepts).every(c => html.includes('id="' + c.id + '"'));
         }));
+        for (const exam of exams) {
+          const response = await probe.request.get(url('exam-' + exam.id + '.html') + '?review=' + Date.now());
+          const html = await response.text();
+          ready.push(response.ok() && exam.questions.every(q => html.includes('id="' + q.id + '"')));
+        }
         if (ready.every(Boolean)) {
           published = true;
           break;
@@ -73,18 +80,64 @@ const { pathToFileURL } = require('node:url');
         const missing = await page.evaluate(ids => ids.filter(id => !document.getElementById(id)), expected);
         if (missing.length) throw new Error('Missing exercises: ' + missing.join(','));
         report.push({ width, chapter: chapter.id, concepts: ids.length, exercises: expected.length });
+        pagesChecked += 2;
       }
-      await page.goto(url('sources.html'), { waitUntil: 'load' });
+      await page.goto(url('sources.html') + '#audit-3.5', { waitUntil: 'load' });
+      pagesChecked++;
       const sourceText = await page.locator('#coverage').innerText();
       if (!sourceText.includes('2026-10-17') || !sourceText.includes('70–110')) throw new Error('Source audit provenance missing');
-      await page.locator('#audit-3\\.5').evaluate(el => { el.closest('details').open = true; });
       if (!(await page.locator('#audit-3\\.5').isVisible())) throw new Error('Audit section cannot be opened');
       if (width === 390) await page.screenshot({ path: path.join(output,'source-audit.png') });
+      for (const exam of exams) {
+        await page.goto(url('exam-' + exam.id + '.html'), { waitUntil: 'load' });
+        pagesChecked++;
+        const check = await page.evaluate(ids => ({
+          missing: ids.filter(id => !document.getElementById(id)),
+          overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        }), exam.questions.map(q => q.id));
+        if (check.missing.length || check.overflow) throw new Error(JSON.stringify({ width, exam: exam.id, ...check }));
+        if (width === 390 && exam.id === 3) {
+          await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
+          await page.locator('#E3-1 details').evaluate(e => e.open = true);
+          await page.locator('#E3-4 details').evaluate(e => e.open = true);
+          for (const id of ['E3-1','E3-4']) await page.locator('#' + id).screenshot({ path:path.join(output,id+'.png') });
+        }
+      }
+      if (width === 390) {
+        // Seed an older valid record, then exercise the new >60-minute paper.
+        // All data live in this disposable browser context, never a user's tab.
+        await page.evaluate(() => localStorage.setItem('probability-study-v1', JSON.stringify({
+          version:1,notes:{'P1-01':'旧草稿'},progress:{'P1-01':'mastered'},recall:{},
+          scores:{'E1-1':6},timers:{'1':{remaining:3500000,end:null}},
+        })));
+        await page.goto(url('exam-3.html'), { waitUntil:'load' });
+        pagesChecked++;
+        await page.locator('[data-score="E3-1"]').fill('999');
+        if (await page.locator('[data-score="E3-1"]').inputValue() !== '15') throw new Error('Exam score was not clamped');
+        await page.locator('[data-score="E3-1"]').fill('7');
+        await page.locator('[data-note="E3-1"]').fill('第三章测试草稿');
+        await page.locator('[data-timer="toggle"]').click();
+        const firstEnd = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')).timers['3'].end);
+        await page.reload({ waitUntil:'load' });
+        pagesChecked++;
+        const resumed = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')));
+        if (resumed.timers['3'].end !== firstEnd || resumed.notes['E3-1'] !== '第三章测试草稿' || resumed.scores['E3-1'] !== 7) throw new Error('New paper did not resume');
+        await page.locator('[data-timer="toggle"]').click();
+        const paused = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')));
+        if (paused.timers['3'].end !== null || paused.timers['3'].remaining > 4500000 || paused.timers['3'].remaining < 4400000) throw new Error('New paper timer reset or failed to pause');
+        if (paused.notes['P1-01'] !== '旧草稿' || paused.progress['P1-01'] !== 'mastered' || paused.scores['E1-1'] !== 6 || paused.timers['1'].remaining !== 3500000) throw new Error('Legacy study data changed');
+        await page.goto(url('memory.html'), { waitUntil:'load' });
+        pagesChecked++;
+        await page.locator('#import-records').setInputFiles({name:'record.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({version:1,timers:{'3':{remaining:4000000,end:null}},scores:{'E3-1':14}}))});
+        await page.waitForFunction(() => document.querySelector('#toast').textContent.includes('已合并'));
+        const imported = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')));
+        if (imported.timers['3'].remaining !== 4000000 || imported.scores['E3-1'] !== 14 || imported.notes['P1-01'] !== '旧草稿') throw new Error('Long-paper record import failed');
+      }
       await context.close();
     }
     if (errors.length) throw new Error('Browser JavaScript errors: ' + errors.join('; '));
-    await fs.writeFile(path.join(output, 'report.json'), JSON.stringify({ pagesChecked: report.length * 2, checks: report }, null, 2));
-    console.log(JSON.stringify({ target: base || 'local files', pagesChecked: report.length * 2, errors: errors.length }));
+    await fs.writeFile(path.join(output, 'report.json'), JSON.stringify({ pagesChecked, checks: report, exams:exams.length,studyRecordCompatibility:true }, null, 2));
+    console.log(JSON.stringify({ target: base || 'local files', pagesChecked, errors: errors.length,studyRecordCompatibility:true }));
   } finally {
     await browser.close();
   }
