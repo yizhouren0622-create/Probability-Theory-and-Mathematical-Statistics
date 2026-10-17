@@ -5,11 +5,18 @@ from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
 ROOT=Path(__file__).resolve().parent
 load=lambda x:json.loads((ROOT/'data'/x).read_text(encoding='utf-8'))
-course=load('course.json');exercises=load('exercises.json');exams=load('exams.json')
+course=load('course.json');exercises=load('exercises.json');exams=load('exams.json');audit=load('source-audit.json')
 concepts=[x for c in course for s in c['sections'] for x in s['concepts']]
 ids=[x['id'] for x in concepts+exercises]+[q['id'] for e in exams for q in e['questions']]
 assert len(ids)==len(set(ids)), 'Duplicate content ids'
 assert [len(c['sections']) for c in course]==[6,5,5,5,2,3,8,8,6,3,6,3,3,4]
+section_ids={s['id'] for c in course for s in c['sections']}
+for sid,record in audit['sections'].items():
+    assert sid in section_ids and record['status']=='body_topics_reviewed'
+    source=audit['sources'][record['source']]
+    assert source['printedPages'][0]<=record['pages'][0]<=record['pages'][1]<=source['printedPages'][1]
+    assert source['samplePages']==source['printedPages'][1]-source['printedPages'][0]+1
+    assert source['edition'] in (5,6) and source['readDate'] and record['topics']
 for c in course:
     for s in c['sections']:
         assert s['concepts'], s['id']
@@ -238,6 +245,50 @@ assert math.isclose(simpson_check(lambda x:x*math.exp(-x/2)/4,2,80),2/math.e,abs
 assert math.isclose(simpson_check(lambda x:x*x*math.exp(-x/2)/4,0,80),4,abs_tol=1e-9)
 assert all(x in pages['chapter-6.html'].ids for x in ('sample-order-statistics','chi-square-density'))
 assert all(x in pages['practice-6.html'].ids for x in ('P6-05','P6-06'))
+# Chapter 3 sample-audit additions: independent enumeration, quadrature and
+# coordinate-area calculations for original examples, not textbook answers.
+bits=list(__import__('itertools').product((0,1),repeat=4))
+assert sum(a+b==1 and max(c,d)==1 for a,b,c,d in bits)/16==3/8
+assert sum(a+b==0 and b+c==0 for a,b,c,d in bits)/16==1/8
+mapped={}
+for x,y,p in [(0,0,1/8),(0,1,3/8),(1,0,1/4),(1,1,1/4)]:
+    key=(x+y,x*y);mapped[key]=mapped.get(key,0)+p
+assert mapped=={(0,0):1/8,(1,0):5/8,(2,1):1/4}
+# Original (x,y) triangle 0<y<x and x+y<1/2, split at x=1/4.
+triangle_area=simpson_check(lambda x:x,0,.25)+simpson_check(lambda x:.5-x,.25,.5)
+assert math.isclose(triangle_area,1/16,abs_tol=1e-10)
+for y in (.04,.25,.81):
+    posterior_mass=simpson_check(lambda x:1/(-x*math.log(y)),y,1)
+    posterior_tail=simpson_check(lambda x:1/(-x*math.log(y)),math.sqrt(y),1)
+    assert math.isclose(posterior_mass,1,abs_tol=1e-9)
+    assert math.isclose(posterior_tail,.5,abs_tol=1e-9)
+gamma_tail=simpson_check(lambda s:27*s*s*math.exp(-3*s)/2,1,20)
+assert math.isclose(gamma_tail,17/(2*math.e**3),abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda s:27*s*s*math.exp(-3*s)/2,0,20),1,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda s:s*27*s*s*math.exp(-3*s)/2,0,20),1,abs_tol=1e-9)
+# Numeric convolution agrees with the completed-square normal result.
+def normal_pdf(x,mu,var):return math.exp(-(x-mu)**2/(2*var))/math.sqrt(2*math.pi*var)
+for z in (0,8,14):
+    convolved=simpson_check(lambda u:normal_pdf(u,3,36)*normal_pdf(z-1-u,4,36),-70,80)
+    assert math.isclose(convolved,normal_pdf(z,8,72),rel_tol=1e-9)
+t0=math.log(2)
+assert math.isclose(math.exp(-5*t0),1/32)
+assert math.isclose(1-(1-math.exp(-2*t0))*(1-math.exp(-3*t0)),11/32)
+assert math.isclose(simpson_check(lambda s:6*(math.exp(-2*s)-math.exp(-3*s)),t0,30),.5,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda r:r*r*(r/4)*math.exp(-r*r/8),0,30),8,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda t:1/(math.pi*(1+t*t)),-math.sqrt(3),math.sqrt(3)),2/3,abs_tol=1e-10)
+# Verify t²/F quantile relation with two different numerical integrals.
+def t5_pdf(t):return math.gamma(3)/(math.sqrt(5*math.pi)*math.gamma(2.5))*(1+t*t/5)**-3
+central_t=simpson_check(t5_pdf,-2.57058,2.57058)
+# Substitute q=s² to remove the q^-1/2 singularity in F(1,5).
+f_const=math.sqrt(1/5)*math.gamma(3)/(math.gamma(.5)*math.gamma(2.5))
+central_f=simpson_check(lambda s:2*f_const*(1+s*s/5)**-3,0,2.57058)
+assert math.isclose(central_t,.95,abs_tol=2e-7)
+assert math.isclose(central_t,central_f,abs_tol=1e-10)
+assert math.isclose(2.57058**2,6.60788,abs_tol=5e-6)
+assert all(f'P3-{i:02}' in pages['practice-3.html'].ids for i in range(11,20))
+assert all(f'P6-{i:02}' in pages['practice-6.html'].ids for i in (7,8))
+assert all(f'audit-3.{i}' in pages['sources.html'].ids for i in range(1,6))
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product

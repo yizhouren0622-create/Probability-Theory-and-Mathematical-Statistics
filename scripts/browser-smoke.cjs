@@ -24,16 +24,19 @@ const { pathToFileURL } = require('node:url');
       const probe = await browser.newContext();
       let published = false;
       for (let attempt = 0; attempt < 18; attempt++) {
-        const response = await probe.request.get(url('chapter-6.html') + '?review=' + Date.now());
-        const html = await response.text();
-        if (response.ok() && course[5].sections.flatMap(s => s.concepts).every(c => html.includes('id="' + c.id + '"'))) {
+        const ready = await Promise.all([3,6].map(async id => {
+          const response = await probe.request.get(url('chapter-' + id + '.html') + '?review=' + Date.now());
+          const html = await response.text();
+          return response.ok() && course[id-1].sections.flatMap(s => s.concepts).every(c => html.includes('id="' + c.id + '"'));
+        }));
+        if (ready.every(Boolean)) {
           published = true;
           break;
         }
         await new Promise(resolve => setTimeout(resolve, 10000));
       }
       await probe.close();
-      if (!published) throw new Error('Pages has not served the current chapter 6 content');
+      if (!published) throw new Error('Pages has not served the current chapter 3/6 content');
     }
     for (const width of [1280, 390]) {
       const context = await browser.newContext({ viewport: { width, height: 900 } });
@@ -57,7 +60,8 @@ const { pathToFileURL } = require('node:url');
         if (corrected && !(await page.locator('#' + corrected[0]).innerText()).includes(corrected[1])) throw new Error('Mathematical wording correction missing');
         if (width === 390) {
           const screenshots = {
-            6: ['sample-order-statistics', 'chi-square-density'],
+            3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
+            6: ['student-t-density','f-density-t-square'],
             10: ['bootstrap-ci-inversion'],
             14: ['mean-ergodicity'],
           }[chapter.id] || [];
@@ -70,6 +74,12 @@ const { pathToFileURL } = require('node:url');
         if (missing.length) throw new Error('Missing exercises: ' + missing.join(','));
         report.push({ width, chapter: chapter.id, concepts: ids.length, exercises: expected.length });
       }
+      await page.goto(url('sources.html'), { waitUntil: 'load' });
+      const sourceText = await page.locator('#coverage').innerText();
+      if (!sourceText.includes('2026-10-17') || !sourceText.includes('70–110')) throw new Error('Source audit provenance missing');
+      await page.locator('#audit-3\\.5').evaluate(el => { el.closest('details').open = true; });
+      if (!(await page.locator('#audit-3\\.5').isVisible())) throw new Error('Audit section cannot be opened');
+      if (width === 390) await page.screenshot({ path: path.join(output,'source-audit.png') });
       await context.close();
     }
     if (errors.length) throw new Error('Browser JavaScript errors: ' + errors.join('; '));

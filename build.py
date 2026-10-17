@@ -6,9 +6,9 @@ from latex2mathml.converter import convert
 
 ROOT=Path(__file__).resolve().parent
 read=lambda name:json.loads((ROOT/'data'/name).read_text(encoding='utf-8'))
-chapters=read('course.json'); exercises=read('exercises.json'); exams=read('exams.json')
+chapters=read('course.json'); exercises=read('exercises.json'); exams=read('exams.json'); audit=read('source-audit.json')
 concepts=[dict(x,chapter=c['id'],section=s['id']) for c in chapters for s in c['sections'] for x in s['concepts']]
-asset_version=hashlib.sha256(b''.join((ROOT/p).read_bytes() for p in ['build.py','assets/site.css','assets/site.js','data/course.json','data/exercises.json','data/exams.json'])).hexdigest()[:12]
+asset_version=hashlib.sha256(b''.join((ROOT/p).read_bytes() for p in ['build.py','assets/site.css','assets/site.js','data/course.json','data/exercises.json','data/exams.json','data/source-audit.json'])).hexdigest()[:12]
 esc=lambda s:html.escape(str(s),quote=True)
 def md(text):
     tokens=[]
@@ -78,9 +78,14 @@ for c in chapters:
     h=heading(f'CHAPTER {c["id"]:02} / CONCEPTS',c['title'],c['summary']+' 每张卡包含解释、条件、推导、例题与易错点。')
     h+='<nav class="chapter-selector" aria-label="知识点章节切换"><a href="chapters.html">← 全书知识地图</a><label for="chapter-jump">切换章节</label><select id="chapter-jump">'+''.join(f'<option value="chapter-{other["id"]}.html"'+(' selected' if other['id']==c['id'] else '')+f'>第 {other["id"]} 章 · {other["title"]}</option>' for other in chapters)+'</select></nav>'
     h+='<nav class="toc" aria-label="本章目录">'+''.join(f'<a href="#section-{s["id"]}">{s["id"]} {s["title"]}</a>' for s in c['sections'])+'</nav>'
-    h+='<p class="notice">已补充术语、性质与证明。教材正文的逐页核对仍待完成，<a href="sources.html#coverage">查看逐节内容清单与核对状态</a>。</p><div class="actions proof-controls"><button data-proofs="open">展开本章全部证明</button><button data-proofs="close">收起本章全部证明</button></div>'
+    reviewed=all(t['id'] in audit['sections'] for t in c['sections'])
+    scope='本章已按第六版官方样章逐页阅读，并核对正文知识主题；教材例题和习题未逐题复现。' if reviewed else '已补充术语、性质与证明；本章指定教材正文的逐页核对仍待完成。'
+    h+=f'<p class="notice">{scope}<a href="sources.html#coverage">查看逐节内容清单、页码与核对状态</a>。</p><div class="actions proof-controls"><button data-proofs="open">展开本章全部证明</button><button data-proofs="close">收起本章全部证明</button></div>'
     for s in c['sections']:
         h+=f'<section class="study-section" id="section-{s["id"]}"><p class="eyebrow">SECTION {s["id"]}</p><h2>{s["title"]}</h2>'
+        if s['id'] in audit['sections']:
+            record=audit['sections'][s['id']]; source=audit['sources'][record['source']]
+            h+=f'<p class="subtitle">正文主题已核对 · 第{source["edition"]}版第 {record["pages"][0]}–{record["pages"][1]} 页 · <a href="sources.html#audit-{s["id"]}">核对明细</a></p>'
         h+=f'<nav class="topic-index" aria-label="第 {s["id"]} 节知识点">'+''.join(f'<a href="#{x["id"]}">{x["title"]}</a>' for x in s['concepts'])+'</nav>'
         for x in s['concepts']:
             related=[e for e in exercises if e['concept']==x['id']]
@@ -165,13 +170,13 @@ page('labs.html','概率实验室',h)
 
 # Sources
 h=heading('SOURCES & SCOPE','知道内容从哪里来，也知道它的边界。','教材版本、逐节内容清单与核对状态。')
-h+=f'<section class="card prose"><h2>教材与版本</h2><p>目标教材为浙江大学盛骤、谢式千、潘承毅编《概率论与数理统计》第六版，高等教育出版社，ISBN 9787040666892。已核对出版社公开的全部 14 章、{sum(len(c["sections"]) for c in chapters)} 节目录，包括标星选学节。</p><p><strong>尚未取得可合法完整读取的指定教材正文，不能声称已逐页核对或全部知识点无遗漏。</strong>用户提供的第五版内层压缩包加密，未读取正文。公开目录用于组织章节，不能代替正文审校。</p></section>'
-h+=f'<section class="card prose"><h2>当前内容</h2><p>{len(concepts)} 张知识卡、{len(exercises)} 道原创分步练习，覆盖全书每一节；另保留前两章的 2 套模拟卷、12 道自测题，以及 3 个交互实验。扩展章节的模拟卷尚待补充。</p><p>知识卡区分定义、模型假设、证明和算法解释，配有条件、例子和易错点。P 开头是本站原创题号，不对应教材习题。旧链接和学习记录编号继续有效。R 代码为教学示例，未在本机 R 环境中实际运行。</p><p>全书内容为独立编写的复习资料。章节有内容不等于教材已逐页读完；后续会据可读取正文继续补充遗漏，并记录具体版本与页码。</p></section>'
+h+=f'<section class="card prose"><h2>教材与版本</h2><p>目标教材为浙江大学盛骤、谢式千、潘承毅编《概率论与数理统计》第六版，高等教育出版社，ISBN 9787040666892。已核对出版社公开的全部 14 章、{sum(len(c["sections"]) for c in chapters)} 节目录，包括标星选学节。</p><p><strong>第三章已逐页阅读官方第六版样章，按正文知识主题核对；全书其余章节的指定教材正文核对仍未完成。</strong>尚未取得全书可合法完整读取的正文，不能声称全书逐页核对完毕或全部知识点无遗漏。用户提供的第五版内层压缩包加密，未读取正文。</p></section>'
+h+=f'<section class="card prose"><h2>当前内容</h2><p>{len(concepts)} 张知识卡、{len(exercises)} 道原创分步练习，覆盖全书每一节；另保留前两章的 2 套模拟卷、12 道自测题，以及 3 个交互实验。扩展章节的模拟卷尚待补充。</p><p>知识卡区分定义、模型假设、证明和算法解释，配有条件、例子和易错点。P 开头是本站原创题号，不对应教材习题。旧链接和学习记录编号继续有效。R 代码为教学示例，未在本机 R 环境中实际运行。</p><p>全书内容为独立编写的复习资料。第三章的正文主题与样章逐节对照，教材例题、各节练习和章末习题未逐题复现或提供全解；其他章节继续按可读取正文审校并记录版本与页码。</p></section>'
 h+='''<section class="card prose"><h2>可核实的来源</h2><ul class="sources-list"><li><a href="https://xuanshu.hep.com.cn/front/book/findBookDetails?bookId=6967ccf2e119ac97292654e8">高等教育出版社：第六版图书介绍、全书目录与官方试读入口</a>。已读取完整目录；官方试读为第三章，不能作为全书审校依据。</li><li><a href="https://xuanshu.hep.com.cn/front/h5Mobile/bookDetails?bookId=5c9a64e9f18f967ee7f3805c">高等教育出版社：第五版图书信息</a>。用于版本与目录对照。</li><li><a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html">R 官方 stats 文档</a>：统计函数定义与参数。</li><li><a href="https://stat.ethz.ch/R-manual/R-devel/library/boot/html/00Index.html">R 官方 boot 文档</a>：自助抽样与置信区间的使用说明。</li><li><a href="https://www.itl.nist.gov/div898/handbook/">NIST/SEMATECH 统计方法手册</a>：统计推断与试验分析的辅助参考。</li><li><a href="https://yizhouren0622-create.github.io/math-physics-review/">数学物理方法复习网站</a>：学习流程与布局参考。</li></ul></section>'''
 h+='<section class="card prose"><h2>第二章专项交叉核对</h2><p><a href="https://iaer.dufe.edu.cn/file/eeefaf43-8ff3-11ee-9d7b-005056a49984/概率论与数理统计教案.pdf">东北财经大学《概率论与数理统计》教案</a>采用盛骤等第五版作为教材，第二章列出几何分布、超几何分布及泊松定理等教学要点。本站据此补充两个分布的独立编写讲解与练习；教案不是第六版教材正文，不能据此宣称第六版已逐页核对。</p></section>'
 h+='<section class="card prose"><h2>第四章拓展参考</h2><p><a href="https://ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/d973b10c2587781f86ca4f2aff49098f_MITRES_6_012S18_Textbook.pdf">MIT OpenCourseWare《Introduction to Probability》公开摘要</a>列出全期望与全方差公式。本站据此独立编写离散分组下的定义、证明和练习；该资料不是盛骤教材，不能作为指定版本的正文核对记录。</p></section>'
 h+='<section class="card prose"><h2>第五章拓展参考</h2><p><a href="https://ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/d973b10c2587781f86ca4f2aff49098f_MITRES_6_012S18_Textbook.pdf">MIT OpenCourseWare《Introduction to Probability》公开摘要</a>列有马尔可夫不等式、切比雪夫不等式及二项分布的正态近似；<a href="https://ocw.mit.edu/courses/18-655-mathematical-statistics-spring-2016/6c41b4096a836ff41f8de46cf54b5b7c_MIT18_655S16_LecNote15.pdf">MIT《Mathematical Statistics》极限定理讲义</a>列有棣莫弗—拉普拉斯定理和连续性修正。本站据此交叉核对公式并独立编写说明、证明和练习；它们不是盛骤教材正文。</p></section>'
-h+='<section class="card prose"><h2>第六章抽样分布参考</h2><p><a href="https://ocw.mit.edu/courses/18-443-statistics-for-applications-spring-2015/06daf6d78e7eb0465d6bb53e8f96b2ff_MIT18_443S15_LEC11.pdf">MIT OpenCourseWare 次序统计量讲义</a>与<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm">NIST 卡方分布说明</a>用于交叉核对排序样本的分布、卡方密度与数字特征。本站独立编写推导和练习；它们不是盛骤指定教材正文。</p></section>'
+h+='<section class="card prose"><h2>第六章抽样分布参考</h2><p><a href="https://ocw.mit.edu/courses/18-443-statistics-for-applications-spring-2015/06daf6d78e7eb0465d6bb53e8f96b2ff_MIT18_443S15_LEC11.pdf">MIT OpenCourseWare 次序统计量讲义</a>与<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm">NIST 卡方分布说明</a>用于交叉核对排序样本的分布、卡方密度与数字特征。<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda3664.htm">NIST t 分布说明</a>及<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda3665.htm">F 分布说明</a>用于核对密度、尾部与矩的存在条件。本站独立编写推导、平方关系证明和练习；它们不是盛骤指定教材正文。</p></section>'
 h+='<section class="card prose"><h2>第七章拓展参考</h2><p><a href="https://ocw.mit.edu/courses/9-07-statistics-for-brain-and-cognitive-science-fall-2016/beb2665d692b4c4da1a4156cc8e6a393_MIT9_07F16_lec9.pdf">MIT OpenCourseWare《Likelihood Theory I &amp; II》讲义</a>用于交叉核对费舍尔信息和 Cramér–Rao 下界及其正则条件；<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda358.htm">NIST 正态样本方差卡方分布说明</a>辅助核对样本方差的抽样分布。本站独立编写证明、数值例题与练习；费舍尔信息卡标为拓展，并未核对为盛骤第六版正文内容。</p></section>'
 h+='<section class="card prose"><h2>第八章推导参考</h2><p><a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35f.htm">NIST 卡方拟合检验说明</a>与<a href="https://online.stat.psu.edu/stat504/Lesson02">宾州州立大学《Binomial and Multinomial Inference》公开课程</a>用于交叉核对 Pearson 统计量、自由度及参数估计的条件。本站独立编写给定类别概率时的多项中心极限定理与投影证明，以及原创练习；这些外部资料不构成盛骤第六版教材正文核对。</p></section>'
 h+='<section class="card prose"><h2>第九章推导参考</h2><p><a href="https://www.itl.nist.gov/div898/handbook/prc/section4/prc426.htm">NIST 单因素方差分析的对比说明</a>用于交叉核对对比、标准误与误差自由度；<a href="https://ocw.mit.edu/courses/15-075j-statistical-thinking-and-data-analysis-fall-2011/ddc78dd2737c4a68130e976afb7b1f5f_MIT15_075JF11_chpt10.pdf">MIT OpenCourseWare 一元回归讲义</a>与<a href="https://online.stat.psu.edu/stat501/Lesson01">宾州州立大学回归课程</a>用于交叉核对回归平方和、R² 与单斜率的 t/F 关系。本站独立编写证明和练习；这些资料不是盛骤指定教材正文。</p></section>'
@@ -180,10 +185,17 @@ h+='<section class="card prose"><h2>第十二章泊松过程参考</h2><p><a hre
 h+='<section class="card prose"><h2>第十三章马尔可夫链参考</h2><p><a href="https://ocw.mit.edu/courses/6-438-algorithms-for-inference-fall-2014/e193ad751ae309992372b55e70b8a080_MIT6_438F14_Lec18.pdf">MIT OpenCourseWare 细致平衡讲义</a>用于核对可逆性及其推出平稳分布的条件；<a href="https://live.ocw.mit.edu/courses/res-6-012-introduction-to-probability-spring-2018/d973b10c2587781f86ca4f2aff49098f_MITRES_6_012S18_Textbook.pdf">MIT 概率教材公开摘要的吸收时间小节</a>用于核对一步分析方程。本站独立编写基本矩阵推导、反例和练习；这些资料不是盛骤第六版教材正文。</p></section>'
 h+='<section class="card prose"><h2>第十四章平稳序列参考</h2><p><a href="https://online.stat.psu.edu/stat510/Lesson01">宾州州立大学 AR(1) 平稳性与自相关课程</a>、<a href="https://online.stat.psu.edu/stat510/Lesson02">AR(1) 因果级数课程</a>及<a href="https://online.stat.psu.edu/stat510/Lesson12">谱分析课程</a>用于交叉核对离散时间 AR(1) 的方差、相关与频率约定。本站独立编写证明和练习；这些资料不是盛骤指定教材正文。</p></section>'
 h+='<section class="card prose" id="coverage"><h2>逐节内容清单与核对状态</h2><p><strong>目录：已核实。讲解与练习：已编写。指定教材正文逐页核对：未完成。</strong>以下列出实际写入的知识卡。数学验证包含公式渲染、若干数值交叉检验及推导检查，不表示已穷尽所有定理和教材例题。</p>'
+for source in audit['sources'].values():
+    h+=f'<p><strong>{esc(source["title"])}</strong>：{esc(source["readDate"])} 阅读，共 {source["samplePages"]} 页，印刷页码 {source["printedPages"][0]}–{source["printedPages"][1]}。{esc(source["scope"])} <a href="{esc(source["url"])}">出版社试读入口 ↗</a></p>'
 for c in chapters:
     h+=f'<details><summary>第 {c["id"]} 章 · {c["title"]}</summary><div class="detail-body">'
     for t in c['sections']:
-        h+=f'<h4>{t["id"]} {t["title"]}</h4><ul>'+''.join(f'<li><a href="chapter-{c["id"]}.html#{x["id"]}">{x["title"]}</a></li>' for x in t['concepts'])+'</ul>'
+        h+=f'<h4 id="audit-{t["id"]}">{t["id"]} {t["title"]}</h4>'
+        if t['id'] in audit['sections']:
+            record=audit['sections'][t['id']];source=audit['sources'][record['source']]
+            h+=f'<p><strong>正文主题已核对</strong>：第{source["edition"]}版第 {record["pages"][0]}–{record["pages"][1]} 页。{esc(record["changes"])}</p><p>核对主题：'+esc('；'.join(record['topics']))+'。</p>'
+        else:h+='<p>指定教材正文：待核对。以下为独立编写的讲解与练习。</p>'
+        h+='<ul>'+''.join(f'<li><a href="chapter-{c["id"]}.html#{x["id"]}">{x["title"]}</a></li>' for x in t['concepts'])+'</ul>'
     h+='</div></details>'
 h+='</section><section class="card prose"><h2>修订记录</h2><p>2026-10-13：创建并扩充前两章，补充泊松定理及二项分布的泊松近似、关键术语和性质证明。2026-10-14：按用户要求扩展至全书，增加章节地图和章节切换，保留旧锚点、题号与学习记录。</p><p>如发现遗漏或错误，请在 <a href="https://github.com/yizhouren0622-create/Probability-Theory-and-Mathematical-Statistics/issues">仓库 Issues</a> 提供章节、知识卡或题号以及修正依据。</p></section>'
 page('sources.html','资料与版本',h)
