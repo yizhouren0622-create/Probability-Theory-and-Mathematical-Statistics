@@ -510,6 +510,95 @@
       "webSections": [
         "搜索结果所展示的 Variance of the Sample Variance 段落"
       ]
+    },
+    {
+      "id": "umn-contingency-designs-selected",
+      "date": "2026-10-17",
+      "title": "Charles J. Geyer：二维列联表的抽样方式",
+      "url": "https://www.stat.umn.edu/geyer/f21/5421/notes/multi-simple.html",
+      "webSections": [
+        "3 Two-Dimensional Tables，抽样设计说明"
+      ],
+      "concepts": [
+        "contingency-independence-proof",
+        "homogeneity-projection-proof"
+      ],
+      "scope": "阅读多项、乘积多项与条件化的抽样设计说明及相同期望/自由度结论；本站独立补写边际似然严格凹性、导数秩验证，以及固定行模型的双正交投影证明，未把该网页其余 GLM/R 示例标成已运行或指定教材正文。"
+    },
+    {
+      "id": "berkeley-contingency-designs-selected",
+      "date": "2026-10-17",
+      "title": "Berkeley Stat135：独立性检验与齐一性设计",
+      "url": "https://stat135.berkeley.edu/spring-2026/lectures/lecture-33.html",
+      "webSections": [
+        "MLEs and Expected Counts",
+        "Test Statistic and Degrees of Freedom",
+        "Summarizing the steps"
+      ],
+      "concepts": [
+        "contingency-independence-proof",
+        "homogeneity-projection-proof"
+      ],
+      "scope": "读取 MLE、期望频数和两种抽样设计段落。本站明确卡方是渐近极限，不沿用网页部分简写为有限样本精确分布的符号；例题和投影推导独立编写。"
+    },
+    {
+      "id": "r-fisher-conditional-doc",
+      "date": "2026-10-17",
+      "title": "R stats 官方：Fisher 条件分布与双侧概率排序",
+      "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/fisher.test.html",
+      "webSections": [
+        "Description",
+        "Details，2×2 超几何与双侧定义"
+      ],
+      "concepts": [
+        "fisher-exact-conditional"
+      ],
+      "scope": "读取2×2条件超几何、比值比为1的零假设及双侧概率排序规则；本站独立展开固定边际概率与水平控制证明、原创7个单位例。没有新增 fisher.test 实际执行记录，也未改动原六段 R 验证代码。"
+    },
+    {
+      "id": "mit-memoryless-characterization-selected",
+      "date": "2026-10-17",
+      "title": "MIT 6.262：无记忆分布的指数与几何特征",
+      "url": "https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/3a19ce0e02d0008877351bfa24f3716a_MIT6_262S11_chap02.pdf",
+      "pdfPages": [
+        4,
+        5
+      ],
+      "concepts": [
+        "memoryless-characterization"
+      ],
+      "scope": "阅读2.2.1中的定义、对数函数相加/单调性论证及整数几何说明。本站独立补出尾概率处处正、有理数夹逼、排除非正常无限等待和q=0边界的步骤；不声称这些页是指定教材。"
+    },
+    {
+      "id": "mit-gaussian-normalization-selected",
+      "date": "2026-10-17",
+      "title": "Scott Sheffield MIT18.440：正态归一化与分部积分",
+      "url": "https://math.mit.edu/~sheffield/440/Lecture19.pdf",
+      "pdfPages": [
+        23,
+        29
+      ],
+      "concepts": [
+        "gaussian-integral-moments"
+      ],
+      "scope": "选读极坐标计算高斯积分及分部积分计算二阶矩两张完整构建页，非全55页通读。本站独立补矩存在性、一般递推、原点/中心四阶矩及原创建模数字，未把更一般矩递推称为该两页的逐字内容。"
+    },
+    {
+      "id": "nist-two-way-anova-selected",
+      "date": "2026-10-17",
+      "title": "NIST：平衡固定效应双因素模型与方差分析表",
+      "url": "https://www.itl.nist.gov/div898/handbook/prc/section4/prc437.htm",
+      "webSections": [
+        "Model for the two-way factorial experiment",
+        "Fixed factors and fixed effects models",
+        "The breakdown of the total (corrected for the mean) sums of squares"
+      ],
+      "concepts": [
+        "two-way-anova",
+        "two-way-orthogonal-proof",
+        "two-way-no-replication"
+      ],
+      "scope": "读取模型、固定因素说明和平方和/自由度表。本站独立构造五个正交空间，证明效应估计、均方期望与中心/非中心卡方，并以每格一次的数据说明无交互额外条件；不是指定教材第九章正文，也没有新增R执行。另对照NIST ppc232网页模型/检验段落，未使用其MSI行的SSC笔误。"
     }
   ]
 }

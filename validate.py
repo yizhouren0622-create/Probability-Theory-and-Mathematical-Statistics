@@ -834,6 +834,113 @@ for eta in eta_values:
     profiles.append(max(likelihood(.5-root),likelihood(.5+root)))
 assert math.isclose(eta_values[profiles.index(max(profiles))],.16)
 assert math.isclose(max(profiles),likelihood(.8),rel_tol=1e-12)
+# Contingency tables: derive the fitted multinomial tangent projection with an
+# actual full-rank Jacobian, independently of just counting parameters.
+row_probs=[.2,.3,.5];col_probs=[.4,.6]
+cell_probs=[a*b for a in row_probs for b in col_probs]
+jacobian=[]
+for i,j in product(range(3),range(2)):
+    jacobian.append([col_probs[j]*((i==k)-(i==2)) for k in range(2)]+[row_probs[i]*(1 if j==0 else -1)])
+weighted=[[v/math.sqrt(p) for v in row] for p,row in zip(cell_probs,jacobian)]
+info=matmul_check(transpose_check(weighted),weighted)
+tangent=matmul_check(matmul_check(weighted,inverse_check(info)),transpose_check(weighted))
+residual=[[(i==j)-math.sqrt(cell_probs[i]*cell_probs[j])-tangent[i][j] for j in range(6)] for i in range(6)]
+assert math.isclose(sum(residual[i][i] for i in range(6)),2,abs_tol=1e-12)
+for i,j in product(range(6),repeat=2):
+    ri,ci=divmod(i,2);rj,cj=divmod(j,2)
+    expected=((ri==rj)-math.sqrt(row_probs[ri]*row_probs[rj]))*((ci==cj)-math.sqrt(col_probs[ci]*col_probs[cj]))
+    assert math.isclose(residual[i][j],expected,abs_tol=1e-12)
+    assert math.isclose(sum(residual[i][k]*residual[k][j] for k in range(6)),residual[i][j],abs_tol=1e-12)
+# Fixed-row sampling: check the exact pooled-residual identity for unequal row
+# sizes; it is a different covariance/projection from a single multinomial.
+counts=[[5,4,8],[5,5,13],[11,3,17]]
+sizes=[sum(row) for row in counts];n_table=sum(sizes);p_common=[.1,.2,.7]
+z=[[(o-ni*p)/math.sqrt(ni*p) for o,p in zip(row,p_common)] for ni,row in zip(sizes,counts)]
+s=[math.sqrt(ni/n_table) for ni in sizes]
+pooled=[sum(row[j] for row in counts)/n_table for j in range(3)]
+for i,j in product(range(3),repeat=2):
+    projected=z[i][j]-s[i]*sum(s[k]*z[k][j] for k in range(3))
+    actual=(counts[i][j]-sizes[i]*pooled[j])/math.sqrt(sizes[i]*p_common[j])
+    assert math.isclose(projected,actual,abs_tol=1e-12)
+pearson_ind=sum((o-e)**2/e for row,erow in zip([[18,12],[14,16],[8,12]],[[15,15],[15,15],[10,10]]) for o,e in zip(row,erow))
+pearson_hom=sum((o-e)**2/e for row in [[12,6,2],[4,6,10]] for o,e in zip(row,[8,6,6]))
+assert math.isclose(pearson_ind,32/15)
+assert math.isclose(pearson_hom,28/3)
+assert math.isclose(math.exp(-pearson_ind/2),.3441537868654124,abs_tol=1e-12)
+assert math.isclose(math.exp(-pearson_hom/2),.009403562551495206,abs_tol=1e-12)
+# Fisher's conditional test: enumerate small margin configurations using exact
+# fractions, including ties. Test superuniformity at every attainable p-value.
+for total in range(1,13):
+    for row_size,col_size in product(range(total+1),repeat=2):
+        support=range(max(0,row_size+col_size-total),min(row_size,col_size)+1)
+        law={a:Fraction(math.comb(col_size,a)*math.comb(total-col_size,row_size-a),math.comb(total,row_size)) for a in support}
+        assert sum(law.values())==1
+        alternative={a:Fraction(math.comb(row_size,a)*math.comb(total-row_size,col_size-a),math.comb(total,col_size)) for a in support}
+        assert law==alternative
+        ordered={a:sum(w for w in law.values() if w<=mass) for a,mass in law.items()}
+        for alpha in set(ordered.values()):
+            assert sum(mass for a,mass in law.items() if ordered[a]<=alpha)<=alpha
+assert [Fraction(math.comb(2,a)*math.comb(5,3-a),math.comb(7,3)) for a in range(3)]==[Fraction(2,7),Fraction(4,7),Fraction(1,7)]
+# Gaussian integral and moments: quadrature of the density and its shifted
+# powers verifies normalization, recurrence examples and Var(X^2) independently.
+normal_density=lambda z:math.exp(-z*z/2)/math.sqrt(2*math.pi)
+for power,expected in [(0,1),(2,1),(4,3),(6,15),(8,105)]:
+    assert math.isclose(simpson_check(lambda z:z**power*normal_density(z),-12,12),expected,abs_tol=1e-8)
+assert math.isclose(simpson_check(lambda z:(2+3*z)**4*normal_density(z),-12,12),475,abs_tol=1e-8)
+assert math.isclose(simpson_check(lambda z:((2+3*z)**2-13)**2*normal_density(z),-12,12),306,abs_tol=1e-8)
+assert math.isclose(1/(-math.log(.6)),1.9576151889712174,abs_tol=1e-12)
+assert math.isclose(math.exp(2*math.log(.6)),.36,abs_tol=1e-12)
+# Balanced two-way ANOVA: recover the five subspaces from nested least-squares
+# design matrices and check their projection algebra in exact arithmetic.
+factor_rows=list(product(range(2),range(3),range(2)))
+x0=[[1] for i,j,k in factor_rows]
+xa=[[1,(-1 if i==0 else 1)] for i,j,k in factor_rows]
+xb=[[1,(j==0)-(j==2),(j==1)-(j==2)] for i,j,k in factor_rows]
+xcell=[[1,(-1 if i==0 else 1),(j==0)-(j==2),(j==1)-(j==2),(-1 if i==0 else 1)*((j==0)-(j==2)),(-1 if i==0 else 1)*((j==1)-(j==2))] for i,j,k in factor_rows]
+def hat_check(design):
+    xt=transpose_check(design)
+    return matmul_check(matmul_check(design,inverse_check(matmul_check(xt,design))),xt)
+def subtract_matrix_check(a,b):
+    return [[v-w for v,w in zip(row,other)] for row,other in zip(a,b)]
+h0=hat_check(x0);ha=hat_check(xa);hb=hat_check(xb);hc=hat_check(xcell)
+identity=[[Fraction(i==j) for j in range(12)] for i in range(12)]
+pa=subtract_matrix_check(ha,h0);pb=subtract_matrix_check(hb,h0)
+pab=[[hc[i][j]-ha[i][j]-hb[i][j]+h0[i][j] for j in range(12)] for i in range(12)]
+pe=subtract_matrix_check(identity,hc)
+projectors=[h0,pa,pb,pab,pe]
+for proj,rank in zip(projectors,[1,1,2,2,6]):
+    assert proj==transpose_check(proj)==matmul_check(proj,proj)
+    assert sum(proj[i][i] for i in range(12))==rank
+for i,j in product(range(12),repeat=2):
+    assert sum(proj[i][j] for proj in projectors)==identity[i][j]
+for left,right in product(range(5),repeat=2):
+    if left!=right:assert matmul_check(projectors[left],projectors[right])==[[0]*12 for _ in range(12)]
+def two_way_sums_check(data):
+    a=len(data);b=len(data[0]);r=len(data[0][0])
+    grand=mean(x for row in data for cell in row for x in cell)
+    rows=[mean(x for cell in row for x in cell) for row in data]
+    cols=[mean(x for row in data for x in row[j]) for j in range(b)]
+    cells=[[mean(cell) for cell in row] for row in data]
+    return [b*r*sum((x-grand)**2 for x in rows),a*r*sum((x-grand)**2 for x in cols),r*sum((cells[i][j]-rows[i]-cols[j]+grand)**2 for i,j in product(range(a),range(b))),sum((x-cells[i][j])**2 for i,j in product(range(a),range(b)) for x in data[i][j])]
+assert two_way_sums_check([[[4,6],[4,6]],[[2,4],[10,12]]])==[8,32,32,8]
+single=[[[1],[3],[5]],[[4],[4],[6]]]
+single_sums=two_way_sums_check(single)
+for actual,expected in zip(single_sums,[25/6,28/3,4/3,0]):
+    assert math.isclose(actual,expected,abs_tol=1e-12)
+assert math.isclose(sum(single_sums),89/6)
+# Enumerate finite independent unit-variance errors. Normality is unnecessary
+# for expected mean squares; this does NOT claim independent projections here.
+all_sums=[]
+for signs in product([-1,1],repeat=8):
+    data=[[[7+(-1 if i==0 else 1)+(-2 if j==0 else 2)+3*((-1)**(i+j))+signs[4*i+2*j+k] for k in range(2)] for j in range(2)] for i in range(2)]
+    all_sums.append(two_way_sums_check(data))
+assert [mean(row[j] for row in all_sums) for j in range(4)]==[9,33,73,4]
+contaminated=[]
+interaction=[[1,-2,1],[-1,2,-1]]
+for signs in product([-1,1],repeat=6):
+    data=[[[3+i+2*j+interaction[i][j]+signs[3*i+j]] for j in range(3)] for i in range(2)]
+    contaminated.append(two_way_sums_check(data)[2]/2)
+assert math.isclose(mean(contaminated),7,abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

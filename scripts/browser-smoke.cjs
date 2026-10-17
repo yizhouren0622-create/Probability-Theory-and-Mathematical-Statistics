@@ -81,14 +81,14 @@ const { pathToFileURL } = require('node:url');
         if (width === 390) {
           const screenshots = {
             1: ['buffon-needle','geometry'],
-            2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform','discrete-uniform','binomial-mode','quantile-generalized-inverse'],
+            2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform','discrete-uniform','binomial-mode','quantile-generalized-inverse','memoryless-characterization','gaussian-integral-moments'],
             5: ['bernoulli-khinchin','central-limit','lyapunov-clt','clt-dominant-summand'],
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
             4: ['count-factorial-moments','hypergeometric-variance','median-absolute-loss','expectation-properties','variance-properties'],
             6: ['student-t-density','f-density-t-square','sample-moment-dependence'],
             7: ['normal-mle-proof','maximum-likelihood','fisher-cramer-rao','beta-prior-moments','normal-conjugate-update','slutsky-studentization','wilson-score-interval','clopper-pearson-interval','type2-exponential-pivot'],
-            8: ['pvalue-calibration','pearson-fitted-df'],
-            9: ['gauss-markov','normal-regression-projections','correlation-exact-test','linear-constraint-f','ridge-risk-existence'],
+            8: ['pvalue-calibration','pearson-fitted-df','contingency-independence-proof','homogeneity-projection-proof','fisher-exact-conditional'],
+            9: ['gauss-markov','normal-regression-projections','correlation-exact-test','linear-constraint-f','ridge-risk-existence','two-way-orthogonal-proof','two-way-no-replication'],
             11: ['r-boxplot','r-anova','r-regression'],
             12: ['poisson-small-increments','poisson-arrival-times','gaussian-process-definition','poisson-conditional-arrivals'],
             13: ['markov-return-criterion','markov-positive-power','markov-return-mean'],
