@@ -227,6 +227,17 @@ average = sum(ar_spectrum(-math.pi+(j+.5)*2*math.pi/grid) for j in range(grid))/
 assert math.isclose(average, 4, abs_tol=1e-8)
 assert all(x in pages['chapter-14.html'].ids for x in ('stationary-ar1','ar1-discrete-spectrum'))
 assert all(x in pages['practice-14.html'].ids for x in ('P14-05','P14-06'))
+# Order-statistic CDF from an independent binomial count and density integral.
+median_cdf = sum(math.comb(3,j)*(.25**j)*(.75**(3-j)) for j in (2,3))
+assert math.isclose(median_cdf, 5/32)
+def simpson_check(fn, lo, hi, steps=20000):
+    step=(hi-lo)/steps
+    return step/3*(fn(lo)+fn(hi)+4*sum(fn(lo+i*step) for i in range(1,steps,2))+2*sum(fn(lo+i*step) for i in range(2,steps,2)))
+assert math.isclose(simpson_check(lambda x:6*x*(1-x),0,1),1,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda x:x*math.exp(-x/2)/4,2,80),2/math.e,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda x:x*x*math.exp(-x/2)/4,0,80),4,abs_tol=1e-9)
+assert all(x in pages['chapter-6.html'].ids for x in ('sample-order-statistics','chi-square-density'))
+assert all(x in pages['practice-6.html'].ids for x in ('P6-05','P6-06'))
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
