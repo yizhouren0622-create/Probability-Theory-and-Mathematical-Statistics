@@ -799,6 +799,41 @@ assert math.isclose(upper,14.449375,abs_tol=5e-7)
 assert math.isclose(lower/54,.0229138,abs_tol=5e-8)
 assert math.isclose(upper/54,.267581,abs_tol=5e-7)
 assert math.isclose(chi6_cdf(upper)-chi6_cdf(lower),.95,abs_tol=1e-12)
+# General sample moments: enumerate finite iid populations independently of the
+# fourth-moment derivation, including uncorrelated yet dependent mean/variance.
+for population,weights,n in [([0,1],[.75,.25],3),([-1,1],[.5,.5],2),([-1,0,2],[.25,.5,.25],4)]:
+    mu=sum(x*p for x,p in zip(population,weights))
+    sig2=sum((x-mu)**2*p for x,p in zip(population,weights))
+    mu3=sum((x-mu)**3*p for x,p in zip(population,weights))
+    mu4=sum((x-mu)**4*p for x,p in zip(population,weights))
+    sample_states=[]
+    for indices in product(range(len(population)),repeat=n):
+        xs=[population[i] for i in indices];prob=math.prod(weights[i] for i in indices)
+        sample_states.append((prob,mean(xs),variance(xs)))
+    ev=sum(p*v for p,m,v in sample_states)
+    varv=sum(p*(v-ev)**2 for p,m,v in sample_states)
+    covmv=sum(p*(m-mu)*(v-ev) for p,m,v in sample_states)
+    assert math.isclose(ev,sig2,abs_tol=1e-12)
+    assert math.isclose(varv,(mu4-(n-3)/(n-1)*sig2**2)/n,abs_tol=1e-12)
+    assert math.isclose(covmv,mu3/n,abs_tol=1e-12)
+assert .5!=.5*.5  # Rademacher n=2: {mean=0} equals {S^2=2}.
+for p in [.2,.5,.8]:
+    n=5;law=binomial_law(n,p);info=n/(p*(1-p));a=p*(1-p)/n
+    scores=[(k-n*p)/(p*(1-p)) for k in range(n+1)]
+    curvature=[-k/(p*p)-(n-k)/(1-p)**2 for k in range(n+1)]
+    assert math.isclose(sum(w*u*u for w,u in zip(law,scores)),info)
+    assert math.isclose(-sum(w*h for w,h in zip(law,curvature)),info)
+    assert sum(w*(k/n-p-a*u)**2 for k,w,u in zip(range(n+1),law,scores))<1e-28
+# Noninjective invariance: eta=p(1-p) has two preimages. Enumerate the
+# profile likelihood without treating eta as a one-to-one reparameterization.
+likelihood=lambda p:p**8*(1-p)**2
+eta_values=[i/200 for i in range(51)]
+profiles=[]
+for eta in eta_values:
+    root=math.sqrt(max(0,.25-eta))
+    profiles.append(max(likelihood(.5-root),likelihood(.5+root)))
+assert math.isclose(eta_values[profiles.index(max(profiles))],.16)
+assert math.isclose(max(profiles),likelihood(.8),rel_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

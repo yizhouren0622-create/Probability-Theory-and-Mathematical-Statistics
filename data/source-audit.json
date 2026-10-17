@@ -482,6 +482,34 @@
         "type2-exponential-pivot"
       ],
       "scope": "选读 Complete & Type II Censored Exponential Samples 页的总在试时间、2r 自由度与精确覆盖说明，并对照下一页随机失效数方案的区别；非全 76 页通读。本站以有序密度/独立加权间隔独立证明枢轴，并另外给出倒数矩及原创数据。"
+    },
+    {
+      "id": "berkeley-fisher-identities-selected",
+      "date": "2026-10-17",
+      "title": "Berkeley Stat210A：得分、信息恒等式与 CR 下界",
+      "url": "https://stat210a.berkeley.edu/fall-2025/reader/score-fisher.html",
+      "webSections": [
+        "2 Differential Identities and the Fisher Information",
+        "3 Cramér-Rao Lower Bound",
+        "4 Score and Fisher information in an i.i.d. sample"
+      ],
+      "concepts": [
+        "fisher-cramer-rao"
+      ],
+      "scope": "读取共同支持集和微分恒等式、CR 方差界及 iid 可加性段落；本站独立用剩余平方期望为零推导精确取等号条件，并明确二次求导的额外可交换条件。未使用网页后半曲指数族内容。"
+    },
+    {
+      "id": "ucsd-sample-variance-excerpt",
+      "date": "2026-10-17",
+      "title": "UCSD Math181C：样本方差的一般四阶矩公式（检索摘要）",
+      "url": "https://acsweb.ucsd.edu/~atn015/181C/hwk1sol.pdf",
+      "concepts": [
+        "sample-moment-dependence"
+      ],
+      "scope": "本次仅搜索结果所展示的原课程公式和正态替换说明可读；PDF 打开超时，未标为全文或逐页阅读。本站独立从有限乘积逐项推导方差/三阶协方差，并用伯努利八种样本精确枚举核对；不是指定教材正文。",
+      "webSections": [
+        "搜索结果所展示的 Variance of the Sample Variance 段落"
+      ]
     }
   ]
 }
