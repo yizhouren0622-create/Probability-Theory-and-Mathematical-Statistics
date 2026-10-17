@@ -19,7 +19,7 @@ for ident,plot in r_check.get('graphics',{}).items():
     assert plot['codeSha256']==r_check['examples'][ident]['codeSha256']
     assert hashlib.sha256((ROOT/plot['path']).read_bytes()).hexdigest()==plot['sha256'], f'Review changed R plot: {ident}'
 for review in audit.get('externalChecks',[]):
-    assert review['date'] and review['scope'] and review['pdfPages']
+    assert review['date'] and review['scope'] and (review.get('pdfPages') or review.get('webSections'))
     assert all(any(c['id']==cid for c in concepts) for cid in review['concepts'])
 ids=[x['id'] for x in concepts+exercises]+[q['id'] for e in exams for q in e['questions']]
 assert len(ids)==len(set(ids)), 'Duplicate content ids'
@@ -424,6 +424,84 @@ for aa,bb in [(1,2),(-.5,1),(2,0)]:
             actual=simpson_check(lambda t:trajectory(t)*trajectory(t+lag),0,window)/window
             assert math.isclose(actual,(aa*aa+bb*bb)*math.cos(lag)/2,abs_tol=1e-10)
 assert math.isclose(1-math.exp(-.5)+math.exp(-1.5),.616599500435796,abs_tol=1e-12)
+# Common moments: direct probability sums rather than factorial identities.
+bin_law=[math.comb(5,k)*.4**k*.6**(5-k) for k in range(6)]
+assert math.isclose(sum(k**2*p for k,p in enumerate(bin_law)),5.2)
+assert math.isclose(sum(k**3*p for k,p in enumerate(bin_law)),15.44)
+assert math.isclose(sum(k**3*math.exp(-3)*3**k/math.factorial(k) for k in range(80)),57)
+geom_m1=sum(k*.25*.75**(k-1) for k in range(1,501))
+geom_m2=sum(k*k*.25*.75**(k-1) for k in range(1,501))
+assert math.isclose(geom_m1,4) and math.isclose(geom_m2-geom_m1**2,12)
+from itertools import combinations
+hyper_counts=[sum(i<4 for i in group) for group in combinations(range(10),5)]
+assert len(hyper_counts)==252 and mean(hyper_counts)==2
+assert math.isclose(mean((x-2)**2 for x in hyper_counts),2/3)
+assert [hyper_counts.count(k) for k in range(5)]==[6,60,120,60,6]
+loss_law=[(0,.4),(2,.2),(5,.4)]
+abs_loss=lambda m:sum(abs(x-m)*p for x,p in loss_law)
+sq_loss=lambda m:sum((x-m)**2*p for x,p in loss_law)
+assert math.isclose(abs_loss(2),2) and math.isclose(abs_loss(2.4),2.08)
+assert math.isclose(sq_loss(2),5.2) and math.isclose(sq_loss(2.4),5.04)
+step=1e-5
+assert math.isclose((abs_loss(2+step)-abs_loss(2))/step,.2,abs_tol=1e-8)
+assert math.isclose((abs_loss(2)-abs_loss(2-step))/step,-.2,abs_tol=1e-8)
+assert all(math.isclose((abs(m)+abs(4-m))/2,2) for m in [0,.5,1,2,3,4])
+assert math.isclose(simpson_check(lambda z:z*z*math.exp(-z*z/2)/math.sqrt(2*math.pi),-10,10),1,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda z:z**4*math.exp(-z*z/2)/math.sqrt(2*math.pi),-10,10),3,abs_tol=1e-10)
+# Estimation/testing papers: direct integrals, exact probabilities and fitted
+# expected counts independently check the reported answers and tail directions.
+assert math.isclose(simpson_check(lambda m:m*4*m**3/5**4,0,5),4,abs_tol=1e-10)
+exposure=sum([.5,1,2])+2*3
+assert exposure==9.5 and math.isclose(3/exposure,6/19)
+assert 9/25<1/2
+prior_likelihood=lambda mu:math.exp(-(mu-1)**2/4-4*(3-mu)**2/8)
+normalizer=simpson_check(prior_likelihood,-20,20)
+post_mean=simpson_check(lambda mu:mu*prior_likelihood(mu),-20,20)/normalizer
+post_var=simpson_check(lambda mu:(mu-post_mean)**2*prior_likelihood(mu),-20,20)/normalizer
+assert math.isclose(post_mean,7/3,abs_tol=1e-10)
+assert math.isclose(post_var,2/3,abs_tol=1e-10)
+assert math.isclose(sum(math.comb(10,k)*.5**10 for k in range(8,11)),7/128)
+power=sum(math.comb(10,k)*.8**k*.2**(10-k) for k in range(8,11))
+assert math.isclose(power,.6777995264,abs_tol=1e-12)
+assert 4*(1.645+1.282)**2>34 and 4*(1.645+1.282)**2<35
+gof_observed=[20,30,50];gof_expected=[25,25,50]
+assert math.isclose(sum((o-e)**2/e for o,e in zip(gof_observed,gof_expected)),2)
+table=[[30,10],[20,40]]
+rows=list(map(sum,table));cols=[sum(row[j] for row in table) for j in range(2)]
+expected=[[r*c/100 for c in cols] for r in rows]
+assert expected==[[20,20],[30,30]]
+pearson=sum((table[i][j]-expected[i][j])**2/expected[i][j] for i,j in product(range(2),repeat=2))
+assert math.isclose(pearson,50/3)
+assert math.isclose(math.erfc(math.sqrt(pearson/2)),.0000445570906040562,abs_tol=1e-14)
+# Application papers: compute directly from the authored datasets.
+exam_groups=[[1,2,3],[2,3,4],[5,6,7]]
+grand=mean(sum(exam_groups,[]))
+ss_within=sum((x-mean(g))**2 for g in exam_groups for x in g)
+ss_between=sum(len(g)*(mean(g)-grand)**2 for g in exam_groups)
+assert math.isclose(ss_within,6) and math.isclose(ss_between,26)
+cells=[[[0,2],[2,4]],[[2,4],[0,2]]]
+cell_means=[[mean(g) for g in row] for row in cells]
+assert sum((x-cell_means[i][j])**2 for i,j in product(range(2),repeat=2) for x in cells[i][j])==8
+assert sum(2*(cell_means[i][j]-2)**2 for i,j in product(range(2),repeat=2))==8
+xx=[0,1,2,3];yy=[0,2,2,3]
+sx=sum((x-mean(xx))**2 for x in xx)
+sxy=sum((x-mean(xx))*(y-mean(yy)) for x,y in zip(xx,yy))
+slope=sxy/sx;intercept=mean(yy)-slope*mean(xx)
+ss_error=sum((y-intercept-slope*x)**2 for x,y in zip(xx,yy))
+ss_total=sum((y-mean(yy))**2 for y in yy)
+assert math.isclose(slope,.9) and math.isclose(intercept,.4)
+assert math.isclose(ss_error,.7)
+assert math.isclose(1-ss_error/ss_total,81/95)
+assert math.isclose((ss_total-ss_error)/(ss_error/2),81/7)
+index_sums=[sum(xs) for xs in product(range(3),repeat=3)]
+assert [index_sums.count(i) for i in range(7)]==[1,3,6,7,6,3,1]
+assert math.isclose(mean(((2*k/3)-2)**2 for k in index_sums),8/9)
+poisson_sample=[9+sign*d for d in [6,5,3,2,2,2,2,2] for sign in [-1,1]]
+assert mean(poisson_sample)==9 and variance(poisson_sample)==12
+assert math.isclose(sum((x-9)**2 for x in poisson_sample)/16**2,45/64)
+resampled=list(product([-2.5,-.5,.5,2.5],repeat=4))
+assert sum(len(set(xs))==1 for xs in resampled)/len(resampled)==1/64
+assert sum(abs(mean(xs))>=1.5 for xs in resampled)==30
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

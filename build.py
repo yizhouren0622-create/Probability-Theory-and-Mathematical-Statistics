@@ -192,7 +192,8 @@ h+='''<section class="card prose"><h2>可核实的来源</h2><ul class="sources-
 h+='<section class="card prose"><h2>第二章专项交叉核对</h2><p><a href="https://iaer.dufe.edu.cn/file/eeefaf43-8ff3-11ee-9d7b-005056a49984/概率论与数理统计教案.pdf">东北财经大学《概率论与数理统计》教案</a>采用盛骤等第五版作为教材，第二章列出几何分布、超几何分布及泊松定理等教学要点。本站据此补充两个分布的独立编写讲解与练习；教案不是第六版教材正文，不能据此宣称第六版已逐页核对。</p></section>'
 for review in audit.get('externalChecks',[]):
     context_link=f' · <a href="{esc(review["contextUrl"])}">课程教材说明</a>' if review.get('contextUrl') else ''
-    h+=f'<section class="card prose"><h2>{esc(review["title"])}</h2><p>{esc(review["date"])} · PDF 页码 '+esc('、'.join(map(str,review['pdfPages'])))+f'。{esc(review["scope"])} <a href="{esc(review["url"])}">公开资料</a>{context_link}。</p><ul>'
+    location='PDF 页码 '+ '、'.join(map(str,review['pdfPages'])) if review.get('pdfPages') else '网页段落：'+'；'.join(review['webSections'])
+    h+=f'<section class="card prose"><h2>{esc(review["title"])}</h2><p>{esc(review["date"])} · {esc(location)}。{esc(review["scope"])} <a href="{esc(review["url"])}">公开资料</a>{context_link}。</p><ul>'
     for ident in review['concepts']:
         topic=next(x for x in concepts if x['id']==ident)
         h+=f'<li><a href="chapter-{topic["chapter"]}.html#{ident}">{esc(topic["title"])}</a></li>'

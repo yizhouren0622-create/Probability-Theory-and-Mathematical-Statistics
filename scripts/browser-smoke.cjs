@@ -83,6 +83,7 @@ const { pathToFileURL } = require('node:url');
             2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform'],
             5: ['bernoulli-khinchin','central-limit'],
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
+            4: ['count-factorial-moments','hypergeometric-variance','median-absolute-loss','expectation-properties','variance-properties'],
             6: ['student-t-density','f-density-t-square'],
             7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update'],
             9: ['gauss-markov','normal-regression-projections'],
@@ -123,7 +124,7 @@ const { pathToFileURL } = require('node:url');
           await page.locator('#E3-4 details').evaluate(e => e.open = true);
           for (const id of ['E3-1','E3-4']) await page.locator('#' + id).screenshot({ path:path.join(output,id+'.png') });
         }
-        if (width === 390 && exam.id >= 4 && exam.id <= 6) {
+        if (width === 390 && exam.id >= 4 && exam.id <= 10) {
           await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
           for (const q of exam.questions.slice(0, 2)) {
             await page.locator('#' + q.id + ' details').evaluateAll(nodes => nodes.forEach(e => e.open = true));
@@ -160,6 +161,21 @@ const { pathToFileURL } = require('node:url');
         await page.waitForFunction(() => document.querySelector('#toast').textContent.includes('已合并'));
         const imported = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')));
         if (imported.timers['3'].remaining !== 4000000 || imported.scores['E3-1'] !== 14 || imported.notes['P1-01'] !== '旧草稿') throw new Error('Long-paper record import failed');
+        if (exams.some(exam => exam.id === 7)) {
+          await page.goto(url('exam-7.html'), { waitUntil:'load' });
+          pagesChecked++;
+          if ((await page.locator('.timer').innerText()) !== '90:00') throw new Error('90-minute paper starts with wrong duration');
+          await page.locator('[data-timer="toggle"]').click();
+          await page.locator('[data-timer="toggle"]').click();
+          const longTimer = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')).timers['7']);
+          if (longTimer.end !== null || longTimer.remaining > 5400000 || longTimer.remaining < 5300000) throw new Error('90-minute timer was clamped');
+          await page.goto(url('memory.html'), { waitUntil:'load' });
+          pagesChecked++;
+          await page.locator('#import-records').setInputFiles({name:'long-record.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({version:1,timers:{'7':{remaining:5350000,end:null}}}))});
+          await page.waitForFunction(() => document.querySelector('#toast').textContent.includes('已合并'));
+          const merged = await page.evaluate(() => JSON.parse(localStorage.getItem('probability-study-v1')));
+          if (merged.timers['7'].remaining !== 5350000 || merged.timers['3'].remaining !== 4000000 || merged.notes['P1-01'] !== '旧草稿') throw new Error('90-minute import corrupted timers or legacy notes');
+        }
       }
       await context.close();
     }

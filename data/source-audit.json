@@ -159,6 +159,32 @@
         "bootstrap-maximum-failure"
       ],
       "scope": "已阅读第 7–8 页的最大值 CDF、重抽样原子及一致性问题；本站独立给出未知端点尺度的反例证明和三观测值穷举题，未复制讨论题答案。不属于盛骤第十章正文核对。"
+    },
+    {
+      "id": "r-hypergeometric-moments",
+      "date": "2026-10-17",
+      "title": "R stats：超几何分布的支撑、均值与方差",
+      "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Hypergeometric.html",
+      "webSections": [
+        "Details：支撑及前两阶矩"
+      ],
+      "concepts": [
+        "hypergeometric-variance"
+      ],
+      "scope": "已阅读官方网页的模型参数、支撑和均值方差公式，转换为本站 N/K/n 记号交叉检查。指标协方差证明和练习独立编写，不是盛骤第四章正文核对。"
+    },
+    {
+      "id": "berkeley-median-loss-selected",
+      "date": "2026-10-17",
+      "title": "UC Berkeley Stat135：不同损失与样本中位数",
+      "url": "https://stat135.berkeley.edu/fall-2026/Modules/05-LossMEstimators.html",
+      "webSections": [
+        "The Median as an L1 estimator：经验绝对损失的最小点"
+      ],
+      "concepts": [
+        "median-absolute-loss"
+      ],
+      "scope": "已阅读中位数最小化样本平均绝对损失的相关段落。本站另对一般可积总体独立给出两侧概率定义、非唯一性和单侧导数证明；不声称该网页提供了这些全部推导，也不计作盛骤正文审校。"
     }
   ]
 }
