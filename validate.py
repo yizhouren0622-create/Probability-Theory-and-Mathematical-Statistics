@@ -572,6 +572,28 @@ for T in [.5,1,5,10]:
     assert math.isclose(direct,4/T-2*(1-math.exp(-2*T))/T**2,abs_tol=1e-9)
 bad=[[1,.9,0],[.9,1,.9],[0,.9,1]];coeff=[1,-2,1]
 assert math.isclose(sum(coeff[i]*bad[i][j]*coeff[j] for i,j in product(range(3),repeat=2)),-1.2)
+# Initial-model additions: integrate the parameter region, enumerate finite
+# supports and verify inverse-CDF events on a deterministic uniform grid.
+needle_area=simpson_check(lambda angle:1.5*math.sin(angle),0,math.pi)
+assert math.isclose(needle_area/(2*math.pi),3/(2*math.pi),abs_tol=1e-12)
+assert math.isclose(3*math.sin(math.pi/6)/4,3/8)
+discrete_support=[1,2,4,8]
+assert mean(discrete_support)==15/4
+assert mean((x-15/4)**2 for x in discrete_support)==115/16
+for n,p,expected_modes in [(9,.3,[2,3]),(8,.3,[2]),(5,.5,[2,3])]:
+    law=[math.comb(n,k)*p**k*(1-p)**(n-k) for k in range(n+1)]
+    maximum=max(law)
+    assert [k for k,v in enumerate(law) if math.isclose(v,maximum,rel_tol=1e-12)]==expected_modes
+mixture_cdf=lambda x:0 if x<0 else (.25 if x<=1 else (.25+.375*(x-1) if x<3 else 1))
+mixture_quantile=lambda u:0 if u<=.25 else 1+8/3*(u-.25)
+assert mixture_quantile(.25)==0 and math.isclose(mixture_quantile(.5),5/3)
+assert math.isclose(mixture_quantile(.9),41/15)
+uniform_grid=[(i+.5)/10000 for i in range(10000)]
+quantiles=[mixture_quantile(u) for u in uniform_grid]
+for x in [-1,0,.5,1,1.5,2,3,4]:
+    assert all((q<=x)==(u<=mixture_cdf(x)) for u,q in zip(uniform_grid,quantiles))
+    assert math.isclose(sum(q<=x for q in quantiles)/len(quantiles),mixture_cdf(x),abs_tol=1e-4)
+assert sum(mixture_cdf(q)==.25 for q in quantiles)/len(quantiles)==.25
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

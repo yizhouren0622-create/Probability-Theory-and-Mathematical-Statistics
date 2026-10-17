@@ -234,6 +234,59 @@
         "markov-return-mean"
       ],
       "scope": "阅读有限链基本定理、有限到达时间与返还均值关系的相关网页段落。本站独立给出依概率占用的周期反演证明，显式引用已讲辛钦定律；不冒充几乎必然版本的完整证明或盛骤教材正文审校。"
+    },
+    {
+      "id": "ye2026-initial-models-selected",
+      "date": "2026-10-17",
+      "title": "第六版课程公开课件：几何模型的选定文字段落",
+      "url": "https://yewenjie.org/teaching/ProbabilityStatistics/slides/Chapter1.pdf?v=c0555015b8b5",
+      "contextUrl": "https://yewenjie.org/teaching/ProbabilityStatistics/2026",
+      "pdfPages": [
+        41,
+        42,
+        43,
+        44
+      ],
+      "concepts": [
+        "geometry",
+        "buffon-needle"
+      ],
+      "scope": "实际阅读公开文字提取中的几何概率、会面、投针段落；图像与上划线未逐页视觉核对。独立重写投针参数模型与证明并换用原创数字，不复现课件全体例题。该课以第六版为教材，但课件不是盛骤教材正文。"
+    },
+    {
+      "id": "ye2026-discrete-uniform-selected",
+      "date": "2026-10-17",
+      "title": "第六版课程公开课件：有限等可能分布",
+      "url": "https://yewenjie.org/teaching/ProbabilityStatistics/slides/Chapter2.pdf?v=286fd0587aa4",
+      "contextUrl": "https://yewenjie.org/teaching/ProbabilityStatistics/2026",
+      "pdfPages": [
+        25,
+        27,
+        28,
+        40
+      ],
+      "concepts": [
+        "discrete-uniform",
+        "binomial-mode"
+      ],
+      "scope": "阅读所列课件文字中的离散等可能与二项模型/形状段落。二项众数及相邻比证明为本站独立补充，未声称课件已列出该定理或全部 100 页已逐页审校，更不是目标教材正文核对。"
+    },
+    {
+      "id": "oxford-quantile-inversion-selected",
+      "date": "2026-10-17",
+      "title": "Oxford Advanced Simulation Lecture 3：广义逆与反演",
+      "url": "https://www.stats.ox.ac.uk/~rebeschi/teaching/AdvSim/18/slides/L3.pdf",
+      "pdfPages": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "concepts": [
+        "quantile-generalized-inverse",
+        "cdf"
+      ],
+      "scope": "阅读公开讲义分位函数、反演命题与离散示例相关段落。本站另写下确界取到值的右连续证明和混合分布反例；未使用本讲后续拒绝抽样内容，也未将其标为盛骤正文。"
     }
   ]
 }

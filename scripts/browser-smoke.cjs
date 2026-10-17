@@ -80,7 +80,8 @@ const { pathToFileURL } = require('node:url');
         }
         if (width === 390) {
           const screenshots = {
-            2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform'],
+            1: ['buffon-needle','geometry'],
+            2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform','discrete-uniform','binomial-mode','quantile-generalized-inverse'],
             5: ['bernoulli-khinchin','central-limit'],
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
             4: ['count-factorial-moments','hypergeometric-variance','median-absolute-loss','expectation-properties','variance-properties'],
