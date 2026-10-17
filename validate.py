@@ -502,6 +502,76 @@ assert math.isclose(sum((x-9)**2 for x in poisson_sample)/16**2,45/64)
 resampled=list(product([-2.5,-.5,.5,2.5],repeat=4))
 assert sum(len(set(xs))==1 for xs in resampled)/len(resampled)==1/64
 assert sum(abs(mean(xs))>=1.5 for xs in resampled)==30
+# Process/Markov proofs and final papers: direct integrations and path/matrix
+# calculations independently check the stated moments, tails and conventions.
+normal0=lambda z:math.exp(-z*z/2)/math.sqrt(2*math.pi)
+mix_sum_m2=simpson_check(lambda z:.5*(2*z)**2*normal0(z),-10,10)
+mix_sum_m4=simpson_check(lambda z:.5*(2*z)**4*normal0(z),-10,10)
+assert math.isclose(mix_sum_m2,2) and math.isclose(mix_sum_m4,24)
+assert not math.isclose(mix_sum_m4,3*mix_sum_m2**2)  # Non-Gaussian sum.
+def window_cov(s,t,h):
+    return min(s+h,t+h)-min(s+h,t)-min(s,t+h)+min(s,t)
+for h in [1,2]:
+    for s,t in product([0,.5,1,2,3],repeat=2):
+        assert math.isclose(window_cov(s,t,h),max(h-abs(s-t),0),abs_tol=1e-12)
+def row_times(u,p):
+    return [sum(u[i]*p[i][j] for i in range(len(u))) for j in range(len(p))]
+transition=[[.7,.3],[.2,.8]]
+tv=lambda u,v:sum(abs(a-b) for a,b in zip(u,v))/2
+stationary=[.4,.6];u=[1.,0.]
+for n in range(30):
+    assert math.isclose(tv(u,stationary),.6*.5**n,abs_tol=1e-12)
+    assert tv(u,stationary)<=.6*.6**n+1e-12
+    u=row_times(u,transition)
+assert min(n for n in range(30) if .6*.6**n<=.01)==9
+assert min(n for n in range(30) if .6*.5**n<=.01)==6
+first_return=[.7]+[.06*.8**(n-2) for n in range(2,301)]
+assert math.isclose(sum(first_return),1,abs_tol=1e-12)
+assert math.isclose(sum((i+1)*p for i,p in enumerate(first_return)),2.5,abs_tol=1e-12)
+# Absorption expectations via summing transient survival probabilities, rather
+# than reusing the displayed first-step linear equations.
+transient=[[.5,.5],[.25,.5]]
+for initial,target in [([1.,0.],8),([0.,1.],6)]:
+    surviving=initial;expected_time=0
+    for _ in range(1000):
+        expected_time+=sum(surviving)
+        surviving=row_times(surviving,transient)
+    assert math.isclose(expected_time,target,abs_tol=1e-10)
+reversible=[[.5,.5,0],[.25,.5,.25],[0,.5,.5]];pi=[.25,.5,.25]
+assert row_times(pi,reversible)==pi
+assert all(pi[i]*reversible[i][j]==pi[j]*reversible[j][i] for i,j in product(range(3),repeat=2))
+for initial,target in [([1.,0.],6),([0.,1.],8)]:
+    surviving=initial;expected_time=0
+    for _ in range(1000):
+        expected_time+=sum(surviving)
+        surviving=row_times(surviving,[[.5,.25],[.5,.5]])
+    assert math.isclose(expected_time,target,abs_tol=1e-10)
+assert math.isclose(.5+.5*(1+6),1/pi[0])
+assert math.isclose(math.exp(-4)*4**3/math.factorial(3),.1953668148131646,abs_tol=1e-12)
+assert math.isclose(simpson_check(lambda t:9*t*math.exp(-3*t),0,20),1,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda t:t*9*t*math.exp(-3*t),0,20),2/3,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda t:(t-2/3)**2*9*t*math.exp(-3*t),0,20),2/9,abs_tol=1e-10)
+assert math.isclose(math.comb(4,2)*.25**2*.75**2,27/128)
+# R-paper data: existing execution report remains hashed to the exact code.
+paired_d=[a-b for a,b in zip([7,8,10,11,14],[6,9,9,10,12])]
+assert mean(paired_d)==.8 and variance(paired_d)==1.2
+assert math.isclose(mean(paired_d)/math.sqrt(variance(paired_d)/5),1.6329931618554523)
+rx=[0,1,2];ry=[1,2,2]
+rb=sum((x-mean(rx))*(y-mean(ry)) for x,y in zip(rx,ry))/sum((x-mean(rx))**2 for x in rx)
+ra=mean(ry)-rb*mean(rx)
+rsse=sum((y-ra-rb*x)**2 for x,y in zip(rx,ry))
+assert math.isclose(ra,7/6) and rb==.5 and math.isclose(rsse,1/6)
+assert math.isclose(12.7062*math.sqrt(rsse/3),2.994874060076316,abs_tol=1e-5)
+# Frequency conventions: numerical Fourier integrals and spectral total mass.
+for omega in [0,.5,1,2,5]:
+    fourier=2*simpson_check(lambda t:4*math.exp(-2*t)*math.cos(omega*t),0,25)
+    assert math.isclose(fourier,16/(4+omega**2),abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda w:3/(1.25-math.cos(w)),-math.pi,math.pi)/(2*math.pi),4,abs_tol=1e-10)
+for T in [.5,1,5,10]:
+    direct=2*simpson_check(lambda t:(T-t)*4*math.exp(-2*t),0,T)/T**2
+    assert math.isclose(direct,4/T-2*(1-math.exp(-2*T))/T**2,abs_tol=1e-9)
+bad=[[1,.9,0],[.9,1,.9],[0,.9,1]];coeff=[1,-2,1]
+assert math.isclose(sum(coeff[i]*bad[i][j]*coeff[j] for i,j in product(range(3),repeat=2)),-1.2)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

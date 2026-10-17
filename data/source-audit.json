@@ -185,6 +185,55 @@
         "median-absolute-loss"
       ],
       "scope": "已阅读中位数最小化样本平均绝对损失的相关段落。本站另对一般可积总体独立给出两侧概率定义、非唯一性和单侧导数证明；不声称该网页提供了这些全部推导，也不计作盛骤正文审校。"
+    },
+    {
+      "id": "stanford-gp-definition-selected",
+      "date": "2026-10-17",
+      "title": "Stanford CS229：高斯过程有限维定义（选定段落）",
+      "url": "https://cs229.stanford.edu/section/cs229-gp.pdf",
+      "pdfPages": [
+        2,
+        6,
+        7
+      ],
+      "concepts": [
+        "gaussian-process-definition",
+        "wiener-window-process"
+      ],
+      "scope": "阅读公开讲义关于有限维高斯定义、均值协方差核及退化矩阵的相关文字段落，未阅读整份回归讲义。本站独立编写投影/特征函数说明、反例和布朗窗口推导；不是盛骤第十二或十四章正文核对。"
+    },
+    {
+      "id": "mit-finite-convergence-selected",
+      "date": "2026-10-17",
+      "title": "MIT 6.262 Lecture 7：正矩阵与有限链收敛（选定段落）",
+      "url": "https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/2fdbd4633466ba1429e7cc24bce37514_MIT6_262S11_lec07.pdf",
+      "pdfPages": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "concepts": [
+        "markov-positive-power"
+      ],
+      "scope": "阅读公开文字提取中正矩阵、收敛及周期反例的有关段落。本站采用独立的共同质量/全变差推导，并另写 gcd 余数构造证明；未照抄该讲义的列极差收缩证明，未声称审校全部 19 页。不是盛骤正文。"
+    },
+    {
+      "id": "mit-return-time-selected",
+      "date": "2026-10-17",
+      "title": "MIT 6.856：返还时间与平稳概率",
+      "url": "https://courses.csail.mit.edu/6.856/21/Notes/n25-markov-chains.html",
+      "webSections": [
+        "Fundamental Theorem：mean return time"
+      ],
+      "concepts": [
+        "markov-return-mean"
+      ],
+      "scope": "阅读有限链基本定理、有限到达时间与返还均值关系的相关网页段落。本站独立给出依概率占用的周期反演证明，显式引用已讲辛钦定律；不冒充几乎必然版本的完整证明或盛骤教材正文审校。"
     }
   ]
 }

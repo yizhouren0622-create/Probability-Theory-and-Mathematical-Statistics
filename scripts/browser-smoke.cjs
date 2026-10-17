@@ -88,10 +88,10 @@ const { pathToFileURL } = require('node:url');
             7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update'],
             9: ['gauss-markov','normal-regression-projections'],
             11: ['r-boxplot','r-anova','r-regression'],
-            12: ['poisson-small-increments','poisson-arrival-times'],
-            13: ['markov-return-criterion'],
+            12: ['poisson-small-increments','poisson-arrival-times','gaussian-process-definition'],
+            13: ['markov-return-criterion','markov-positive-power','markov-return-mean'],
             10: ['bootstrap-ci-inversion','bootstrap-maximum-failure'],
-            14: ['mean-ergodicity','mean-versus-correlation-ergodicity'],
+            14: ['mean-ergodicity','mean-versus-correlation-ergodicity','wiener-window-process'],
           }[chapter.id] || [];
           await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
           for (const id of screenshots) await page.locator('#' + id).screenshot({ path: path.join(output, id + '.png') });
@@ -124,9 +124,9 @@ const { pathToFileURL } = require('node:url');
           await page.locator('#E3-4 details').evaluate(e => e.open = true);
           for (const id of ['E3-1','E3-4']) await page.locator('#' + id).screenshot({ path:path.join(output,id+'.png') });
         }
-        if (width === 390 && exam.id >= 4 && exam.id <= 10) {
+        if (width === 390 && exam.id >= 4) {
           await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
-          for (const q of exam.questions.slice(0, 2)) {
+          for (const q of (exam.id >= 11 ? exam.questions : exam.questions.slice(0, 2))) {
             await page.locator('#' + q.id + ' details').evaluateAll(nodes => nodes.forEach(e => e.open = true));
             await page.locator('#' + q.id).screenshot({ path: path.join(output, q.id + '.png') });
           }
