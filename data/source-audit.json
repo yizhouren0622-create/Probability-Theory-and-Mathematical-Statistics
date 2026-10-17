@@ -104,5 +104,25 @@
       ],
       "changes": "补一般变换、Γ可加性、正态配方证明及系统寿命；另据第108页习题主题独立编写瑞利分布推导。"
     }
-  }
+  },
+  "externalChecks": [
+    {
+      "id": "ye-2026-ch2-selected",
+      "date": "2026-10-17",
+      "title": "叶文杰《概率论与数理统计》2026 秋第二章课件：选定主题",
+      "url": "https://yewenjie.org/teaching/ProbabilityStatistics/slides/Chapter2.pdf?v=286fd0587aa4",
+      "contextUrl": "https://yewenjie.org/teaching/ProbabilityStatistics/2026",
+      "pdfPages": [
+        32,
+        35,
+        97
+      ],
+      "concepts": [
+        "hypergeometric-binomial-limit",
+        "poisson-error-bound",
+        "mixed-transform"
+      ],
+      "scope": "课程页面明确采用盛骤等第六版。已阅读公开课件文字提取中对应页的主题：大总体抽样的二项近似、泊松近似误差界、连续变换可产生原子。本站证明与练习独立编写；未完整阅读该 100 页课件，课件也不等于指定教材正文。"
+    }
+  ]
 }

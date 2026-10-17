@@ -65,10 +65,21 @@ const { pathToFileURL } = require('node:url');
           14: ['mean-ergodicity', '不能只凭本节的均方误差趋零结论推出'],
         }[chapter.id];
         if (corrected && !(await page.locator('#' + corrected[0]).innerText()).includes(corrected[1])) throw new Error('Mathematical wording correction missing');
+        if (chapter.id === 11) {
+          if (!(await page.locator('#r-execution').innerText()).includes('数值检查通过')) throw new Error('R execution provenance missing');
+          for (const id of ids) {
+            const result = page.locator('#' + id + ' details').filter({ has: page.locator('summary', { hasText: '查看实际 R 运行结果' }) });
+            await result.locator('summary').click();
+            if (!(await result.innerText()).includes('实际执行后提取')) throw new Error('R output missing: ' + id);
+          }
+        }
         if (width === 390) {
           const screenshots = {
+            2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform'],
+            5: ['bernoulli-khinchin','central-limit'],
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
             6: ['student-t-density','f-density-t-square'],
+            11: ['r-regression'],
             10: ['bootstrap-ci-inversion'],
             14: ['mean-ergodicity'],
           }[chapter.id] || [];

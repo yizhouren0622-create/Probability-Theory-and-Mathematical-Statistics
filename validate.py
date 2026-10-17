@@ -1,5 +1,5 @@
 """Validate generated pages, content coverage, links and numerical examples."""
-import json, math, re
+import json, math, re, hashlib
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
@@ -7,6 +7,16 @@ ROOT=Path(__file__).resolve().parent
 load=lambda x:json.loads((ROOT/'data'/x).read_text(encoding='utf-8'))
 course=load('course.json');exercises=load('exercises.json');exams=load('exams.json');audit=load('source-audit.json')
 concepts=[x for c in course for s in c['sections'] for x in s['concepts']]
+# Execution claims must correspond to the exact currently displayed R code.
+r_check=load('r-verification.json')
+r_examples={x['id']:re.findall(r'```r\n(.*?)\n```',x['statement'],re.S) for x in concepts if x['id'].startswith('r-')}
+assert len(r_examples)==6 and r_examples.keys()==r_check['examples'].keys()
+for ident,blocks in r_examples.items():
+    assert len(blocks)==1 and r_check['examples'][ident]['status']=='executed_and_checked'
+    assert hashlib.sha256(blocks[0].encode()).hexdigest()==r_check['examples'][ident]['codeSha256'], f'Rerun changed R example: {ident}'
+for review in audit.get('externalChecks',[]):
+    assert review['date'] and review['scope'] and review['pdfPages']
+    assert all(any(c['id']==cid for c in concepts) for cid in review['concepts'])
 ids=[x['id'] for x in concepts+exercises]+[q['id'] for e in exams for q in e['questions']]
 assert len(ids)==len(set(ids)), 'Duplicate content ids'
 assert [len(c['sections']) for c in course]==[6,5,5,5,2,3,8,8,6,3,6,3,3,4]

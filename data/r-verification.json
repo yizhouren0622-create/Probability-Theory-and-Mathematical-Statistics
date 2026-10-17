@@ -1,0 +1,80 @@
+{
+  "runDate": "2026-10-17",
+  "runtime": "WebR 0.6.0 / Node.js; local Windows file-URL compatibility patch",
+  "rVersion": "R version 4.6.0 (2026-04-24)",
+  "platform": "wasm32-unknown-emscripten",
+  "rng": "Mersenne-Twister,Inversion,Rejection",
+  "scope": "Six uncommented base-R examples; plots use pdf(NULL). No chart appearance audit or boot::boot package execution.",
+  "examples": {
+    "r-basics": {
+      "codeSha256": "907f609ed4a8d6f5e089b613a31e37f3f99a9731309503ac1c73d68a0ffa7ab7",
+      "status": "executed_and_checked",
+      "metrics": {
+        "n": 3.0,
+        "mean": 4.0,
+        "variance": 4.0
+      }
+    },
+    "r-boxplot": {
+      "codeSha256": "2bf36eb34c549c854e72b7d589c1b34686ceea71b8f5bb87a8e0449abd406f5b",
+      "status": "executed_and_checked",
+      "metrics": {
+        "lower_whisker": 1.0,
+        "lower_hinge": 2.0,
+        "median": 3.0,
+        "upper_hinge": 4.0,
+        "upper_whisker": 4.0,
+        "outlier": 20.0
+      }
+    },
+    "r-hypothesis-tests": {
+      "codeSha256": "cdfc09f2ac999b2d69d8a872d0ab3ad04f439c34319ce5a925728a83b704e2c2",
+      "status": "executed_and_checked",
+      "metrics": {
+        "welch_t": 0.5121475197315843,
+        "welch_df": 7.599693643094206,
+        "welch_p": 0.6230939400538178,
+        "paired_t": 1.6329931618554523,
+        "paired_df": 4.0,
+        "paired_p": 0.17780780835622115
+      }
+    },
+    "r-anova": {
+      "codeSha256": "d7b64315a1c7717f48caf9584a604e55420e6f435930c865c84bfa42d203b6b1",
+      "status": "executed_and_checked",
+      "metrics": {
+        "factor_ss": 13.5,
+        "residual_ss": 3.999999999999998,
+        "factor_df": 1.0,
+        "residual_df": 4.0,
+        "F": 13.500000000000007,
+        "p": 0.021311641128756702
+      }
+    },
+    "r-regression": {
+      "codeSha256": "8c3d82673fb0be005426e281e785e6c830c5aed1f888d5188d3f4c4c8b310c33",
+      "status": "executed_and_checked",
+      "metrics": {
+        "intercept": 1.1666666666666665,
+        "slope": 0.5000000000000001,
+        "fit": 1.6666666666666665,
+        "confidence_lower": -1.328214510697919,
+        "confidence_upper": 4.6615478440312526,
+        "prediction_lower": -4.323095688062503,
+        "prediction_upper": 7.6564290213958355
+      }
+    },
+    "r-bootstrap": {
+      "codeSha256": "674b1363147da6591717afc14e63a679937d4f661ce9a95a3ad334514ea4160b",
+      "status": "executed_and_checked",
+      "metrics": {
+        "B": 2000.0,
+        "boot_mean": 3.97025,
+        "boot_se": 1.126110118727183,
+        "percentile_lower": 1.5,
+        "percentile_upper": 6.0,
+        "exact_variance": 1.25
+      }
+    }
+  }
+}
