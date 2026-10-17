@@ -941,6 +941,105 @@ for signs in product([-1,1],repeat=6):
     data=[[[3+i+2*j+interaction[i][j]+signs[3*i+j]] for j in range(3)] for i in range(2)]
     contaminated.append(two_way_sums_check(data)[2]/2)
 assert math.isclose(mean(contaminated),7,abs_tol=1e-12)
+# Chapter-three CDF differences: exact cumulative sums from a nonindependent
+# discrete law, and a coordinatewise-monotone candidate with negative mass.
+joint_mass=[[Fraction(1,5),Fraction(3,10)],[Fraction(2,5),Fraction(1,10)]]
+def joint_cdf_check(x,y):
+    return sum(joint_mass[i][j] for i,j in product(range(2),repeat=2) if i<=x and j<=y)
+for i,j in product(range(2),repeat=2):
+    assert joint_cdf_check(i,j)-joint_cdf_check(i-1,j)-joint_cdf_check(i,j-1)+joint_cdf_check(i-1,j-1)==joint_mass[i][j]
+for x,y in product([-.2,0,.5,1,2],repeat=2):
+    value=joint_cdf_check(x,y);fx=joint_cdf_check(x,2);fy=joint_cdf_check(2,y)
+    assert max(0,fx+fy-1)<=value<=min(fx,fy)
+assert Fraction(1)-Fraction(7,10)-Fraction(7,10)+Fraction(1,10)==Fraction(-3,10)
+# Integrate the actual bivariate density over x; check conditional first and
+# second moments without assuming its factorization into the claimed answer.
+for rho,y in product([-.8,0,.5,.8],[-2.,0.,2.]):
+    mu1,mu2,sd1,sd2=1.,-.5,1.5,2.
+    s2=1-rho*rho;v=(y-mu2)/sd2
+    def bivariate_density_check(x):
+        u=(x-mu1)/sd1
+        return math.exp(-(u*u-2*rho*u*v+v*v)/(2*s2))/(2*math.pi*sd1*sd2*math.sqrt(s2))
+    marginal=normal_density(v)/sd2
+    expected_mu=mu1+rho*sd1*v;expected_var=sd1*sd1*s2
+    assert math.isclose(simpson_check(bivariate_density_check,-25,25),marginal,abs_tol=1e-10)
+    assert math.isclose(simpson_check(lambda x:x*bivariate_density_check(x),-25,25)/marginal,expected_mu,abs_tol=1e-9)
+    assert math.isclose(simpson_check(lambda x:(x-expected_mu)**2*bivariate_density_check(x),-25,25)/marginal,expected_var,abs_tol=1e-9)
+p_abs=simpson_check(normal_density,-1,1)
+assert math.isclose(p_abs,.6826894921370859,abs_tol=1e-12)
+assert math.isclose(p_abs*p_abs,.4660649426743922,abs_tol=1e-12)
+# Characteristic function of (Z,SZ), averaged over the two independent signs,
+# differs from that of a Gaussian vector with its identical covariance I.
+assert .5*(1+math.exp(-2))>math.exp(-1)
+# Normal interval examples: invert an independent analytic F(2,2) CDF, and
+# check reciprocal intervals by transforming the parameter, not the data order.
+f22_cdf=lambda x:x/(1+x)
+assert f22_cdf(Fraction(1,19))==Fraction(1,20)
+assert f22_cdf(Fraction(19))==Fraction(19,20)
+assert [Fraction(4,19),Fraction(76)]==[Fraction(4)/19,Fraction(4)/Fraction(1,19)]
+assert [Fraction(1,76),Fraction(19,4)]==[1/Fraction(76),1/Fraction(4,19)]
+assert Fraction(4*4+6*9,10)==7
+assert 7*(Fraction(1,5)+Fraction(1,7))==Fraction(12,5)
+halfwidth=2.228139*math.sqrt(12/5)
+assert math.isclose(halfwidth,3.451818096014099,abs_tol=1e-12)
+assert math.isclose(3-halfwidth,-.45182,abs_tol=5e-6)
+# Welch matching: integrate two chi-square laws, combine raw moments of the
+# independent scaled variables, then recover the central moment by expansion.
+raw_chi=[]
+for df in [4,7]:
+    density=lambda u:u**(df/2-1)*math.exp(-u/2)/(2**(df/2)*math.gamma(df/2))
+    raw_chi.append([simpson_check(lambda u:u**k*density(u),0,120) for k in range(4)])
+    assert math.isclose(raw_chi[-1][0],1,abs_tol=1e-7)
+raw_w=[]
+for k in range(4):
+    raw_w.append(sum(math.comb(k,j)*raw_chi[0][j]*raw_chi[1][k-j]/7**(k-j) for j in range(k+1)))
+m_w=raw_w[1];var_w=raw_w[2]-m_w*m_w
+third_w=raw_w[3]-3*m_w*raw_w[2]+2*m_w**3
+assert math.isclose(m_w,5,abs_tol=1e-6)
+assert math.isclose(var_w,58/7,abs_tol=1e-5)
+assert math.isclose(third_w,1576/49,abs_tol=1e-4)
+assert Fraction(25)/(Fraction(16,4)+Fraction(1,7))==Fraction(175,29)
+assert Fraction(1576,49)>Fraction(6728,245)
+for n1,n2,v1,v2 in product([2,3,5,10],[2,4,8],[.01,.5,2,20],[.02,1,3,50]):
+    nu_hat=(v1+v2)**2/(v1*v1/(n1-1)+v2*v2/(n2-1))
+    assert min(n1-1,n2-1)-1e-10<=nu_hat<=n1+n2-2+1e-10
+# Even at equal sample sizes and a common population variance, realized
+# unequal sample variances make the plug-in Welch df smaller than pooled df.
+assert (4+1)**2/(16/4+1/4)<8
+# Conditional bootstrap: enumerate all labeled resamples rather than only
+# evaluating a formula. Repeated original values keep their original masses.
+bootstrap_data=[Fraction(1),Fraction(2),Fraction(5)]
+states_boot=list(product(range(3),repeat=3))
+means_boot=[mean(bootstrap_data[i] for i in state) for state in states_boot]
+variances_boot=[variance(bootstrap_data[i] for i in state) for state in states_boot]
+weights_boot=[[state.count(i) for i in range(3)] for state in states_boot]
+assert mean(means_boot)==Fraction(8,3)
+assert mean((v-Fraction(8,3))**2 for v in means_boot)==Fraction(26,27)
+assert mean(variances_boot)==Fraction(26,9)
+assert mean(variances_boot)-variance(bootstrap_data)==Fraction(-13,9)
+assert sum(row==[2,1,0] for row in weights_boot)==3
+assert mean(row[0] for row in weights_boot)==1
+assert mean(Fraction((row[0]-1)**2) for row in weights_boot)==Fraction(2,3)
+assert mean(Fraction((row[0]-1)*(row[1]-1)) for row in weights_boot)==Fraction(-1,3)
+weight_counts={tuple(row):weights_boot.count(row) for row in weights_boot}
+for weights,count in weight_counts.items():
+    assert count==math.factorial(3)//math.prod(math.factorial(w) for w in weights)
+# Two independent simulations: their B-1 sample variance is conditionally
+# unbiased, but its square root has strict downward bias in this finite law.
+variance_estimates=[(a-b)**2/2 for a,b in product(means_boot,repeat=2)]
+assert mean(variance_estimates)==Fraction(26,27)
+assert mean(math.sqrt(v) for v in variance_estimates)<math.sqrt(26/27)
+assert mean((a+b)/2 for a,b in product(means_boot,repeat=2))==Fraction(8,3)
+assert mean(((a+b)/2-Fraction(8,3))**2 for a,b in product(means_boot,repeat=2))==Fraction(13,27)
+duplicate_means=[mean(Fraction([1,1,5][i]) for i in state) for state in states_boot]
+assert mean(duplicate_means)==Fraction(7,3)
+# Conditional hit counts are exactly binomial; adding one changes expectation
+# and cannot turn an approximate fitted model into an exact null distribution.
+hit_prob=Fraction(1,5);b_sim=4
+hit_law=[Fraction(math.comb(b_sim,k))*hit_prob**k*(1-hit_prob)**(b_sim-k) for k in range(b_sim+1)]
+assert sum(w*Fraction(k,b_sim) for k,w in enumerate(hit_law))==hit_prob
+assert sum(w*(Fraction(k,b_sim)-hit_prob)**2 for k,w in enumerate(hit_law))==hit_prob*(1-hit_prob)/b_sim
+assert sum(w*Fraction(k+1,b_sim+1) for k,w in enumerate(hit_law))==Fraction(1+b_sim*hit_prob,b_sim+1)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

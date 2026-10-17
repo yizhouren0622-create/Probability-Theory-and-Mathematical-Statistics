@@ -32,7 +32,7 @@
         "密度与CDF的微分关系",
         "多维随机向量的推广"
       ],
-      "changes": "补多维随机向量卡；明确CDF值域。"
+      "changes": "补多维随机向量卡；明确CDF值域。 2026-10-17再查70–71页，展开四项性质的事件序列证明，并补独立编写的边缘界、单点取差、非法CDF反例；密度卡明确恢复密度所需条件。"
     },
     "3.2": {
       "source": "hep6-ch3",
@@ -82,7 +82,7 @@
         "两个随机向量的独立",
         "独立向量的函数仍独立"
       ],
-      "changes": "补独立向量、分组函数定理与原像事件证明；保持原二维正态卡位置和锚点。"
+      "changes": "补独立向量、分组函数定理与原像事件证明；保持原二维正态卡位置和锚点。 补独立标准正态的雅可比构造、相关系数参数识别与随机符号反例；这些为原有定理的本站展开，不增加指定正文已读页数。"
     },
     "3.5": {
       "source": "hep6-ch3",
@@ -599,6 +599,39 @@
         "two-way-no-replication"
       ],
       "scope": "读取模型、固定因素说明和平方和/自由度表。本站独立构造五个正交空间，证明效应估计、均方期望与中心/非中心卡方，并以每格一次的数据说明无交互额外条件；不是指定教材第九章正文，也没有新增R执行。另对照NIST ppc232网页模型/检验段落，未使用其MSI行的SSC笔误。"
+    },
+    {
+      "id": "nist-two-sample-welch-selected",
+      "date": "2026-10-18",
+      "title": "NIST：两独立样本的合并方差与Welch自由度",
+      "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm",
+      "webSections": [
+        "Definition",
+        "Test Statistic",
+        "Critical Region，Welch–Satterthwaite formulation"
+      ],
+      "concepts": [
+        "normal-confidence-intervals",
+        "two-sample-mean-tests",
+        "welch-satterthwaite-proof"
+      ],
+      "scope": "读取配对/独立及等方差设计说明、合并方差统计量和Welch自由度公式。本站独立补矩匹配、三阶中心矩不相同及随机代入的区别；没有运行该网页R代码。未沿用prc312网页将区间含0解释成总体等价的措辞，也未沿用其不等方差df简式；diffmean旧页的分母排版与这里正确公式不一致，本站采用独立推导核验。不是指定教材第七、八章正文。"
+    },
+    {
+      "id": "berkeley-bootstrap-selected",
+      "date": "2026-10-18",
+      "title": "Berkeley Stat135：经验分布重抽样与模拟重复",
+      "url": "https://stat135.berkeley.edu/spring-2026/lectures/lecture-9.html",
+      "webSections": [
+        "The Bootstrap，经验分布与重抽样定义",
+        "Nonparametric Bootstrap，标签索引的均值示例"
+      ],
+      "concepts": [
+        "bootstrap-weights-bias",
+        "nonparametric-bootstrap",
+        "bootstrap-null-test"
+      ],
+      "scope": "选读经验分布/有放回重抽样段落和标签索引示例。本站独立推出多项计数、条件矩、有限B无偏方差和样本方差偏差反例；未沿用“所有bootstrap分布都以原统计量为中心”的笼统表述。网页R输出是原课程演示，不是本站新增实际执行，未通读MLE后半章。"
     }
   ]
 }
