@@ -4,7 +4,7 @@
   "rVersion": "R version 4.6.0 (2026-04-24)",
   "platform": "wasm32-unknown-emscripten",
   "rng": "Mersenne-Twister,Inversion,Rejection",
-  "scope": "Six uncommented base-R examples; plots use pdf(NULL). No chart appearance audit or boot::boot package execution.",
+  "scope": "Six uncommented base-R examples executed with numeric checks; two plot calls separately exported through the R PDF device and visually checked after PNG rendering. Commented boot::boot package call not executed.",
   "examples": {
     "r-basics": {
       "codeSha256": "907f609ed4a8d6f5e089b613a31e37f3f99a9731309503ac1c73d68a0ffa7ab7",
@@ -75,6 +75,28 @@
         "percentile_upper": 6.0,
         "exact_variance": 1.25
       }
+    }
+  },
+  "graphics": {
+    "r-boxplot": {
+      "path": "assets/plots/r-boxplot.png",
+      "sha256": "94d1cc8bb21209a44ba64634634750188d9b99047dc89e5442afbb6f9b059ae5",
+      "codeSha256": "2bf36eb34c549c854e72b7d589c1b34686ceea71b8f5bb87a8e0449abd406f5b",
+      "renderedDate": "2026-10-17",
+      "renderer": "R PDF device, Poppler pdftoppm 144 dpi; cross-checked with PyMuPDF",
+      "status": "visually_reviewed",
+      "alt": "箱线图的箱体为 2 到 4，中位数 3，左须 1，右须 4，散点为 20。",
+      "caption": "箱体两端为 2、4，中线为 3；左须止于 1，右须与上铰链重合于 4，20 为单独散点。"
+    },
+    "r-anova": {
+      "path": "assets/plots/r-anova.png",
+      "sha256": "b80fb315255c31f9edebd64cfd4a3f1332467460be6afb82c93c463e51d9003d",
+      "codeSha256": "d7b64315a1c7717f48caf9584a604e55420e6f435930c865c84bfa42d203b6b1",
+      "renderedDate": "2026-10-17",
+      "renderer": "R PDF device, Poppler pdftoppm 144 dpi; cross-checked with PyMuPDF",
+      "status": "visually_reviewed",
+      "alt": "ANOVA 残差图，拟合值 2 和 5 处各有残差 −1、0、1 三个点。",
+      "caption": "横轴为拟合值，纵轴为残差；两组拟合值分别为 2、5，每组残差为 −1、0、1。只有六个观测，本图不能证明模型假设成立。"
     }
   }
 }

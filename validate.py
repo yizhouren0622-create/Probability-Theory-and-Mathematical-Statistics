@@ -14,6 +14,10 @@ assert len(r_examples)==6 and r_examples.keys()==r_check['examples'].keys()
 for ident,blocks in r_examples.items():
     assert len(blocks)==1 and r_check['examples'][ident]['status']=='executed_and_checked'
     assert hashlib.sha256(blocks[0].encode()).hexdigest()==r_check['examples'][ident]['codeSha256'], f'Rerun changed R example: {ident}'
+for ident,plot in r_check.get('graphics',{}).items():
+    assert plot['status']=='visually_reviewed' and plot['alt'] and plot['caption']
+    assert plot['codeSha256']==r_check['examples'][ident]['codeSha256']
+    assert hashlib.sha256((ROOT/plot['path']).read_bytes()).hexdigest()==plot['sha256'], f'Review changed R plot: {ident}'
 for review in audit.get('externalChecks',[]):
     assert review['date'] and review['scope'] and review['pdfPages']
     assert all(any(c['id']==cid for c in concepts) for cid in review['concepts'])

@@ -9,10 +9,18 @@ const { pathToFileURL } = require('node:url');
   const course = JSON.parse(await fs.readFile(path.join(root, 'data/course.json'), 'utf8'));
   const exercises = JSON.parse(await fs.readFile(path.join(root, 'data/exercises.json'), 'utf8'));
   const exams = JSON.parse(await fs.readFile(path.join(root, 'data/exams.json'), 'utf8'));
+  const rCheck = JSON.parse(await fs.readFile(path.join(root, 'data/r-verification.json'), 'utf8'));
+  const homeHtml = await fs.readFile(path.join(root, 'index.html'), 'utf8');
+  const version = homeHtml.match(/assets\/site\.js\?v=([a-f0-9]+)/)[1];
   const base = process.env.SITE_BASE_URL;
   const output = path.join(root, 'artifacts/browser', base ? 'live' : 'local');
   await fs.mkdir(output, { recursive: true });
-  const url = file => base ? new URL(file, base).href : pathToFileURL(path.join(root, file)).href;
+  const url = file => {
+    if (!base) return pathToFileURL(path.join(root, file)).href;
+    const result = new URL(file, base);
+    result.searchParams.set('verify', version);
+    return result.href;
+  };
   const browser = await chromium.launch({
     headless: true,
     ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}),
@@ -26,24 +34,16 @@ const { pathToFileURL } = require('node:url');
       const probe = await browser.newContext();
       let published = false;
       for (let attempt = 0; attempt < 18; attempt++) {
-        const ready = await Promise.all([3,6].map(async id => {
-          const response = await probe.request.get(url('chapter-' + id + '.html') + '?review=' + Date.now());
-          const html = await response.text();
-          return response.ok() && course[id-1].sections.flatMap(s => s.concepts).every(c => html.includes('id="' + c.id + '"'));
-        }));
-        for (const exam of exams) {
-          const response = await probe.request.get(url('exam-' + exam.id + '.html') + '?review=' + Date.now());
-          const html = await response.text();
-          ready.push(response.ok() && exam.questions.every(q => html.includes('id="' + q.id + '"')));
-        }
-        if (ready.every(Boolean)) {
+        const response = await probe.request.get(url('index.html') + '&review=' + Date.now());
+        const html = await response.text();
+        if (response.ok() && html.includes('assets/site.js?v=' + version)) {
           published = true;
           break;
         }
         await new Promise(resolve => setTimeout(resolve, 10000));
       }
       await probe.close();
-      if (!published) throw new Error('Pages has not served the current chapter 3/6 content');
+      if (!published) throw new Error('Pages has not served the current build version: ' + version);
     }
     for (const width of [1280, 390]) {
       const context = await browser.newContext({ viewport: { width, height: 900 } });
@@ -71,6 +71,10 @@ const { pathToFileURL } = require('node:url');
             const result = page.locator('#' + id + ' details').filter({ has: page.locator('summary', { hasText: '查看实际 R 运行结果' }) });
             await result.locator('summary').click();
             if (!(await result.innerText()).includes('实际执行后提取')) throw new Error('R output missing: ' + id);
+            if (rCheck.graphics?.[id]) {
+              await result.locator('img').waitFor({ state: 'visible' });
+              if (!(await result.locator('img').evaluate(img => img.complete && img.naturalWidth > 0 && img.alt.length > 10))) throw new Error('R plot did not load: ' + id);
+            }
           }
         }
         if (width === 390) {
@@ -79,7 +83,8 @@ const { pathToFileURL } = require('node:url');
             5: ['bernoulli-khinchin','central-limit'],
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
             6: ['student-t-density','f-density-t-square'],
-            11: ['r-regression'],
+            7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update'],
+            11: ['r-boxplot','r-anova','r-regression'],
             10: ['bootstrap-ci-inversion'],
             14: ['mean-ergodicity'],
           }[chapter.id] || [];
