@@ -60,6 +60,7 @@ const { pathToFileURL } = require('node:url');
         await page.locator('[data-proofs="open"]').click();
         const closed = await page.evaluate(() => [...document.querySelectorAll('.concept > details:first-of-type')].filter(d => !d.open).length);
         if (closed) throw new Error('Proof controls failed for chapter ' + chapter.id);
+        if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw new Error('Expanded proof overflow in chapter ' + chapter.id + ' at width ' + width);
         const corrected = {
           10: ['bootstrap-ci-inversion', '这不要求整个重抽样分布都对称'],
           14: ['mean-ergodicity', '不能只凭本节的均方误差趋零结论推出'],
@@ -84,11 +85,12 @@ const { pathToFileURL } = require('node:url');
             3: ['multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
             6: ['student-t-density','f-density-t-square'],
             7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update'],
+            9: ['gauss-markov','normal-regression-projections'],
             11: ['r-boxplot','r-anova','r-regression'],
             12: ['poisson-small-increments','poisson-arrival-times'],
             13: ['markov-return-criterion'],
-            10: ['bootstrap-ci-inversion'],
-            14: ['mean-ergodicity'],
+            10: ['bootstrap-ci-inversion','bootstrap-maximum-failure'],
+            14: ['mean-ergodicity','mean-versus-correlation-ergodicity'],
           }[chapter.id] || [];
           await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
           for (const id of screenshots) await page.locator('#' + id).screenshot({ path: path.join(output, id + '.png') });
@@ -109,6 +111,7 @@ const { pathToFileURL } = require('node:url');
       for (const exam of exams) {
         await page.goto(url('exam-' + exam.id + '.html'), { waitUntil: 'load' });
         pagesChecked++;
+        await page.locator('.exercise details').evaluateAll(nodes => nodes.forEach(e => e.open = true));
         const check = await page.evaluate(ids => ({
           missing: ids.filter(id => !document.getElementById(id)),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
@@ -119,6 +122,13 @@ const { pathToFileURL } = require('node:url');
           await page.locator('#E3-1 details').evaluate(e => e.open = true);
           await page.locator('#E3-4 details').evaluate(e => e.open = true);
           for (const id of ['E3-1','E3-4']) await page.locator('#' + id).screenshot({ path:path.join(output,id+'.png') });
+        }
+        if (width === 390 && exam.id >= 4 && exam.id <= 6) {
+          await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
+          for (const q of exam.questions.slice(0, 2)) {
+            await page.locator('#' + q.id + ' details').evaluateAll(nodes => nodes.forEach(e => e.open = true));
+            await page.locator('#' + q.id).screenshot({ path: path.join(output, q.id + '.png') });
+          }
         }
       }
       if (width === 390) {

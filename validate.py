@@ -59,9 +59,19 @@ class Page(HTMLParser):
             if attr in a:self.links.append(a[attr])
         if tag=='html':assert a.get('lang')=='zh-CN'
 pages={p.name:Page(p.read_text(encoding='utf-8')) for p in ROOT.glob('*.html')}
+# A failed partial build must not pass by validating a mixture of old and new
+# pages. Check every page's canonical input fingerprint and the search IDs.
+build_inputs=['build.py','assets/site.css','assets/site.js','data/course.json',
+              'data/exercises.json','data/exams.json','data/source-audit.json','data/r-verification.json']
+expected_version=hashlib.sha256(b''.join((ROOT/p).read_bytes().replace(b'\r\n',b'\n') for p in build_inputs)).hexdigest()[:12]
+index_text=(ROOT/'assets/index-data.js').read_text(encoding='utf-8')
+index_entries=json.loads(index_text.removeprefix('window.STUDY_INDEX=').strip().removesuffix(';'))
+assert {x['id'] for x in index_entries}==set(ids), 'Search index is stale; run a successful full build'
 links=0
 for filename,page in pages.items():
     text=(ROOT/filename).read_text(encoding='utf-8')
+    for asset in ['site.css','site.js','index-data.js','preferences.js']:
+        assert f'assets/{asset}?v={expected_version}' in text, f'Stale generated page: {filename}'
     assert 'MATHTOKEN' not in text and 'math-error' not in text
     assert not any(ord(c)<32 and c not in '\n\r\t' for c in text), filename
     for link in page.links:
@@ -319,6 +329,33 @@ assert math.isclose(simpson_check(lambda x:2*(1-3*x),0,1/3),1/3,abs_tol=1e-10)
 assert math.isclose(simpson_check(lambda s:4*s*s*math.exp(-2*s),2,40),13*math.exp(-4),abs_tol=1e-9)
 assert math.exp(-2)<2/math.e-math.exp(-2)<2/math.e
 assert all(q['id'] in pages[f'exam-{e["id"]}.html'].ids for e in exams for q in e['questions'])
+# Exams 4–6: use direct expectation sums, covariance matrix multiplication,
+# numerical quadrature and count enumeration to check the authored results.
+law=[(-1,.25),(0,.5),(2,.25)]
+ex=sum(x*p for x,p in law)
+vx=sum((x-ex)**2*p for x,p in law)
+assert math.isclose(ex,.25) and math.isclose(vx,19/16)
+assert math.isclose(sum((2*x+1)*p for x,p in law),1.5)
+assert math.isclose(simpson_check(lambda x:x**4/2,-1,1),.2,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda x:(x*x-1/3)**2/2,-1,1),4/45,abs_tol=1e-10)
+sigma=[[4,1],[1,9]];transform=[[1,1],[2,-1]]
+transformed=[[sum(transform[i][k]*sigma[k][l]*transform[j][l]
+                   for k in range(2) for l in range(2)) for j in range(2)] for i in range(2)]
+assert transformed==[[15,0],[0,21]]
+assert math.isclose(100/10000,.01)
+normal_mass=math.erf(10.5/math.sqrt(75))
+exact_mass=sum(math.comb(200,k)*.25**k*.75**(200-k) for k in range(40,61))
+assert math.isclose(normal_mass,.9135892670263,abs_tol=1e-12)
+assert math.isclose(exact_mass,.914107230445094,abs_tol=1e-12)
+assert math.isclose(exact_mass-normal_mass,.000517963418794,abs_tol=1e-12)
+# At x=1/4, a U(0,1) observation falls in one of four equal bins; count
+# all 4^5 equally likely bin sequences instead of evaluating the CDF polynomial.
+from itertools import product
+median_successes=sum(sum(v==0 for v in xs)>=3 for xs in product(range(4),repeat=5))
+assert median_successes/4**5==53/512
+assert math.isclose(simpson_check(lambda x:30*x*x*(1-x)**2,0,.25),53/512,abs_tol=1e-10)
+assert math.isclose(simpson_check(lambda v:v*math.exp(-v/2)/4,6,90),4*math.exp(-3),abs_tol=1e-9)
+assert math.isclose(sum((x-3)**2 for x in [1,2,4,5])/3,10/3)
 # New chapters: independently compute representative examples by enumeration,
 # regression normal equations and numerical integration.
 from itertools import product
@@ -351,6 +388,42 @@ for omega in [0,1,3]:
     dt=20/20000
     numerical=2*sum(3*math.exp(-2*(i+.5)*dt)*math.cos(omega*(i+.5)*dt)*dt for i in range(20000))
     assert math.isclose(numerical,12/(4+omega**2),abs_tol=2e-6)
+# Gauss–Markov example: enumerate all Rademacher errors, without assuming
+# normality, then compare the variance of the two unbiased slope estimators.
+errors=list(product([-1,1],repeat=3))
+slope_ols=[(e[2]-e[0])/2 for e in errors]
+slope_other=[e[1]-e[0] for e in errors]
+assert mean(slope_ols)==mean(slope_other)==0
+assert mean(x*x for x in slope_ols)==.5
+assert mean(x*x for x in slope_other)==2
+# Independently form the orthogonal projection and check both the actual
+# residuals and the rank/trace responsible for the chi-square degrees of freedom.
+design=[-1,0,1,2]; response=[0,1,1,4]
+hat=[[.25+(x-.5)*(y-.5)/5 for y in design] for x in design]
+for i,j in product(range(4),repeat=2):
+    assert math.isclose(sum(hat[i][k]*hat[k][j] for k in range(4)),hat[i][j],abs_tol=1e-12)
+assert math.isclose(sum(hat[i][i] for i in range(4)),2)
+projection=[sum(h*y for h,y in zip(row,response)) for row in hat]
+residual=[y-fit for y,fit in zip(response,projection)]
+assert all(math.isclose(r,t,abs_tol=1e-12) for r,t in zip(residual,[.3,.1,-1.1,.7]))
+assert math.isclose(sum(r*r for r in residual),1.8)
+assert math.isclose(-hat[0][1],-.4)
+assert math.isclose((1.2/math.sqrt(.9/5))**2,8)
+# Exact bootstrap maximum distribution by 27 ordered index samples.
+boot_maxima=[max(xs) for xs in product(range(3),repeat=3)]
+assert [boot_maxima.count(j) for j in range(3)]==[1,7,19]
+assert math.isclose(1-(1-1/10000)**10000,1-math.exp(-1),abs_tol=2e-5)
+# Direct time integration for independent, fixed coefficient choices confirms
+# that longer whole-period windows retain the same random power factor.
+for aa,bb in [(1,2),(-.5,1),(2,0)]:
+    for periods in [1,3]:
+        window=2*math.pi*periods
+        trajectory=lambda t:aa*math.cos(t)+bb*math.sin(t)
+        assert math.isclose(simpson_check(trajectory,0,window)/window,0,abs_tol=1e-10)
+        for lag in [0,.7]:
+            actual=simpson_check(lambda t:trajectory(t)*trajectory(t+lag),0,window)/window
+            assert math.isclose(actual,(aa*aa+bb*bb)*math.cos(lag)/2,abs_tol=1e-10)
+assert math.isclose(1-math.exp(-.5)+math.exp(-1.5),.616599500435796,abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

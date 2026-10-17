@@ -123,6 +123,42 @@
         "mixed-transform"
       ],
       "scope": "课程页面明确采用盛骤等第六版。已阅读公开课件文字提取中对应页的主题：大总体抽样的二项近似、泊松近似误差界、连续变换可产生原子。本站证明与练习独立编写；未完整阅读该 100 页课件，课件也不等于指定教材正文。"
+    },
+    {
+      "id": "mit-regression-selected",
+      "date": "2026-10-17",
+      "title": "MIT 18.S096 Lecture 6：Gauss–Markov 与正态投影的选定段落",
+      "url": "https://ocw.mit.edu/courses/18-s096-topics-in-mathematics-with-applications-in-finance-fall-2013/fc0c08db6b497cc3bd09020aec39f9b5_MIT18_S096F13_lecnote6.pdf",
+      "pdfPages": [
+        15,
+        16,
+        17,
+        18,
+        34,
+        35,
+        36,
+        37,
+        38
+      ],
+      "concepts": [
+        "gauss-markov",
+        "normal-regression-projections"
+      ],
+      "scope": "阅读公开讲义文字提取中定理条件、方差比较及 QR/正交投影证明的相关段落；不是整份 45 页讲义审校。本站用独立记号重写证明与数值例题；这不是盛骤第九章正文核对。"
+    },
+    {
+      "id": "berkeley-bootstrap-maximum-selected",
+      "date": "2026-10-17",
+      "title": "Berkeley Data 102 Discussion 5：样本最大值的 bootstrap 反例",
+      "url": "https://data102.org/sp22/assets/discussion/disc5.pdf",
+      "pdfPages": [
+        7,
+        8
+      ],
+      "concepts": [
+        "bootstrap-maximum-failure"
+      ],
+      "scope": "已阅读第 7–8 页的最大值 CDF、重抽样原子及一致性问题；本站独立给出未知端点尺度的反例证明和三观测值穷举题，未复制讨论题答案。不属于盛骤第十章正文核对。"
     }
   ]
 }
