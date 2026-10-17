@@ -594,6 +594,39 @@ for x in [-1,0,.5,1,1.5,2,3,4]:
     assert all((q<=x)==(u<=mixture_cdf(x)) for u,q in zip(uniform_grid,quantiles))
     assert math.isclose(sum(q<=x for q in quantiles)/len(quantiles),mixture_cdf(x),abs_tol=1e-4)
 assert sum(mixture_cdf(q)==.25 for q in quantiles)/len(quantiles)==.25
+# Non-identical Bernoulli example: exact Poisson-binomial convolution, not a
+# binomial approximation with the mean success probability.
+success_rates=[.2 if i%2==0 else .5 for i in range(200)]
+poisson_binomial=[1.]
+for rate in success_rates:
+    out=[0.]*(len(poisson_binomial)+1)
+    for k,prob in enumerate(poisson_binomial):
+        out[k]+=prob*(1-rate);out[k+1]+=prob*rate
+    poisson_binomial=out
+mu_sum=sum(k*p for k,p in enumerate(poisson_binomial))
+var_sum=sum((k-mu_sum)**2*p for k,p in enumerate(poisson_binomial))
+assert math.isclose(mu_sum,70,abs_tol=1e-10) and math.isclose(var_sum,41,abs_tol=1e-10)
+approx_non_iid=(1+math.erf((80.5-70)/math.sqrt(82)))/2
+assert math.isclose(approx_non_iid,.9495,abs_tol=5e-5)
+assert abs(sum(poisson_binomial[:81])-approx_non_iid)<.002
+third_sum=sum(p*(1-p)**3+(1-p)*p**3 for p in success_rates)
+assert third_sum/41**1.5<=1/math.sqrt(41)
+# Enumerate the counterexample exactly for small n; its support bound and
+# characteristic-function limit demonstrate a uniform rather than normal law.
+for n in range(1,9):
+    sign_sums=[sum(2**i*sign for i,sign in enumerate(signs)) for signs in product([-1,1],repeat=n)]
+    assert sorted(sign_sums)==list(range(-(2**n-1),2**n,2))
+    b2=(4**n-1)/3
+    assert mean(sign_sums)==0 and math.isclose(mean(x*x for x in sign_sums),b2)
+    assert max(abs(x) for x in sign_sums)/math.sqrt(b2)<math.sqrt(3)
+for t in [.5,1,2]:
+    n=20;b=math.sqrt((4**n-1)/3)
+    actual=math.prod(math.cos(t*2**i/b) for i in range(n))
+    target=math.sin(math.sqrt(3)*t)/(math.sqrt(3)*t)
+    assert math.isclose(actual,target,abs_tol=1e-10)
+wald_margin=1.96*math.sqrt(.3*.7/100)
+assert math.isclose(.3-wald_margin,.2101815163771056,abs_tol=1e-12)
+assert math.isclose(.3+wald_margin,.3898184836228944,abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

@@ -287,6 +287,40 @@
         "cdf"
       ],
       "scope": "阅读公开讲义分位函数、反演命题与离散示例相关段落。本站另写下确界取到值的右连续证明和混合分布反例；未使用本讲后续拒绝抽样内容，也未将其标为盛骤正文。"
+    },
+    {
+      "id": "psu-lyapunov-selected",
+      "date": "2026-10-17",
+      "title": "Penn State 渐近统计讲义：非同分布极限条件",
+      "url": "https://bpb-us-e1.wpmucdn.com/sites.psu.edu/dist/1/166293/files/2024/05/asymp-81f581a7e3f6d14d.pdf",
+      "pdfPages": [
+        102,
+        105,
+        106,
+        107,
+        108
+      ],
+      "concepts": [
+        "lyapunov-clt",
+        "clt-dominant-summand"
+      ],
+      "scope": "阅读 David R. Hunter 公开讲义中 Lyapunov 条件、Lindeberg–Feller 结论及乘积差练习的选定文字段落；未阅读整份 216 页讲义。本站独立写矩阶插值、直接与高斯因子比较的证明，以及二进制反例。不是盛骤第五章正文核对。"
+    },
+    {
+      "id": "psu-slutsky-selected",
+      "date": "2026-10-17",
+      "title": "Penn State 渐近统计讲义：Slutsky 与方差一致性",
+      "url": "https://bpb-us-e1.wpmucdn.com/sites.psu.edu/dist/1/166293/files/2024/05/asymp-81f581a7e3f6d14d.pdf",
+      "pdfPages": [
+        67,
+        68,
+        69,
+        70
+      ],
+      "concepts": [
+        "slutsky-studentization"
+      ],
+      "scope": "阅读定理 2.39、推论 2.40、样本方差一致性与学生化例子的选定文字段落。本站给出一元和积商的 CDF 夹逼/紧性证明，不声称证明全部随机向量连续映射定理或核对盛骤正文。"
     }
   ]
 }
