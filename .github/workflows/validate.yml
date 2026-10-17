@@ -34,6 +34,7 @@ jobs:
           python -m pip install -r requirements-build.txt
           python build.py
           python validate.py
+          python scripts/check-build-newlines.py
           node --check assets/site.js
       - name: Install test browser
         run: |

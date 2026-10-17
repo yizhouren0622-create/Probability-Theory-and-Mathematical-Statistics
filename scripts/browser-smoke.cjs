@@ -85,6 +85,8 @@ const { pathToFileURL } = require('node:url');
             6: ['student-t-density','f-density-t-square'],
             7: ['normal-mle-proof','beta-prior-moments','normal-conjugate-update'],
             11: ['r-boxplot','r-anova','r-regression'],
+            12: ['poisson-small-increments','poisson-arrival-times'],
+            13: ['markov-return-criterion'],
             10: ['bootstrap-ci-inversion'],
             14: ['mean-ergodicity'],
           }[chapter.id] || [];
