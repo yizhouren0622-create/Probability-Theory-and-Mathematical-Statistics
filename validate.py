@@ -627,6 +627,62 @@ for t in [.5,1,2]:
 wald_margin=1.96*math.sqrt(.3*.7/100)
 assert math.isclose(.3-wald_margin,.2101815163771056,abs_tol=1e-12)
 assert math.isclose(.3+wald_margin,.3898184836228944,abs_tol=1e-12)
+# Confidence calibration: compute full finite binomial laws and invert tails
+# numerically, independently of the closed-form interval examples.
+def binomial_law(n,p):
+    return [math.comb(n,k)*p**k*(1-p)**(n-k) for k in range(n+1)]
+def binomial_tail_root(n,k,target,right):
+    lo,hi=0.,1.
+    for _ in range(65):
+        mid=(lo+hi)/2
+        law=binomial_law(n,mid)
+        tail=sum(law[k:] if right else law[:k+1])
+        if (tail<target)==right: lo=mid
+        else: hi=mid
+    return (lo+hi)/2
+cp_bounds=[(0. if k==0 else binomial_tail_root(10,k,.025,True),
+            1. if k==10 else binomial_tail_root(10,k,.025,False)) for k in range(11)]
+assert math.isclose(cp_bounds[0][1],.30849710781876083,abs_tol=1e-12)
+assert math.isclose(cp_bounds[10][0],.6915028921812392,abs_tol=1e-12)
+assert math.isclose(binomial_tail_root(10,0,.05,False),.2588655508930523,abs_tol=1e-12)
+for p in [i/400 for i in range(401)]:
+    law=binomial_law(10,p)
+    coverage=sum(prob for prob,(lo,hi) in zip(law,cp_bounds) if lo-1e-14<=p<=hi+1e-14)
+    assert coverage>=.95-1e-12
+assert .75**10>.05  # Wald zero-success point interval alone loses >5% here.
+z=1.96
+assert math.isclose(z*z/(10+z*z),.2775401687666166,abs_tol=1e-12)
+for n in [1,2,10,30]:
+    for k in range(n+1):
+        phat=k/n;a=1+z*z/n
+        center=(phat+z*z/(2*n))/a
+        half=z*math.sqrt(phat*(1-phat)/n+z*z/(4*n*n))/a
+        lo,hi=center-half,center+half
+        assert -1e-14<=lo<=hi<=1+1e-14
+        for p in [.01,.1,.25,.5,.75,.9,.99]:
+            assert (lo<=p<=hi)==(n*(phat-p)**2<=z*z*p*(1-p))
+# Valid p-values for H0:p<=.5: enumerate every rejection set for attainable
+# thresholds at a grid of null parameters, including their boundary.
+null_law=binomial_law(10,.5)
+tail_values=[sum(null_law[k:]) for k in range(11)]
+assert math.isclose(tail_values[8],7/128) and math.isclose(tail_values[9],11/1024)
+for p in [i/100 for i in range(51)]:
+    law=binomial_law(10,p)
+    for alpha in tail_values+[0,.01,.05,.1,.5,1]:
+        assert sum(prob for prob,pval in zip(law,tail_values) if pval<=alpha)<=alpha+1e-12
+# One fitted direction: check the limiting residual projection algebra and
+# compute the example directly from observed and fitted class counts.
+probs=[.2,.2,.3,.3];q=[math.sqrt(p) for p in probs]
+j=[.5,.5,-.5,-.5];avec=[x/math.sqrt(p) for x,p in zip(j,probs)]
+information=sum(x*x for x in avec)
+assert abs(sum(x*y for x,y in zip(q,avec)))<1e-12
+projection=[[(1. if i==j else 0.)-q[i]*q[j]-avec[i]*avec[j]/information for j in range(4)] for i in range(4)]
+assert math.isclose(sum(projection[i][i] for i in range(4)),2)
+for i,j in product(range(4),repeat=2):
+    assert math.isclose(projection[i][j],projection[j][i],abs_tol=1e-12)
+    assert math.isclose(sum(projection[i][k]*projection[k][j] for k in range(4)),projection[i][j],abs_tol=1e-12)
+assert math.isclose(sum((o-100*p)**2/(100*p) for o,p in zip([18,22,33,27],probs)),1)
+assert math.isclose(math.exp(-.5),.6065306597126334,abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

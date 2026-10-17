@@ -321,6 +321,64 @@
         "slutsky-studentization"
       ],
       "scope": "阅读定理 2.39、推论 2.40、样本方差一致性与学生化例子的选定文字段落。本站给出一元和积商的 CDF 夹逼/紧性证明，不声称证明全部随机向量连续映射定理或核对盛骤正文。"
+    },
+    {
+      "id": "nist-wilson-inversion-selected",
+      "date": "2026-10-17",
+      "title": "NIST：Wilson 与二项尾概率区间",
+      "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm",
+      "webSections": [
+        "Wilson test inversion",
+        "Exact intervals for small counts"
+      ],
+      "concepts": [
+        "wilson-score-interval",
+        "clopper-pearson-interval"
+      ],
+      "scope": "阅读得分检验反演、Wilson 公式和两侧二项尾方程；本站独立展开二次式、边界例与覆盖证明。未沿用网页中将“精确”写成覆盖率恰等于标称值的笼统表述，以二项尾事件论证及 R 官方说明明确覆盖至少达到标称值。不是盛骤正文核对。"
+    },
+    {
+      "id": "r-binomial-coverage-doc",
+      "date": "2026-10-17",
+      "title": "R stats 官方文档：Clopper–Pearson 覆盖说明",
+      "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/binom.test.html",
+      "webSections": [
+        "Details"
+      ],
+      "concepts": [
+        "clopper-pearson-interval"
+      ],
+      "scope": "读取官方 Details 中区间构造、至少达到 conf.level 及非最短长度说明；未重新执行 binom.test 或改变原六段 R 执行记录。"
+    },
+    {
+      "id": "berkeley-pvalue-calibration-selected",
+      "date": "2026-10-17",
+      "title": "Berkeley Stat210A：复合原假设与超均匀 p 值",
+      "url": "https://stat210a.berkeley.edu/fall-2025/reader/testing-interpretation.html",
+      "webSections": [
+        "Informal definition",
+        "Formal definition",
+        "Super-uniformity"
+      ],
+      "concepts": [
+        "pvalue-calibration"
+      ],
+      "scope": "阅读所列定义和有效性段落，独立编写有限计数嵌套尾事件证明与原创建模数字；未审校网页后半的互动比较或全部附加例子。不是教材第八章正文。"
+    },
+    {
+      "id": "psu-fitted-pearson-selected",
+      "date": "2026-10-17",
+      "title": "Penn State：Pearson 投影与拟合参数例型",
+      "url": "https://bpb-us-e1.wpmucdn.com/sites.psu.edu/dist/1/166293/files/2024/05/asymp-81f581a7e3f6d14d.pdf",
+      "pdfPages": [
+        185,
+        190,
+        191
+      ],
+      "concepts": [
+        "pearson-fitted-df"
+      ],
+      "scope": "阅读固定概率 Pearson 引入、未知分组参数的练习 9.7 与投影相关段落。本站在明确的一致内点 MLE 假设下独立展开一般得分/Hessian 及残差投影证明，并另用四类原创例子；未声称原讲义该部分已提供同一一般证明或已读整本讲义。"
     }
   ]
 }
