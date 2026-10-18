@@ -36,6 +36,7 @@ def check_math_delimiters(value, path):
         text=re.sub(chr(96)*3+r'[\s\S]*?'+chr(96)*3, '', value)
         text=re.sub(chr(96)+r'[^'+chr(96)+r']*'+chr(96), '', text)
         text=re.sub(r'\\\$', '', text)
+        assert all(ord(c)>=32 or c in '\n\r' for c in text), f'Unexpected control character outside code: {path}'
         assert text.count('$')%2==0, f'Unbalanced math delimiter: {path}'
 for name, content in [('course',course),('exercises',exercises),('exams',exams)]:
     check_math_delimiters(content, name)
@@ -78,6 +79,29 @@ class Page(HTMLParser):
             if attr in a:self.links.append(a[attr])
         if tag=='html':assert a.get('lang')=='zh-CN'
 pages={p.name:Page(p.read_text(encoding='utf-8')) for p in ROOT.glob('*.html')}
+# A syntactically accepted TeX command can still produce structurally invalid
+# MathML (e.g. unbraced consecutive digits in a binomial coefficient).
+class MathArity(HTMLParser):
+    required={'mfrac':2,'mroot':2,'msub':2,'msup':2,'msubsup':3,
+              'munder':2,'mover':2,'munderover':3}
+    def __init__(self, text, filename):
+        super().__init__();self.stack=[];self.filename=filename;self.feed(text)
+        assert not self.stack, f'Unclosed MathML: {filename}'
+    def handle_starttag(self, tag, attrs):
+        if self.stack:
+            self.stack[-1][1]+=1
+            self.stack.append([tag,0])
+        elif tag=='math':
+            self.stack.append([tag,0])
+    def handle_endtag(self, tag):
+        if self.stack:
+            opened,count=self.stack.pop()
+            assert opened==tag, f'Misnested MathML: {self.filename}'
+            if tag in self.required:
+                assert count==self.required[tag], f'Invalid MathML {tag} arity {count}: {self.filename}'
+for filename in pages:
+    MathArity((ROOT/filename).read_text(encoding='utf-8'),filename)
+
 # A failed partial build must not pass by validating a mixture of old and new
 # pages. Check every page's canonical input fingerprint and the search IDs.
 build_inputs=['build.py','assets/site.css','assets/site.js','data/course.json',
