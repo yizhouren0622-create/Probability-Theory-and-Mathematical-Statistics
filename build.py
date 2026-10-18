@@ -192,9 +192,16 @@ for front in audit.get('frontMatterChecks',[]):
     h+=f'<section class="card prose" id="{esc(front["id"])}"><h2>前言与版本修订核对</h2><p>{esc(front["date"])}：{esc(front["title"])}。{esc(front["scope"])}</p><p><a href="{esc(front["url"])}">出版社公开前言 ↗</a></p></section>'
 h+='''<section class="card prose"><h2>可核实的来源</h2><ul class="sources-list"><li><a href="https://xuanshu.hep.com.cn/front/book/findBookDetails?bookId=6967ccf2e119ac97292654e8">高等教育出版社：第六版图书介绍、全书目录与官方试读入口</a>。已读取完整目录；官方试读为第三章，不能作为全书审校依据。</li><li><a href="https://xuanshu.hep.com.cn/front/h5Mobile/bookDetails?bookId=5c9a64e9f18f967ee7f3805c">高等教育出版社：第五版图书信息</a>。用于版本与目录对照。</li><li><a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html">R 官方 stats 文档</a>：统计函数定义与参数。</li><li><a href="https://stat.ethz.ch/R-manual/R-devel/library/boot/html/00Index.html">R 官方 boot 文档</a>：自助抽样与置信区间的使用说明。</li><li><a href="https://www.itl.nist.gov/div898/handbook/">NIST/SEMATECH 统计方法手册</a>：统计推断与试验分析的辅助参考。</li><li><a href="https://yizhouren0622-create.github.io/math-physics-review/">数学物理方法复习网站</a>：学习流程与布局参考。</li></ul></section>'''
 h+='<section class="card prose"><h2>第二章专项交叉核对</h2><p><a href="https://iaer.dufe.edu.cn/file/eeefaf43-8ff3-11ee-9d7b-005056a49984/概率论与数理统计教案.pdf">东北财经大学《概率论与数理统计》教案</a>采用盛骤等第五版作为教材，第二章列出几何分布、超几何分布及泊松定理等教学要点。本站据此补充两个分布的独立编写讲解与练习；教案不是第六版教材正文，不能据此宣称第六版已逐页核对。</p></section>'
+def compact_pages(numbers):
+    ranges=[]
+    for number in sorted(set(numbers)):
+        if ranges and number==ranges[-1][1]+1:ranges[-1][1]=number
+        else:ranges.append([number,number])
+    return '、'.join(str(lo) if lo==hi else f'{lo}–{hi}' for lo,hi in ranges)
+
 for review in audit.get('externalChecks',[]):
     context_link=f' · <a href="{esc(review["contextUrl"])}">课程教材说明</a>' if review.get('contextUrl') else ''
-    location='PDF 页码 '+ '、'.join(map(str,review['pdfPages'])) if review.get('pdfPages') else '网页段落：'+'；'.join(review['webSections'])
+    location='PDF 页码 '+compact_pages(review['pdfPages']) if review.get('pdfPages') else '网页段落：'+'；'.join(review['webSections'])
     h+=f'<section class="card prose"><h2>{esc(review["title"])}</h2><p>{esc(review["date"])} · {esc(location)}。{esc(review["scope"])} <a href="{esc(review["url"])}">公开资料</a>{context_link}。</p><ul>'
     for ident in review['concepts']:
         topic=next(x for x in concepts if x['id']==ident)

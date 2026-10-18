@@ -1516,6 +1516,103 @@ for n in [4,10,25,34]:
     # the boundary, without treating the unknown sigma as known.
     rightcrit=t_quantile_check(.95,n-1)
     assert t_power_radial_check(n,-.5,rightcrit)<.05
+# A coarse sigma field: closure and two distinct point-mass extensions that
+# agree on every observable event. Threshold preimages distinguish the two
+# indicator functions in the new exercise.
+omega_foundation=frozenset('abcd')
+block_foundation=frozenset('ab')
+field_foundation={frozenset(),block_foundation,omega_foundation-block_foundation,omega_foundation}
+assert all(omega_foundation-s in field_foundation for s in field_foundation)
+for mask in product([0,1],repeat=4):
+    union=frozenset().union(*(s for take,s in zip(mask,list(field_foundation)) if take))
+    assert union in field_foundation
+for point_weights in [(Fraction(1,3),0,Fraction(2,3),0),(0,Fraction(1,3),0,Fraction(2,3))]:
+    assert sum(point_weights)==1
+    observable={s:sum(v for point,v in zip('abcd',point_weights) if point in s) for s in field_foundation}
+    assert observable[block_foundation]==Fraction(1,3)
+    assert observable[omega_foundation-block_foundation]==Fraction(2,3)
+assert frozenset('cd') in field_foundation and frozenset('bcd') not in field_foundation
+# Enumerate all latent-source and two-test outcomes, including opposite
+# source effects. This checks joint probabilities rather than multiplying
+# unconditional marginals by assumption.
+def source_outcomes_check(weight,qa,qb):
+    rows=[]
+    for source,x,y in product([0,1],repeat=3):
+        w=weight if source else 1-weight
+        w*=qa[source] if x else 1-qa[source]
+        w*=qb[source] if y else 1-qb[source]
+        rows.append((w,source,x,y))
+    assert sum(w for w,z,x,y in rows)==1
+    return rows
+mixed_source_rows=source_outcomes_check(Fraction(1,2),[Fraction(1,4),Fraction(3,4)],[Fraction(1,4),Fraction(3,4)])
+mixed_pa=sum(w for w,z,x,y in mixed_source_rows if x)
+mixed_pb=sum(w for w,z,x,y in mixed_source_rows if y)
+mixed_pab=sum(w for w,z,x,y in mixed_source_rows if x and y)
+assert mixed_pa==mixed_pb==Fraction(1,2) and mixed_pab==Fraction(5,16)
+assert mixed_pab/mixed_pa==Fraction(5,8)
+assert sum(w for w,z,x,y in mixed_source_rows if z and x)/mixed_pa==Fraction(3,4)
+for weight,qa,qb in [(Fraction(2,5),[Fraction(1,5),Fraction(4,5)],[Fraction(3,4),Fraction(1,4)]),(Fraction(3,7),[Fraction(1,2),Fraction(1,2)],[Fraction(1,6),Fraction(2,3)])]:
+    rows=source_outcomes_check(weight,qa,qb)
+    pa=sum(w for w,z,x,y in rows if x);pb=sum(w for w,z,x,y in rows if y)
+    pab=sum(w for w,z,x,y in rows if x and y)
+    assert pab-pa*pb==weight*(1-weight)*(qa[1]-qa[0])*(qb[1]-qb[0])
+dice_foundation=list(product(range(1,7),repeat=2))
+conditioned_dice=[(x,y) for x,y in dice_foundation if x+y==7]
+assert len(conditioned_dice)==6
+assert Fraction(sum(x<=3 and y<=3 for x,y in dice_foundation),36)==Fraction(1,4)
+assert Fraction(sum(x<=3 for x,y in conditioned_dice),6)==Fraction(1,2)
+assert Fraction(sum(y<=3 for x,y in conditioned_dice),6)==Fraction(1,2)
+assert not any(x<=3 and y<=3 for x,y in conditioned_dice)
+# Thirty ordered no-replacement samples and all four noise outcomes. Noise
+# is independent given the actual ordered identities; it is not assumed
+# independent after only conditioning on the count of defective objects.
+inspection_foundation=[]
+for first,second in product(range(6),repeat=2):
+    if first==second:continue
+    pass_rates=[Fraction(1,4) if x<2 else Fraction(3,4) for x in [first,second]]
+    defects=int(first<2)+int(second<2)
+    for u,v in product([0,1],repeat=2):
+        w=Fraction(1,30)
+        w*=pass_rates[0] if u else 1-pass_rates[0]
+        w*=pass_rates[1] if v else 1-pass_rates[1]
+        inspection_foundation.append((w,defects,u,v))
+assert sum(w for w,k,u,v in inspection_foundation)==1
+inspection_joint=sum(w for w,k,u,v in inspection_foundation if u and v)
+inspection_single=[sum(w for w,k,u,v in inspection_foundation if [u,v][i]) for i in [0,1]]
+assert inspection_joint==Fraction(79,240)
+assert inspection_single==[Fraction(7,12)]*2
+assert inspection_joint-inspection_single[0]*inspection_single[1]==-Fraction(1,90)
+one_defect_mass=sum(w for w,k,u,v in inspection_foundation if k==1)
+assert one_defect_mass==Fraction(8,15)
+assert sum(w for w,k,u,v in inspection_foundation if k==1 and u)/one_defect_mass==Fraction(1,2)
+assert sum(w for w,k,u,v in inspection_foundation if k==1 and v)/one_defect_mass==Fraction(1,2)
+assert sum(w for w,k,u,v in inspection_foundation if k==1 and u and v)/one_defect_mass==Fraction(3,16)
+# Capped waiting is the pushforward of the original geometric law, while
+# conditional truncation discards the tail and renormalizes. Check the
+# original-law series before using any first-step moment equation.
+for p_foundation in [.2,.4,.8,1.]:
+    q=1-p_foundation
+    geo_moments=[sum(k**j*p_foundation*q**(k-1) for k in range(1,1201)) for j in [0,1,2]]
+    assert math.isclose(geo_moments[0],1,abs_tol=1e-12)
+    assert math.isclose(geo_moments[1],1/p_foundation,abs_tol=1e-11)
+    assert math.isclose(geo_moments[2],(2-p_foundation)/p_foundation**2,abs_tol=1e-10)
+    for stop in [1,2,4,7]:
+        original_cap_mean=sum(min(k,stop)*p_foundation*q**(k-1) for k in range(1,1201))
+        finite_tail_mean=sum(q**k for k in range(stop))
+        assert math.isclose(original_cap_mean,finite_tail_mean,abs_tol=1e-11)
+geo_p=Fraction(2,5);geo_q=1-geo_p
+cap_masses=[geo_p*geo_q**(k-1) for k in range(1,4)]+[geo_q**3]
+cap_mean=sum(k*w for k,w in enumerate(cap_masses,1))
+cap_second=sum(k*k*w for k,w in enumerate(cap_masses,1))
+assert sum(cap_masses)==1 and cap_mean==Fraction(272,125)
+assert cap_second==Fraction(764,125)
+assert cap_second-cap_mean**2==Fraction(21516,15625)
+truncated_masses=[geo_p*geo_q**(k-1)/(1-geo_q**4) for k in range(1,5)]
+assert truncated_masses==[Fraction(n,544) for n in [250,150,90,54]]
+assert sum(truncated_masses)==1 and truncated_masses[-1]!=cap_masses[-1]
+# Same marginal uniform distributions can have a nonzero difference variance.
+assert math.isclose(simpson_check(lambda u:(2*u)**2/2,-1,1),Fraction(4,3),abs_tol=1e-12)
+assert math.isclose(simpson_check(lambda u:(2*u-1)**2,0,1),Fraction(1,3),abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
