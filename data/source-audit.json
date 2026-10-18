@@ -661,6 +661,33 @@
         "gaussian-correlation-ergodicity"
       ],
       "scope": "选读PDF第176页、印刷第188页的10.2.2段落，核对协方差衰减的均值充分条件与相关估计须用四阶结构的区别。本站独立给连续时间分段ε证明、联合正态四阶系数证明、高斯乘积协方差和固定随机幅度反例；未把这些独立推导标成已读盛骤正文，未通读250页讲义。"
+    },
+    {
+      "id": "berkeley210-bayes-risk-selected",
+      "date": "2026-10-18",
+      "title": "BerkeleyStat210a：先验平均风险与后验平方损失",
+      "url": "https://stat210a.berkeley.edu/fall-2025/reader/bayes-estimation.html",
+      "webSections": [
+        "§1先验平均风险定义",
+        "§2平方损失例子"
+      ],
+      "concepts": [
+        "bayes-risk-decomposition"
+      ],
+      "scope": "选读平均风险定义、联合模型表示及平方损失例子。本站独立展开Beta–Binomial固定风险与积分、逐点反例和验证；未沿用网页Beta示例中颠倒的Gamma归一化因子，未核查交互代码、一般可测选择证明或指数族部分。不是指定教材正文审校。"
+    },
+    {
+      "id": "berkeley-stark-coverage-selected",
+      "date": "2026-10-18",
+      "title": "BerkeleyStark：可信集合与频率覆盖定义",
+      "url": "https://www.stat.berkeley.edu/~stark/Seminars/uqJPL20.slides.html",
+      "webSections": [
+        "Quantifying uncertainty：Confidence Sets and Credible Regions"
+      ],
+      "concepts": [
+        "credible-frequentist-coverage"
+      ],
+      "scope": "选读两类集合的概率定义与条件对象，未通读整套报告。本站独立构造一次伯努利中央50%区间，逐点与先验平均覆盖率均自行计算；不是盛骤指定教材正文。"
     }
   ],
   "frontMatterChecks": [

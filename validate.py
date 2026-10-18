@@ -1200,6 +1200,57 @@ for window in [1,3,10]:
     closed=1+10/window-5*(-math.expm1(-2*window))/window**2
     assert math.isclose(mse_mixture,closed,abs_tol=1e-10)
     assert mse_mixture>1
+# Bayes risks: enumerate the actual binomial law, integrate it against a
+# normalized Beta prior, and compare the posterior-variance decomposition.
+for n,a,b in [(2,1,1),(3,2,3),(5,3,2)]:
+    def risk_at(p,rule):
+        return sum(math.comb(n,r)*p**r*(1-p)**(n-r)*(rule(r)-p)**2 for r in range(n+1))
+    post_rule=lambda r:(r+a)/(n+a+b)
+    mle_rule=lambda r:r/n
+    for p in [.01,.1,.5,.9,.99]:
+        direct=risk_at(p,post_rule)
+        formula=(n*p*(1-p)+(a-(a+b)*p)**2)/(n+a+b)**2
+        assert math.isclose(direct,formula,abs_tol=1e-12)
+    beta_normalizer=math.factorial(a+b-1)/(math.factorial(a-1)*math.factorial(b-1))
+    prior_density=lambda p:beta_normalizer*p**(a-1)*(1-p)**(b-1)
+    total_bayes=simpson_check(lambda p:risk_at(p,post_rule)*prior_density(p),0,1)
+    total_mle=simpson_check(lambda p:risk_at(p,mle_rule)*prior_density(p),0,1)
+    assert math.isclose(total_bayes,a*b/((a+b)*(a+b+1)*(n+a+b)),abs_tol=1e-10)
+    assert math.isclose(total_mle,a*b/((a+b)*(a+b+1)*n),abs_tol=1e-10)
+    # Joint outcome masses from beta integrals, rather than postulating a
+    # beta-binomial marginal law. Conditional variances are built by moments.
+    weighted_post_var=0
+    for r in range(n+1):
+        marginal=simpson_check(lambda p:math.comb(n,r)*p**r*(1-p)**(n-r)*prior_density(p),0,1)
+        posterior_moments=[simpson_check(lambda p:p**k*math.comb(n,r)*p**r*(1-p)**(n-r)*prior_density(p),0,1)/marginal for k in [1,2]]
+        weighted_post_var+=marginal*(posterior_moments[1]-posterior_moments[0]**2)
+    assert math.isclose(total_bayes,weighted_post_var,abs_tol=1e-10)
+assert math.isclose((1-.2+.02)/16,.05125,abs_tol=1e-12)
+assert .05125>.1*.9/2
+# Coverage: independently integrate each posterior, then evaluate the
+# repeated-data coverage rule. Exact endpoint conventions matter at p=.5.
+cred0=(1-math.sqrt(3)/2,.5);cred1=(.5,math.sqrt(3)/2)
+assert math.isclose(simpson_check(lambda p:2*(1-p),*cred0),.5,abs_tol=1e-12)
+assert math.isclose(simpson_check(lambda p:2*p,*cred1),.5,abs_tol=1e-12)
+coverage=lambda p:(1-p)*(cred0[0]<=p<=cred0[1])+p*(cred1[0]<=p<=cred1[1])
+assert [coverage(p) for p in [.1,.25,.5,.75,.9]]==[0,.75,1,.75,0]
+average_coverage=simpson_check(lambda p:1-p,*cred0)+simpson_check(lambda p:p,*cred1)
+assert math.isclose(average_coverage,.5,abs_tol=1e-12)
+# Consistent but nonconvergent moments: verify the true Gaussian contrast
+# and integrate its rare-event probability, not a simulation that might miss
+# exactly the tail event responsible for the phenomenon.
+from statistics import NormalDist
+for n in [2,5,100]:
+    mean_row=[1/n]*n;contrast_row=[1/math.sqrt(2),-1/math.sqrt(2)]+[0]*(n-2)
+    assert math.isclose(sum(v*v for v in mean_row),1/n,abs_tol=1e-12)
+    assert math.isclose(sum(v*v for v in contrast_row),1,abs_tol=1e-12)
+    assert math.isclose(sum(a*b for a,b in zip(mean_row,contrast_row)),0,abs_tol=1e-12)
+    cutoff=NormalDist().inv_cdf(1/n)
+    tail_probability=simpson_check(lambda z:math.exp(-z*z/2)/math.sqrt(2*math.pi),-10,cutoff)
+    assert math.isclose(tail_probability,1/n,abs_tol=1e-12)
+    assert math.isclose(n*tail_probability,1,abs_tol=1e-10)
+    error_second=1/n+n*n*tail_probability
+    assert math.isclose(error_second,n+1/n,abs_tol=1e-8)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
