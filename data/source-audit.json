@@ -633,6 +633,54 @@
         "bootstrap-null-test"
       ],
       "scope": "选读经验分布/有放回重抽样段落和标签索引示例。本站独立推出多项计数、条件矩、有限B无偏方差和样本方差偏差反例；未沿用“所有bootstrap分布都以原统计量为中心”的笼统表述。网页R输出是原课程演示，不是本站新增实际执行，未通读MLE后半章。"
+    },
+    {
+      "id": "uw512-conditional-moments-selected",
+      "date": "2026-10-18",
+      "title": "华盛顿大学STAT512：条件矩的选读核对",
+      "url": "https://faculty.washington.edu/yenchic/20A_stat512/Lec4_conditional.html",
+      "webSections": [
+        "Conditional expectation：定义、全期望、已知因子与全方差段落"
+      ],
+      "concepts": [
+        "conditional-expectation",
+        "conditional-variance-projection"
+      ],
+      "scope": "选读条件矩定义及全期望、全方差段落，作外部公式交叉检查；未沿用网页无附加条件的连续条件极限说法。本站独立编写简单函数的一般期望介绍、正交与最优性证明、三角形积分及非线性反例。不是指定教材正文核对，未审核网页其余缺失数据或调查案例。"
+    },
+    {
+      "id": "mit6011-ergodicity-selected",
+      "date": "2026-10-18",
+      "title": "MIT6.011：均值与相关各态历经的条件",
+      "url": "https://live.ocw.mit.edu/courses/6-011-introduction-to-communication-control-and-signal-processing-spring-2010/a6bddaee5966f6e73450e6fe79ab0566_MIT6_011S10_notes.pdf",
+      "pdfPages": [
+        176
+      ],
+      "concepts": [
+        "mean-ergodicity",
+        "gaussian-correlation-ergodicity"
+      ],
+      "scope": "选读PDF第176页、印刷第188页的10.2.2段落，核对协方差衰减的均值充分条件与相关估计须用四阶结构的区别。本站独立给连续时间分段ε证明、联合正态四阶系数证明、高斯乘积协方差和固定随机幅度反例；未把这些独立推导标成已读盛骤正文，未通读250页讲义。"
+    }
+  ],
+  "frontMatterChecks": [
+    {
+      "id": "hep6-public-prefaces",
+      "date": "2026-10-18",
+      "edition": 6,
+      "title": "第六版官方公开前言与所附历版前言",
+      "url": "https://urc.hep.com.cn/app/preview?previewId=2110027837285789698&flag=false&isShowDocMap=false",
+      "previewPages": 8,
+      "readPreviewPages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "scope": "逐页查看公开预览第1—7页图像，其中第1—2页为第六版前言，第3页为第五版前言，其余为第四至第二版前言；第8页未加载成功，未计为已读。第六版前言确认条件期望、条件方差和一般期望定义等修订主题；第五版前言说明第五版曾加入时间序列分析，第六版14章目录已无独立时间序列章。这里只核对前言，不能替代任何一节正文审校；前言所列数字资源尚未读取。"
     }
   ]
 }

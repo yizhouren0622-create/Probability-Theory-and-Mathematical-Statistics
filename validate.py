@@ -21,6 +21,10 @@ for ident,plot in r_check.get('graphics',{}).items():
 for review in audit.get('externalChecks',[]):
     assert review['date'] and review['scope'] and (review.get('pdfPages') or review.get('webSections'))
     assert all(any(c['id']==cid for c in concepts) for cid in review['concepts'])
+for front in audit.get('frontMatterChecks',[]):
+    assert front['date'] and front['scope'] and front['url'] and front['edition'] in (5,6)
+    assert front['readPreviewPages'] and len(set(front['readPreviewPages']))==len(front['readPreviewPages'])
+    assert all(isinstance(p,int) and 1<=p<=front['previewPages'] for p in front['readPreviewPages'])
 ids=[x['id'] for x in concepts+exercises]+[q['id'] for e in exams for q in e['questions']]
 assert len(ids)==len(set(ids)), 'Duplicate content ids'
 assert [len(c['sections']) for c in course]==[6,5,5,5,2,3,8,8,6,3,6,3,3,4]
@@ -1092,6 +1096,110 @@ assert math.isclose(interarrival_tail,math.exp(-3),abs_tol=1e-11)
 joint_arrival_tail=simpson_check(lambda e:2*math.exp(-2*e)*math.exp(-2*(1-e)),.5,1)+math.exp(-2)
 assert math.isclose(joint_arrival_tail,2*math.exp(-2),abs_tol=1e-12)
 assert not math.isclose(joint_arrival_tail,3*math.exp(-3),abs_tol=1e-3)
+# General expectations retain atoms; integrate directly over the original U,
+# independently of the mixture formula displayed in the card.
+mixed_first=simpson_check(lambda u:max(0,u)/4,-2,2)
+mixed_second=simpson_check(lambda u:max(0,u)**2/4,-2,2)
+assert math.isclose(mixed_first,.5,abs_tol=1e-12)
+assert math.isclose(mixed_second,2/3,abs_tol=1e-12)
+assert math.isclose(mixed_second-mixed_first**2,5/12,abs_tol=1e-12)
+for value in [Fraction(1,100),Fraction(1,3),Fraction(17,5),Fraction(20)]:
+    simple_values=[min(Fraction(n),Fraction((2**n*value).__floor__(),2**n)) for n in range(1,11)]
+    assert all(a<=b<=value for a,b in zip(simple_values,simple_values[1:]))
+# Exact finite conditional law: build means/variances from its joint masses,
+# then verify total variance and the full prediction error decomposition.
+conditional_values=[-2,1,4]
+conditional_mass=[[Fraction(1,12),Fraction(2,12),Fraction(1,12)],
+                  [Fraction(2,12),Fraction(1,12),Fraction(5,12)]]
+groups=[sum(row) for row in conditional_mass]
+conditional_means=[sum(p*x for p,x in zip(row,conditional_values))/q for row,q in zip(conditional_mass,groups)]
+conditional_vars=[sum(p*(x-m)**2 for p,x in zip(row,conditional_values))/q for row,q,m in zip(conditional_mass,groups,conditional_means)]
+all_mean=sum(p*x for row in conditional_mass for p,x in zip(row,conditional_values))
+all_variance=sum(p*(x-all_mean)**2 for row in conditional_mass for p,x in zip(row,conditional_values))
+within=sum(q*v for q,v in zip(groups,conditional_vars))
+between=sum(q*(m-all_mean)**2 for q,m in zip(groups,conditional_means))
+assert all_variance==within+between
+for predictor in product([Fraction(-1),Fraction(1,3),Fraction(2),Fraction(5)],repeat=2):
+    direct_loss=sum(p*(x-a)**2 for row,a in zip(conditional_mass,predictor) for p,x in zip(row,conditional_values))
+    assert direct_loss==within+sum(q*(m-a)**2 for q,m,a in zip(groups,conditional_means,predictor))
+    assert sum(p*(x-m)*a for row,m,a in zip(conditional_mass,conditional_means,predictor) for p,x in zip(row,conditional_values))==0
+# Triangular joint density: numerical conditional and marginal integrations,
+# not just evaluating the already simplified variance formula.
+for y in [.1,.4,.95]:
+    mass=simpson_check(lambda x:2,0,y)
+    cmean=simpson_check(lambda x:2*x,0,y)/mass
+    cvar=simpson_check(lambda x:2*(x-cmean)**2,0,y)/mass
+    assert math.isclose(cmean,y/2,abs_tol=1e-12)
+    assert math.isclose(cvar,y*y/12,abs_tol=1e-12)
+tri_mean=simpson_check(lambda x:x*2*(1-x),0,1)
+tri_var=simpson_check(lambda x:(x-tri_mean)**2*2*(1-x),0,1)
+tri_within=simpson_check(lambda y:y*y/12*2*y,0,1)
+tri_between=simpson_check(lambda y:(y/2-tri_mean)**2*2*y,0,1)
+assert math.isclose(tri_mean,1/3,abs_tol=1e-12)
+assert math.isclose(tri_var,1/18,abs_tol=1e-12)
+assert math.isclose(tri_within,1/24,abs_tol=1e-12)
+assert math.isclose(tri_between,1/72,abs_tol=1e-12)
+assert math.isclose(tri_var,tri_within+tri_between,abs_tol=1e-12)
+# Nonlinear predictor: integrate the actual two-noise mixture, compare its
+# true risks and check that linear covariance vanishes despite dependence.
+def noisy_uniform_moment(func):
+    return sum(simpson_check(lambda y:func(y*y+noise,y)/4,-1,1) for noise in [-1,1])
+assert math.isclose(noisy_uniform_moment(lambda x,y:x),1/3,abs_tol=1e-12)
+assert math.isclose(noisy_uniform_moment(lambda x,y:(x-1/3)**2),49/45,abs_tol=1e-12)
+assert math.isclose(noisy_uniform_moment(lambda x,y:x*y),0,abs_tol=1e-12)
+assert math.isclose(noisy_uniform_moment(lambda x,y:(x-y*y)**2),1,abs_tol=1e-12)
+for a,b in [(-1,.5),(1/3,0),(2,-2)]:
+    risk=noisy_uniform_moment(lambda x,y:(x-a-b*y)**2)
+    assert math.isclose(risk,49/45+(a-1/3)**2+b*b/3,abs_tol=1e-11)
+# Independently expand linear forms of independent standard normals. This
+# integrates monomials using one-dimensional even moments, without using
+# the fourth-order pairing identity being checked.
+def normal_linear_product(rows):
+    degree=len(rows);dimension=len(rows[0]);result=0.
+    for coordinates in product(range(dimension),repeat=degree):
+        coefficient=math.prod(row[j] for row,j in zip(rows,coordinates))
+        moment=1
+        for j in range(dimension):
+            power=coordinates.count(j)
+            if power%2:moment=0;break
+            moment*=math.prod(range(1,power,2))
+        result+=coefficient*moment
+    return result
+for rows in [[[1,0],[.5,math.sqrt(3)/2],[1,0],[.5,math.sqrt(3)/2]],
+             [[1,2,0],[0,-1,1],[2,0,-1],[1,1,1]],
+             [[0,0],[1,2],[1,2],[1,-1]]]:
+    cov=lambda i,j:sum(a*b for a,b in zip(rows[i],rows[j]))
+    expected_pairs=cov(0,1)*cov(2,3)+cov(0,2)*cov(1,3)+cov(0,3)*cov(1,2)
+    assert math.isclose(normal_linear_product(rows),expected_pairs,abs_tol=1e-12)
+rho=.5
+rows_ar=[[1.,0,0,0,0,0,0]]
+for k in range(1,7):
+    row=[rho*v for v in rows_ar[-1]]
+    row[k]=math.sqrt(1-rho*rho)
+    rows_ar.append(row)
+for h,u in product(range(3),range(5)):
+    actual_fourth=normal_linear_product([rows_ar[0],rows_ar[h],rows_ar[u],rows_ar[u+h]])
+    product_covariance=actual_fourth-rho**(2*h)
+    k_formula=rho**(2*u)+rho**(abs(u+h)+abs(u-h))
+    assert math.isclose(product_covariance,k_formula,abs_tol=1e-12)
+for window in [.01,.2,1,5]:
+    gaussian_square_error=simpson_check(lambda u:16*(window-u)*math.exp(-6*u)/window**2,0,window)
+    exact_error=8/(3*window)-4*(-math.expm1(-6*window))/(9*window**2)
+    assert math.isclose(gaussian_square_error,exact_error,abs_tol=1e-10)
+    assert 0<gaussian_square_error<=8/(3*window)
+# A common random amplitude leaves a nondecaying fourth-order component,
+# even though the original second-order covariance decays exponentially.
+amplitude_squares=[Fraction(1),Fraction(3)]
+assert mean(amplitude_squares)==2 and mean(a*a for a in amplitude_squares)==5
+assert mean((a-2)**2 for a in amplitude_squares)==1
+for lag in [0,.3,2]:
+    fourth=5*(1+2*math.exp(-2*lag))
+    assert math.isclose(fourth-4,1+10*math.exp(-2*lag),abs_tol=1e-12)
+for window in [1,3,10]:
+    mse_mixture=simpson_check(lambda u:2*(window-u)*(1+10*math.exp(-2*u))/window**2,0,window)
+    closed=1+10/window-5*(-math.expm1(-2*window))/window**2
+    assert math.isclose(mse_mixture,closed,abs_tol=1e-10)
+    assert mse_mixture>1
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
