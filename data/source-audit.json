@@ -1065,6 +1065,49 @@
         "markov-absorption-probabilities"
       ],
       "scope": "选读PDF第2页吸收概率、首次到达及首次返回的一步方程文字。未声称通读整份或读取原课本7.4。本站四状态数值、矩阵级数、有限矩前提和二阶矩推导独立编写，不替代目标教材正文。"
+    },
+    {
+      "id": "uw-linear-prediction-selected",
+      "date": "2026-10-18",
+      "title": "华盛顿大学STAT512：总体最佳直线与最小均方误差",
+      "url": "https://faculty.washington.edu/yenchic/20A_stat512/Lec5_prediction.html",
+      "webSections": [
+        "Linear prediction (linear regression)",
+        "Mean-square error prediction"
+      ],
+      "concepts": [
+        "best-linear-prediction",
+        "conditional-variance-projection"
+      ],
+      "scope": "选读单自变量总体预测和条件均值风险分解段；未将多元逆矩阵或分类部分纳入本次核对。本站另以配方给全局最优与退化条件，并独立编写六结果有限联合分布例题；不是盛骤教材正文。"
+    },
+    {
+      "id": "nist-shape-conventions-selected",
+      "date": "2026-10-18",
+      "title": "NIST：样本偏度、峰度与超额峰度的定义约定",
+      "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm",
+      "webSections": [
+        "Definition of Skewness",
+        "Definition of Kurtosis",
+        "Alternative Definition of Kurtosis"
+      ],
+      "concepts": [
+        "moments-quantiles"
+      ],
+      "scope": "选读样本定义的分母n、校正形式提示及是否减3的约定。本站总体偏度—峰度必要不等式与取等证明自行推导，不冒称该文提供此证明，也不把有限样本数值当作总体矩存在的证据。非目标教材正文。"
+    },
+    {
+      "id": "nist-cv-definition-selected",
+      "date": "2026-10-18",
+      "title": "NIST：变异系数、比例尺度与零均值问题",
+      "url": "https://itl.nist.gov/div898/software/dataplot/refman2/auxillar/coefvari.htm",
+      "webSections": [
+        "Description"
+      ],
+      "concepts": [
+        "moments-quantiles"
+      ],
+      "scope": "仅选读Description中的比值定义、单位与自然零点、近零均值说明；不采用该软件页其他段落的估计量偏差宣称。本站给正均值总体CV定义、仿射变换的直接证明与原创两点练习，未替代教材正文核对。"
     }
   ],
   "frontMatterChecks": [

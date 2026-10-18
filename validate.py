@@ -1733,6 +1733,72 @@ for boundary in range(2,10):
             assert sum(mass)<1e-30
             assert math.isclose(landed_right,float(Fraction(4,13)),abs_tol=1e-12)
             assert math.isclose(duration_direct,float(Fraction(50,13)),abs_tol=1e-12)
+# Shape constraints: exact centered moments of several finite laws. Work with
+# unstandardized rational moments to avoid using a square-root approximation.
+moment_constraint_laws=[[(Fraction(0),1-p),(Fraction(1),p)]
+                        for p in [Fraction(1,8),Fraction(1,4),Fraction(1,2),Fraction(3,4),Fraction(7,8)]]
+moment_constraint_laws += [[(Fraction(-2),Fraction(1,5)),(Fraction(-1),Fraction(1,4)),
+                            (Fraction(1),Fraction(1,2)),(Fraction(3),Fraction(1,20))],
+                           [(Fraction(-1),Fraction(1,5)),(Fraction(0),Fraction(3,5)),(Fraction(1),Fraction(1,5))]]
+for finite_law in moment_constraint_laws:
+    mu=sum(x*p for x,p in finite_law)
+    centered=[(x-mu,p) for x,p in finite_law]
+    var=sum(x*x*p for x,p in centered)
+    third=sum(x**3*p for x,p in centered);fourth=sum(x**4*p for x,p in centered)
+    gap=fourth/var**2-third**2/var**3-1
+    squared=sum(p*(x*x-third*x/var-var)**2 for x,p in centered)/var**2
+    assert gap==squared and gap>=0
+    assert (gap==0)==(len(finite_law)==2)
+    for scale,shift in [(Fraction(-2),Fraction(8)),(Fraction(3),Fraction(1))]:
+        y_law=[(scale*x+shift,p) for x,p in finite_law]
+        ym=sum(y*p for y,p in y_law)
+        yv=sum(p*(y-ym)**2 for y,p in y_law)
+        yt=sum(p*(y-ym)**3 for y,p in y_law)
+        yf=sum(p*(y-ym)**4 for y,p in y_law)
+        assert yv==scale**2*var and yt==scale**3*third
+        assert yf/yv**2==fourth/var**2
+bernoulli_shape_var=Fraction(3,16)
+bernoulli_shape_third=Fraction(3,32)
+bernoulli_shape_fourth=Fraction(21,256)
+assert bernoulli_shape_third**2/bernoulli_shape_var**3==Fraction(4,3)
+assert bernoulli_shape_fourth/bernoulli_shape_var**2==Fraction(7,3)
+assert Fraction(4)-2**2-1<0
+for scale,shift,mu_expected,var_expected,cv_expected in [(1,0,2,1,Fraction(1,2)),
+                                                       (10,0,20,100,Fraction(1,2)),
+                                                       (1,8,10,1,Fraction(1,10))]:
+    obs=[scale*x+shift for x in [1,3]]
+    mu=Fraction(sum(obs),2);var=sum(Fraction((x-mu)**2,2) for x in obs)
+    assert mu==mu_expected and var==var_expected
+    assert var/mu**2==cv_expected**2
+
+# Six actual joint outcomes, rather than a regression formula, determine all
+# moments and the MSE for every candidate straight line on a finite grid.
+prediction_law=[]
+for x,px in [(-1,Fraction(1,5)),(0,Fraction(3,5)),(1,Fraction(1,5))]:
+    for noise in [-1,1]:prediction_law.append((x,2+3*x+x*x+noise,px/2))
+assert len(prediction_law)==6 and sum(p for x,y,p in prediction_law)==1
+pred_mx=sum(p*x for x,y,p in prediction_law);pred_my=sum(p*y for x,y,p in prediction_law)
+pred_vx=sum(p*(x-pred_mx)**2 for x,y,p in prediction_law)
+pred_vy=sum(p*(y-pred_my)**2 for x,y,p in prediction_law)
+pred_c=sum(p*(x-pred_mx)*(y-pred_my) for x,y,p in prediction_law)
+assert (pred_mx,pred_my,pred_vx,pred_vy,pred_c)==(0,Fraction(12,5),Fraction(2,5),Fraction(121,25),Fraction(6,5))
+assert pred_c**2/(pred_vx*pred_vy)==Fraction(90,121)
+for intercept in [Fraction(-1),Fraction(0),Fraction(12,5),Fraction(3),Fraction(5)]:
+    for slope in [-2,0,2,3,4]:
+        direct_mse=sum(p*(y-intercept-slope*x)**2 for x,y,p in prediction_law)
+        decomposed=Fraction(31,25)+Fraction(2,5)*(slope-3)**2+(intercept-Fraction(12,5))**2
+        assert direct_mse==decomposed
+        assert direct_mse>=Fraction(31,25)
+linear_residual=[(x,y-Fraction(12,5)-3*x,p) for x,y,p in prediction_law]
+assert sum(p*err for x,err,p in linear_residual)==0
+assert sum(p*err*x for x,err,p in linear_residual)==0
+assert sum(p*err*x*x for x,err,p in linear_residual)==Fraction(6,25)
+assert sum(p*err**2 for x,err,p in linear_residual)==Fraction(31,25)
+assert sum(p*(y-2-3*x-x*x)**2 for x,y,p in prediction_law)==1
+# MoM lies in the declared parameter space, while likelihood can be zero.
+moment_uniform_sample=[1,2,9]
+moment_uniform_theta=2*Fraction(sum(moment_uniform_sample),len(moment_uniform_sample))
+assert moment_uniform_theta==8>0 and max(moment_uniform_sample)>moment_uniform_theta
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
