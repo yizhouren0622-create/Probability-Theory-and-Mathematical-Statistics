@@ -25,6 +25,21 @@ for front in audit.get('frontMatterChecks',[]):
     assert front['date'] and front['scope'] and front['url'] and front['edition'] in (5,6)
     assert front['readPreviewPages'] and len(set(front['readPreviewPages']))==len(front['readPreviewPages'])
     assert all(isinstance(p,int) and 1<=p<=front['previewPages'] for p in front['readPreviewPages'])
+def check_math_delimiters(value, path):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            check_math_delimiters(item, f'{path}.{key}')
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            check_math_delimiters(item, f'{path}[{index}]')
+    elif isinstance(value, str):
+        text=re.sub(chr(96)*3+r'[\s\S]*?'+chr(96)*3, '', value)
+        text=re.sub(chr(96)+r'[^'+chr(96)+r']*'+chr(96), '', text)
+        text=re.sub(r'\\\$', '', text)
+        assert text.count('$')%2==0, f'Unbalanced math delimiter: {path}'
+for name, content in [('course',course),('exercises',exercises),('exams',exams)]:
+    check_math_delimiters(content, name)
+
 ids=[x['id'] for x in concepts+exercises]+[q['id'] for e in exams for q in e['questions']]
 assert len(ids)==len(set(ids)), 'Duplicate content ids'
 assert [len(c['sections']) for c in course]==[6,5,5,5,2,3,8,8,6,3,6,3,3,4]
@@ -2031,6 +2046,38 @@ for bound in [2.,4.,8.]:
     third_quad=3*math.log(bound)
     fourth_quad=3*(bound-1)
     assert third_quad>0 and fourth_quad>third_quad
+
+# General extrema masses at jumps: enumerate the entire independent law,
+# including ties. Check both left limits and order of powers independently.
+for extrema_n in [1,2,3,4]:
+    extrema_law=[(-1,Fraction(1,5)),(0,Fraction(1,2)),(2,Fraction(3,10))]
+    min_mass={};max_mass={}
+    for choices in product(extrema_law,repeat=extrema_n):
+        sample=[v for v,p in choices];prob=math.prod(p for v,p in choices)
+        min_mass[min(sample)]=min_mass.get(min(sample),Fraction(0))+prob
+        max_mass[max(sample)]=max_mass.get(max(sample),Fraction(0))+prob
+    assert sum(min_mass.values())==sum(max_mass.values())==1
+    for point,p in extrema_law:
+        left=sum(w for z,w in extrema_law if z<point)
+        right=sum(w for z,w in extrema_law if z<=point)
+        assert max_mass[point]==right**extrema_n-left**extrema_n
+        assert min_mass[point]==(1-left)**extrema_n-(1-right)**extrema_n
+
+# Folded-CDF bound for a data-dependent ideal bootstrap p-value threshold.
+# Arbitrary discrete candidate laws vs continuous normal; retain all atoms,
+# zero thresholds and equality. These are inequality checks, not proof by grids.
+def audit_normal_cdf(x):return .5*(1+math.erf(x/math.sqrt(2)))
+fold_laws=[
+    [(-.8,.25),(-.3,.25),(.1,.25),(.9,.25)],
+    [(-1.,.2),(0.,.5),(2.,.3)],
+    [(-2.,.1),(-.1,.4),(.1,.4),(2.,.1)]]
+for law in fold_laws:
+    delta=max(abs(sum(p for z,p in law if z<=x)-audit_normal_cdf(x)) for x,w in law)
+    delta=max(delta,max(abs(sum(p for z,p in law if z<x)-audit_normal_cdf(x)) for x,w in law))
+    for threshold in sorted(set([0.,.05,.5,1.,3.]+[abs(z) for z,p in law])):
+        empirical_p=sum(p for z,p in law if abs(z)>=threshold)
+        reference_p=2*(1-audit_normal_cdf(threshold))
+        assert abs(empirical_p-reference_p)<=2*delta+1e-12
 
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
