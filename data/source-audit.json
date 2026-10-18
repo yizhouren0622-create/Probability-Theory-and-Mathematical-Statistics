@@ -1152,6 +1152,27 @@
         "chi-square-density"
       ],
       "scope": "选读F密度、均值、众数及标准差的自由度条件；本站从独立卡方积分另推实数阶矩的双端可积区间、二阶矩、方差和逆样本方差矩，并核对F倒数的门槛。未采用网页的CDF或更高形状系数，未据此声称已核对指定教材第六章正文。"
+    },
+    {
+      "id": "umn-slutsky-studentization-selected",
+      "date": "2026-10-19",
+      "title": "明尼苏达大学STAT5101：Slutsky定理与未知方差均值标准化",
+      "url": "https://www.stat.umn.edu/geyer/5101/notes/n2.pdf",
+      "pdfPages": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "sections": [
+        "Theorem8.4",
+        "Example8.1.3 consistency part",
+        "Example8.1.4 and studentized mean"
+      ],
+      "concepts": [
+        "slutsky-studentization"
+      ],
+      "scope": "选读PDF第5—8页的Slutsky条件、样本方差一致性及均值随机标准化文本。本站另给标量和/积/商的紧性与CDF夹逼证明，并用有限二阶矩LLN证明方差一致；未采用该段方差估计量自身的更高阶渐近正态结论，未声称读完302页讲义或盛骤教材对应正文。另只核对公开旧作业N6-2的学生化应用，不复制其题目。 本次复查发现第七章原卡已有核心完整证明，新增内容仅补零分母覆盖事件差、显式平方连续论证及相关边缘反例；保留原锚点并合并未发布的重复草稿。"
     }
   ],
   "frontMatterChecks": [

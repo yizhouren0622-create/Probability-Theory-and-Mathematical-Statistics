@@ -1971,6 +1971,67 @@ f55_first=5/3
 f55_second=(5/5)**2*(5*7)/((5-2)*(5-4))
 assert math.isclose(f55_second-f55_first**2,80/9,abs_tol=1e-12)
 
+# Studentized Bernoulli distribution by full ordered-sample enumeration.
+# Weight16 original ordered samples directly instead of using a binomial PMF
+# or the claimed transformed distribution. Work with T^2 for exact arithmetic.
+studentized_law={}
+studentized_zero=Fraction(0)
+for row in product([Fraction(0),Fraction(1)],repeat=4):
+    probability=Fraction(1)
+    for item in row:probability*=Fraction(1,4) if item else Fraction(3,4)
+    xb=mean(row);sv=variance(row)
+    k=sum(row)
+    assert sv==Fraction(k*(4-k),12)
+    if sv==0:
+        t_squared=Fraction(0);studentized_zero+=probability
+    else:
+        t_squared=4*(xb-Fraction(1,4))**2/sv
+        assert xb>=Fraction(1,4)
+    studentized_law[t_squared]=studentized_law.get(t_squared,Fraction(0))+probability
+assert studentized_zero==Fraction(41,128)
+assert studentized_law=={Fraction(0):Fraction(95,128),Fraction(3,4):Fraction(27,128),Fraction(4):Fraction(3,64)}
+assert sum(studentized_law.values())==1
+
+# Dependent perturbations: directly verify both CDF sandwich bounds and the
+# probability-product bound on finite exact joint laws. No independence assumed.
+slutsky_values=[-2,-1,0,1,3]
+slutsky_weights=[Fraction(1,10),Fraction(2,10),Fraction(4,10),Fraction(2,10),Fraction(1,10)]
+for sn in [2,4,8,32]:
+    errors=[Fraction(z*z+1,4*sn) for z in slutsky_values]
+    for delta in [Fraction(1,20),Fraction(1,4),Fraction(1)]:
+        bad=sum(w for err,w in zip(errors,slutsky_weights) if abs(err)>delta)
+        for threshold in [Fraction(x,4) for x in range(-12,21)]:
+            lo=sum(w for z,w in zip(slutsky_values,slutsky_weights) if z<=threshold-delta)-bad
+            actual=sum(w for z,err,w in zip(slutsky_values,errors,slutsky_weights) if z+err<=threshold)
+            hi=sum(w for z,w in zip(slutsky_values,slutsky_weights) if z<=threshold+delta)+bad
+            assert lo<=actual<=hi
+    for cutoff in [Fraction(1),Fraction(2),Fraction(4)]:
+        for epsilon in [Fraction(1,10),Fraction(1,2),Fraction(2)]:
+            lhs=sum(w for z,err,w in zip(slutsky_values,errors,slutsky_weights) if abs(z*err)>epsilon)
+            rhs=sum(w for z,w in zip(slutsky_values,slutsky_weights) if abs(z)>cutoff)
+            rhs+=sum(w for err,w in zip(errors,slutsky_weights) if abs(err)>epsilon/cutoff)
+            assert lhs<=rhs
+    for z in slutsky_values:
+        denominator=2+Fraction(z,sn)
+        inverse_error=abs(1/denominator-Fraction(1,2))
+        if abs(denominator-2)<1:assert inverse_error<=abs(denominator-2)/2
+slutsky_normal_cdf=.5*(1+math.erf(.5/math.sqrt(2)))
+assert 0.69<slutsky_normal_cdf<.70
+assert slutsky_normal_cdf!=1 # even sum N(0,4) vs odd sum point mass0, at x=1
+
+# Pareto example: x=1/u maps the rth-moment integral to 3*integral_0^1
+# u^(2-r)du. Exact polynomial integration verifies r=0,1,2. The r=3
+# truncation equals3log(M), giving a concrete divergence sequence.
+pareto_moments=[Fraction(3,3-power) for power in [0,1,2]]
+assert pareto_moments==[1,Fraction(3,2),3]
+assert pareto_moments[2]-pareto_moments[1]**2==Fraction(3,4)
+pareto_third_truncated=[3*math.log(bound) for bound in [2,4,16,256]]
+assert all(a<b for a,b in zip(pareto_third_truncated,pareto_third_truncated[1:]))
+for bound in [2.,4.,8.]:
+    third_quad=3*math.log(bound)
+    fourth_quad=3*(bound-1)
+    assert third_quad>0 and fourth_quad>third_quad
+
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
