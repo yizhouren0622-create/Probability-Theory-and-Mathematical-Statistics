@@ -1137,6 +1137,21 @@
         "parametric-bootstrap"
       ],
       "scope": "选读lambda非负与零参数时退化在0的定义。本站另证全零似然在开/闭空间的最大值差异，并以Poisson下尾反演构造上界；未声称执行新的R代码，也不作为盛骤教材正文核对。"
+    },
+    {
+      "id": "nist-f-moments-shape-selected",
+      "date": "2026-10-19",
+      "title": "NIST统计手册：F分布密度、众数与有限矩条件",
+      "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda3665.htm",
+      "webSections": [
+        "Probability Density Function",
+        "Common Statistics: Mean, Mode, Standard Deviation"
+      ],
+      "concepts": [
+        "f-density-t-square",
+        "chi-square-density"
+      ],
+      "scope": "选读F密度、均值、众数及标准差的自由度条件；本站从独立卡方积分另推实数阶矩的双端可积区间、二阶矩、方差和逆样本方差矩，并核对F倒数的门槛。未采用网页的CDF或更高形状系数，未据此声称已核对指定教材第六章正文。"
     }
   ],
   "frontMatterChecks": [

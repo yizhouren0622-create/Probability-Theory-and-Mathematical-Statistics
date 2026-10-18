@@ -1906,6 +1906,71 @@ for rate in [.1,.2,.5,1.,2.,4.]:
         if rate<=u+1e-12:coverage+=mass
     assert total>1-1e-13 and coverage>=.95-1e-12
 
+# Independent exact integrations of F moments after z=mq/(n+mq).
+# For even degrees the transformed density and integer-power integrands are
+# polynomials. Integrate expanded coefficients exactly, without numerical tails
+# or a call to the Gamma-ratio/F-variance formula being checked.
+def f_moment_integrated(m,n,power):
+    a,b=m//2,n//2
+    assert m%2==n%2==0 and -a<power<b
+    exponent=b-power-1
+    area=sum(Fraction((-1)**j*math.comb(exponent,j),a+power+j) for j in range(exponent+1))
+    normalizer=Fraction(math.factorial(a+b-1),math.factorial(a-1)*math.factorial(b-1))
+    return Fraction(n,m)**power*normalizer*area
+for fm in [2,4,6,8,10]:
+    for fn in [2,4,6,8,10,12]:
+        for fr in range(-3,5):
+            if -fm//2<fr<fn//2:
+                actual=f_moment_integrated(fm,fn,fr)
+                gamma_closed=Fraction(fn,fm)**fr*Fraction(math.factorial(fm//2+fr-1)*math.factorial(fn//2-fr-1),math.factorial(fm//2-1)*math.factorial(fn//2-1))
+                assert actual==gamma_closed
+                assert actual==f_moment_integrated(fn,fm,-fr)
+        if fn>2:assert f_moment_integrated(fm,fn,1)==Fraction(fn,fn-2)
+        if fn>4:
+            mean_f=f_moment_integrated(fm,fn,1)
+            variance_f=f_moment_integrated(fm,fn,2)-mean_f**2
+            assert variance_f==Fraction(2*fn*fn*(fm+fn-2),fm*(fn-2)**2*(fn-4))
+assert f_moment_integrated(4,6,1)==Fraction(3,2)
+assert f_moment_integrated(4,6,2)==Fraction(27,4)
+assert f_moment_integrated(4,6,-1)==2
+
+# Check mode using density evaluations around the claimed interior maximum,
+# and strict decrease for m<=2. This tests shape against the original density.
+def f_density_value(x,m,n):
+    return math.exp(math.lgamma((m+n)/2)-math.lgamma(m/2)-math.lgamma(n/2)+(m/2)*math.log(m/n)+(m/2-1)*math.log(x)-((m+n)/2)*math.log1p(m*x/n))
+for fm in [3.,4.,7.]:
+    for fn in [1.,3.,6.,9.]:
+        mode=fn*(fm-2)/(fm*(fn+2))
+        peak=f_density_value(mode,fm,fn)
+        assert all(f_density_value(mode*ratio,fm,fn)<peak for ratio in [.2,.7,1.3,5.])
+for fm in [.5,1.,2.]:
+    values=[f_density_value(x,fm,3) for x in [.01,.1,1.,10.]]
+    assert all(a>b for a,b in zip(values,values[1:]))
+
+# Inverse chi-square moments via a different integral: 1/v=integral exp(-tv)dt,
+# 1/v^2=integral t exp(-tv)dt. Put u=(1+2t)^(-1/2); the integrands on [0,1]
+# become u^(nu-3) and (u^(nu-5)-u^(nu-3))/2. For integer nu>=5 these are
+# polynomials. Composite Simpson is independent of the claimed Gamma formula.
+def sampling_simpson(fun,pieces=2000):
+    h=1/pieces
+    return h/3*(fun(0.)+fun(1.)+sum((4 if j%2 else 2)*fun(j*h) for j in range(1,pieces)))
+for nu in range(5,13):
+    first=sampling_simpson(lambda u:u**(nu-3))
+    second=sampling_simpson(lambda u:(u**(nu-5)-u**(nu-3))/2)
+    assert math.isclose(first,1/(nu-2),abs_tol=3e-12)
+    assert math.isclose(second,1/((nu-2)*(nu-4)),abs_tol=3e-12)
+    for shape_power in [1,2]:
+        numerator=(nu)**shape_power
+        target=numerator*(first if shape_power==1 else second)
+        if shape_power==1:assert math.isclose(target,nu/(nu-2),abs_tol=5e-11)
+        else:assert math.isclose(target,nu*nu/((nu-2)*(nu-4)),abs_tol=5e-10)
+assert Fraction(5*5,(5-2)*(5-4))-Fraction(5,5-2)**2==Fraction(50,9)
+# F(5,5) can be checked independently through t^2 integrals or fractional
+# Gamma factors; here square-root Gamma recurrence supplies its first2 moments.
+f55_first=5/3
+f55_second=(5/5)**2*(5*7)/((5-2)*(5-4))
+assert math.isclose(f55_second-f55_first**2,80/9,abs_tol=1e-12)
+
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
