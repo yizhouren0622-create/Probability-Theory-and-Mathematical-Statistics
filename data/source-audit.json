@@ -688,6 +688,65 @@
         "credible-frequentist-coverage"
       ],
       "scope": "选读两类集合的概率定义与条件对象，未通读整套报告。本站独立构造一次伯努利中央50%区间，逐点与先验平均覆盖率均自行计算；不是盛骤指定教材正文。"
+    },
+    {
+      "id": "stanford-conditional-gaussian-selected",
+      "date": "2026-10-18",
+      "title": "StanfordCS229：多元高斯条件分布公式",
+      "url": "https://cs229.stanford.edu/section/more_on_gaussians.pdf",
+      "pdfPages": [
+        8,
+        10
+      ],
+      "concepts": [
+        "gaussian-construction-characteristic",
+        "gaussian-block-conditional"
+      ],
+      "scope": "选读PDF第8页的条件分布定理及第10页的结论，第8页另渲染图像核对矩阵下标。未通读11页，也未沿用条件密度分母中的排版问题。本站独立用特征函数与高斯残差证明，补允许奇异的定义、仿射支撑、密度换元、Schur补与例题；不是指定教材第四章正文审校。"
+    },
+    {
+      "id": "mit6041-random-sum-selected",
+      "date": "2026-10-18",
+      "title": "MIT6.041Lecture13A：独立随机项数的和",
+      "url": "https://ocw.mit.edu/courses/6-041-probabilistic-systems-analysis-and-applied-probability-spring-2006/65fc4bb2d34767d88dc0fc4d706b9bfc_lec13a.pdf",
+      "pdfPages": [
+        3
+      ],
+      "concepts": [
+        "random-sum-moments"
+      ],
+      "scope": "实际下载正常公开讲义，渲染并阅读PDF第3页的模型独立性、期望与方差公式；网页提取遗漏公式，未把图片占位当成已读。本站独立补矩存在性、泊松原子与依赖次数反例；未读取分枝过程后半章，不是盛骤教材正文。"
+    },
+    {
+      "id": "purdue-order-joint-selected",
+      "date": "2026-10-18",
+      "title": "PurdueDasGupta：联合次序统计量与极值",
+      "url": "https://www.stat.purdue.edu/~dasgupta/orderstats.pdf",
+      "pdfPages": [
+        2,
+        3,
+        5,
+        6
+      ],
+      "concepts": [
+        "joint-order-range"
+      ],
+      "scope": "选读全排序联合密度及按排列分区的证明、极值与均匀极差公式段落；未通读24页或沿用该讲义偶数中位数的特定约定。本站独立编写离散多重排列、具体Bernoulli反例和连续积分检验。不是盛骤第六版正文。"
+    },
+    {
+      "id": "greene-partial-regression-selected",
+      "date": "2026-10-18",
+      "title": "NYUGreene：FWL分块回归定理",
+      "url": "https://pages.stern.nyu.edu/~wgreene/Text/Edition8/PDF/M03_GREE1366_08_SE_C03.pdf",
+      "pdfPages": [
+        9,
+        10,
+        13
+      ],
+      "concepts": [
+        "partial-regression-fwl"
+      ],
+      "scope": "选读PDF第9页定理3.2与推导、第10页单系数推论及第13页完整模型自由度符号。本站独立用剖面最小二乘、投影协方差和六观测数据证明残差及标准误的条件；未通读26页。HBS旧链接404未取得正文，没有作为已读来源。不是指定教材第九章正文。"
     }
   ],
   "frontMatterChecks": [

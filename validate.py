@@ -1251,6 +1251,192 @@ for n in [2,5,100]:
     assert math.isclose(n*tail_probability,1,abs_tol=1e-10)
     error_second=1/n+n*n*tail_probability
     assert math.isclose(error_second,n+1/n,abs_tol=1e-8)
+# Gaussian construction: direct independent-normal characteristic integrals
+# and density change of variables, including a rank-deficient three-vector.
+gaussian_l=[[1,0],[0,1],[1,1]]
+gaussian_sigma=matmul_check(gaussian_l,transpose_check(gaussian_l))
+assert gaussian_sigma==[[1,0,1],[0,1,1],[1,1,2]]
+kernel=[-1,-1,1]
+assert matmul_check(gaussian_sigma,[[v] for v in kernel])==[[0],[0],[0]]
+for t in [[.3,-.2,.8],[1,2,-1],[-.5,.4,0]]:
+    linear=[sum(t[i]*gaussian_l[i][j] for i in range(3)) for j in range(2)]
+    actual_cf=math.prod(simpson_check(lambda z:math.cos(a*z)*normal_pdf(z,0,1),-10,10) for a in linear)
+    quadratic=sum(t[i]*gaussian_sigma[i][j]*t[j] for i,j in product(range(3),repeat=2))
+    assert math.isclose(actual_cf,math.exp(-quadratic/2),abs_tol=1e-11)
+sigma_ellipse=[[2,1],[1,2]];ellipse_inverse=inverse_check(sigma_ellipse)
+assert ellipse_inverse==[[Fraction(2,3),Fraction(-1,3)],[Fraction(-1,3),Fraction(2,3)]]
+for x,y in [(-2,.3),(0,0),(1,2)]:
+    z1=x/math.sqrt(2);z2=(y-z1/math.sqrt(2))/math.sqrt(1.5)
+    density_from_transform=normal_pdf(z1,0,1)*normal_pdf(z2,0,1)/math.sqrt(3)
+    q=(2*x*x-2*x*y+2*y*y)/3
+    density_matrix=math.exp(-q/2)/(2*math.pi*math.sqrt(3))
+    assert math.isclose(density_from_transform,density_matrix,abs_tol=1e-12)
+ellipse_cutoff=-2*math.log(.05)
+assert math.isclose(simpson_check(lambda r:r*math.exp(-r*r/2),0,math.sqrt(ellipse_cutoff)),.95,abs_tol=1e-12)
+assert math.isclose(math.sqrt(ellipse_cutoff),2.44775,abs_tol=5e-6)
+assert math.isclose(math.sqrt(3*ellipse_cutoff),4.23962,abs_tol=5e-6)
+for vector,eigenvalue in [([1,1],3),([1,-1],1)]:
+    assert matmul_check(sigma_ellipse,[[v] for v in vector])==[[eigenvalue*v] for v in vector]
+# Conditional Gaussian: independently factor the actual 3D density into
+# marginalY density and a 2D residual density, then numerically marginalize.
+full_sigma=[[4,1,1],[1,9,2],[1,2,1]];full_inv=inverse_check(full_sigma)
+residual_map=[[1,0,-1],[0,1,-2]]
+conditional_sigma=matmul_check(matmul_check(residual_map,full_sigma),transpose_check(residual_map))
+assert conditional_sigma==[[3,-1],[-1,5]]
+assert matmul_check(matmul_check(residual_map,full_sigma),[[0],[0],[1]])==[[0],[0]]
+def joint_normal3(x1,x2,y):
+    d=[x1-1,x2-2,y-3]
+    q=sum(d[i]*full_inv[i][j]*d[j] for i,j in product(range(3),repeat=2))
+    return math.exp(-float(q)/2)/((2*math.pi)**1.5*math.sqrt(14))
+for y in [-1,3,5]:
+    m1=1+y-3;m2=2+2*(y-3)
+    for dx1,dx2 in [(0,0),(-2,.4),(1,3)]:
+        direct_conditional=joint_normal3(m1+dx1,m2+dx2,y)/normal_pdf(y,3,1)
+        q=(5*dx1*dx1+2*dx1*dx2+3*dx2*dx2)/14
+        target=math.exp(-q/2)/(2*math.pi*math.sqrt(14))
+        assert math.isclose(direct_conditional,target,abs_tol=1e-12)
+for x1 in [0,3,6]:
+    marginalized=simpson_check(lambda x2:joint_normal3(x1,x2,5)/normal_pdf(5,3,1),-24,36)
+    assert math.isclose(marginalized,normal_pdf(x1,3,3),abs_tol=1e-11)
+assert matmul_check(matmul_check([[1,-1]],conditional_sigma),[[1],[-1]])==[[10]]
+assert sum(conditional_sigma[i][i] for i in range(2))==8
+# Random sum: enumerate every finite joint outcome, including empty sums
+# and negative summands, to verify both sources of variance with exact mass.
+count_law=[(0,Fraction(1,5)),(1,Fraction(1,2)),(3,Fraction(3,10))]
+summand_law=[(-1,Fraction(2,3)),(3,Fraction(1,3))]
+random_sum_states=[]
+for n,count_p in count_law:
+    for outcome in product(summand_law,repeat=n):
+        random_sum_states.append((sum(v for v,p in outcome),count_p*math.prod(p for v,p in outcome)))
+assert sum(p for v,p in random_sum_states)==1
+sum_mean=sum(v*p for v,p in random_sum_states)
+sum_var=sum((v-sum_mean)**2*p for v,p in random_sum_states)
+n_mean=sum(n*p for n,p in count_law);n_var=sum((n-n_mean)**2*p for n,p in count_law)
+x_mean=sum(v*p for v,p in summand_law);x_var=sum((v-x_mean)**2*p for v,p in summand_law)
+assert sum_mean==Fraction(7,15)==n_mean*x_mean
+assert sum_var==Fraction(1151,225)==n_mean*x_var+n_var*x_mean*x_mean
+dependent_values=[]
+for x1,x2 in product([0,1],repeat=2):
+    n=1+x2;dependent_values.append(sum([x1,x2][:n]))
+assert mean(dependent_values)==1
+assert mean((v-1)**2 for v in dependent_values)==Fraction(1,2)
+assert Fraction(3,2)*Fraction(1,2)==Fraction(3,4)
+assert Fraction(3,2)*Fraction(1,4)+Fraction(1,4)*Fraction(1,4)==Fraction(7,16)
+# Compound Poisson/exponential moments from a continuous gamma-mixture
+# density, retaining separately the actual zero-count atom.
+poisson_four_weights=[math.exp(-4)]
+for n in range(1,46):poisson_four_weights.append(poisson_four_weights[-1]*4/n)
+def compound_density(x):
+    gamma_pdf=2*math.exp(-2*x);result=0.
+    for n in range(1,46):
+        result+=poisson_four_weights[n]*gamma_pdf
+        gamma_pdf*=2*x/n
+    return result
+assert math.isclose(simpson_check(compound_density,0,70),1-math.exp(-4),abs_tol=1e-8)
+assert math.isclose(simpson_check(lambda x:x*compound_density(x),0,70),2,abs_tol=1e-8)
+assert math.isclose(simpson_check(lambda x:x*x*compound_density(x),0,70),6,abs_tol=1e-8)
+# Joint order statistics: integrate actual min/max densities over event
+# regions, and compare with the independent original-sample event probability.
+for n in [2,3,5]:
+    for lo,hi in [(.1,.8),(.3,.5)]:
+        joint_event=simpson_check(lambda u:simpson_check(
+            lambda v:n*(n-1)*(v*v-u*u)**(n-2)*4*u*v,u,hi,steps=240),lo,hi,steps=240)
+        assert math.isclose(joint_event,(hi*hi-lo*lo)**n,abs_tol=2e-8)
+for n in [2,3,7]:
+    range_pdf=lambda r:n*(n-1)*r**(n-2)*(1-r)
+    moments_range=[simpson_check(lambda r:r**k*range_pdf(r),0,1) for k in range(3)]
+    assert math.isclose(moments_range[0],1,abs_tol=1e-12)
+    assert math.isclose(moments_range[1],(n-1)/(n+1),abs_tol=1e-12)
+    assert math.isclose(moments_range[2]-moments_range[1]**2,2*(n-1)/((n+1)**2*(n+2)),abs_tol=1e-12)
+uv3=simpson_check(lambda u:simpson_check(lambda v:6*u*v*(v-u),u,1,steps=240),0,1,steps=240)
+assert math.isclose(uv3,.2,abs_tol=1e-9)
+assert math.isclose(uv3-.25*.75,1/80,abs_tol=1e-9)
+assert math.isclose(simpson_check(lambda r:6*r*(1-r),0,.5),.5,abs_tol=1e-12)
+# Labeled discrete sample enumeration checks ties and every multiplicity,
+# rather than assuming n! permutations even for repeated observed values.
+for sample_size in range(1,6):
+    law=[(0,Fraction(1,2)),(1,Fraction(1,3)),(3,Fraction(1,6))]
+    sorted_masses={}
+    for outcome in product(law,repeat=sample_size):
+        key=tuple(sorted(v for v,p in outcome))
+        sorted_masses[key]=sorted_masses.get(key,Fraction(0))+math.prod(p for v,p in outcome)
+    for ordered,mass in sorted_masses.items():
+        counts=[ordered.count(v) for v,p in law]
+        multiplicity=math.factorial(sample_size)//math.prod(math.factorial(c) for c in counts)
+        assert mass==multiplicity*math.prod(p**count for (v,p),count in zip(law,counts))
+bern_order={}
+for sample in product([0,1],repeat=3):
+    key=tuple(sorted(sample))
+    bern_order[key]=bern_order.get(key,Fraction(0))+math.prod(Fraction(1,3) if v else Fraction(2,3) for v in sample)
+assert list(bern_order.values())==[Fraction(8,27),Fraction(12,27),Fraction(6,27),Fraction(1,27)]
+assert sum(p for v,p in bern_order.items() if v[-1]-v[0]==1)==Fraction(2,3)
+# Partial regression: solve the complete and residualized data problems
+# independently with rational matrices, then enumerate nonnormal iid errors
+# to verify the covariance and unbiased residual-variance formulas.
+z_control=[-2,-1,0,0,1,2];x_target=[-3,1,-1,1,-1,3];y_full=[-5,4,-2,2,2,11]
+a_design=[[1,z] for z in z_control]
+full_design=[[1,z,x] for z,x in zip(z_control,x_target)]
+full_g=inverse_check(matmul_check(transpose_check(full_design),full_design))
+full_c=matmul_check(full_g,transpose_check(full_design))
+fit_coeff=matmul_check(full_c,[[v] for v in y_full])
+assert fit_coeff==[[2],[1],[2]]
+ma=subtract_matrix_check([[Fraction(i==j) for j in range(6)] for i in range(6)],hat_check(a_design))
+x_res=matmul_check(ma,[[v] for v in x_target]);y_res=matmul_check(ma,[[v] for v in y_full])
+assert [v[0] for v in x_res]==[-1,2,-1,1,-2,1]
+assert [v[0] for v in y_res]==[-1,5,-4,0,-3,3]
+gram_res=matmul_check(transpose_check(x_res),x_res)[0][0]
+coef_res=matmul_check(transpose_check(x_res),y_res)[0][0]/gram_res
+assert gram_res==12 and coef_res==2
+actual_res=[y-row[0] for y,row in zip(y_full,matmul_check(full_design,fit_coeff))]
+partial_res=[y[0]-coef_res*x[0] for y,x in zip(y_res,x_res)]
+assert actual_res==partial_res==[1,1,-2,-2,1,1]
+sse_check=sum(v*v for v in actual_res)
+assert sse_check==12 and Fraction(sse_check,3)/gram_res==Fraction(1,3)
+assert Fraction(sse_check,5)/gram_res==Fraction(1,5)
+assert sum(Fraction(x)*y[0] for x,y in zip(x_target,y_res))/sum(x*x for x in x_target)==Fraction(12,11)
+full_m=subtract_matrix_check([[Fraction(i==j) for j in range(6)] for i in range(6)],hat_check(full_design))
+noise_beta=[];noise_sse=[]
+for noise in product([-1,1],repeat=6):
+    noise_beta.append(matmul_check(full_c,[[v] for v in noise])[2][0])
+    noise_e=matmul_check(full_m,[[v] for v in noise])
+    noise_sse.append(sum(row[0]**2 for row in noise_e))
+assert mean(noise_beta)==0
+assert mean(v*v for v in noise_beta)==Fraction(1,12)==full_g[2][2]
+assert mean(noise_sse)==3
+assert ma[0][1]==Fraction(-11,30) and ma[0][0]==Fraction(13,30)
+# Rank-deficient design: use an independent-column basis for the projection,
+# compare an entire family of original coefficient solutions, and check
+# effective residual rank from finite iid error enumeration.
+x_rank=[0,1,2,3];y_rank=[Fraction(1),Fraction(2),Fraction(2),Fraction(4)]
+reduced_rank_design=[[1,x] for x in x_rank]
+redundant_design=[[1,x,2*x] for x in x_rank]
+reduced_gram_inv=inverse_check(matmul_check(transpose_check(reduced_rank_design),reduced_rank_design))
+reduced_c=matmul_check(reduced_gram_inv,transpose_check(reduced_rank_design))
+rank_coeff=matmul_check(reduced_c,[[v] for v in y_rank])
+assert rank_coeff==[[Fraction(9,10)],[Fraction(9,10)]]
+rank_fitted=matmul_check(reduced_rank_design,rank_coeff)
+rank_residual=[y-f[0] for y,f in zip(y_rank,rank_fitted)]
+assert rank_residual==[Fraction(1,10),Fraction(1,5),Fraction(-7,10),Fraction(2,5)]
+rank_sse=sum(v*v for v in rank_residual)
+assert rank_sse==Fraction(7,10) and rank_sse/2==Fraction(7,20)
+assert matmul_check(redundant_design,[[0],[-2],[1]])==[[0],[0],[0],[0]]
+new_predictions=[]
+for t in [Fraction(-3),Fraction(0),Fraction(1,2),Fraction(2)]:
+    coefficients=[[Fraction(9,10)],[Fraction(9,10)-2*t],[t]]
+    assert matmul_check(redundant_design,coefficients)==rank_fitted
+    assert coefficients[1][0]+2*coefficients[2][0]==Fraction(9,10)
+    new_predictions.append(coefficients[0][0]+coefficients[1][0])
+assert len(set(new_predictions))==4
+rank_projection=hat_check(reduced_rank_design)
+rank_residual_projector=subtract_matrix_check([[Fraction(i==j) for j in range(4)] for i in range(4)],rank_projection)
+assert sum(rank_residual_projector[i][i] for i in range(4))==2
+rank_noise_sse=[];rank_noise_slope=[]
+for noise in product([-1,1],repeat=4):
+    residual=matmul_check(rank_residual_projector,[[v] for v in noise])
+    rank_noise_sse.append(sum(v[0]*v[0] for v in residual))
+    rank_noise_slope.append(matmul_check(reduced_c,[[v] for v in noise])[1][0])
+assert mean(rank_noise_sse)==2
+assert mean(rank_noise_slope)==0 and mean(v*v for v in rank_noise_slope)==Fraction(1,5)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
