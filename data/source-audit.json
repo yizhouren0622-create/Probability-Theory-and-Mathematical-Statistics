@@ -747,6 +747,45 @@
         "partial-regression-fwl"
       ],
       "scope": "选读PDF第9页定理3.2与推导、第10页单系数推论及第13页完整模型自由度符号。本站独立用剖面最小二乘、投影协方差和六观测数据证明残差及标准误的条件；未通读26页。HBS旧链接404未取得正文，没有作为已读来源。不是指定教材第九章正文。"
+    },
+    {
+      "id": "r-noncentral-t-power-definition",
+      "date": "2026-10-18",
+      "title": "R官方：非中心t与单样本t统计量的分布",
+      "url": "https://stat.ethz.ch/R-manual/R-devel/RHOME/library/stats/html/TDist.html",
+      "webSections": [
+        "Details：非中心构造、正态样本统计量及ncp"
+      ],
+      "concepts": [
+        "student-t-power"
+      ],
+      "scope": "选读Details中非中心t构造及正态单样本应用。本站独立推导条件正态积分、复合原假设的水平及双侧功效单调性；未核对底层算法或执行新增R代码。不是指定教材正文。"
+    },
+    {
+      "id": "r-power-t-strict-selected",
+      "date": "2026-10-18",
+      "title": "R官方：power.t.test的双侧strict约定",
+      "url": "https://www.stat.ethz.ch/R-manual/R-devel/library/stats/html/power.t.test.html",
+      "webSections": [
+        "Usage、Arguments、Details"
+      ],
+      "concepts": [
+        "student-t-power"
+      ],
+      "scope": "实际阅读strict=TRUE才合计真效应反方向尾概率的说明，核对单/双样本及配对选项。数值例子由独立积分与SciPy交叉核验，未声称新的R执行或整本手册已读。"
+    },
+    {
+      "id": "bartlett-empirical-cdf-selected",
+      "date": "2026-10-18",
+      "title": "Berkeley Bartlett：经验CDF的固定阈值与协方差",
+      "url": "https://www.stat.berkeley.edu/~bartlett/courses/2013spring-stat210b/notes/17notes.pdf",
+      "pdfPages": [
+        14
+      ],
+      "concepts": [
+        "random-sample-statistics"
+      ],
+      "scope": "实际选读PDF第14页文字中的固定阈值大数定律及有限维协方差段落。本站仅给出初等指示量推导和固定阈值一致性，不将相邻页Donsker定理或整本讲义标为已读/已证明；不是盛骤正文。"
     }
   ],
   "frontMatterChecks": [

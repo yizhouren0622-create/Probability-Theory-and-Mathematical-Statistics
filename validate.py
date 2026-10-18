@@ -77,6 +77,7 @@ for filename,page in pages.items():
     for asset in ['site.css','site.js','index-data.js','preferences.js']:
         assert f'assets/{asset}?v={expected_version}' in text, f'Stale generated page: {filename}'
     assert 'MATHTOKEN' not in text and 'math-error' not in text
+    assert '<mi>&</mi>' not in text, f'Unsupported alignment rendered literally: {filename}'
     assert not any(ord(c)<32 and c not in '\n\r\t' for c in text), filename
     for link in page.links:
         url=urlsplit(link)
@@ -1437,6 +1438,84 @@ for noise in product([-1,1],repeat=4):
     rank_noise_slope.append(matmul_check(reduced_c,[[v] for v in noise])[1][0])
 assert mean(rank_noise_sse)==2
 assert mean(rank_noise_slope)==0 and mean(v*v for v in rank_noise_slope)==Fraction(1,5)
+# Sample moments and empirical CDF: enumerate the original, non-continuous
+# sampling distribution rather than reuse the covariance formula as a test.
+sample_obs=[Fraction(x) for x in [1,2,2,5]]
+sample_a=[mean(x**k for x in sample_obs) for k in [1,2,3]]
+sample_b=[mean((x-sample_a[0])**k for x in sample_obs) for k in [1,2,3]]
+assert sample_a==[Fraction(5,2),Fraction(17,2),Fraction(71,2)]
+assert sample_b==[0,Fraction(9,4),Fraction(3)]
+assert sample_b[1]==sample_a[1]-sample_a[0]**2
+assert sample_b[2]==sample_a[2]-3*sample_a[0]*sample_a[1]+2*sample_a[0]**3
+empirical_rows=[]
+for obs in product([0,1,2],repeat=4):
+    weight=math.prod(Fraction([1,2,1][x],4) for x in obs)
+    f0=Fraction(sum(x<=0 for x in obs),4)
+    f1=Fraction(sum(x<=1 for x in obs),4)
+    empirical_rows.append((weight,f0,f1))
+assert sum(row[0] for row in empirical_rows)==1
+ef0=sum(w*x for w,x,y in empirical_rows);ef1=sum(w*y for w,x,y in empirical_rows)
+assert (ef0,ef1)==(Fraction(1,4),Fraction(3,4))
+ev0=sum(w*(x-ef0)**2 for w,x,y in empirical_rows)
+ev1=sum(w*(y-ef1)**2 for w,x,y in empirical_rows)
+ecov=sum(w*(x-ef0)*(y-ef1) for w,x,y in empirical_rows)
+assert ev0==ev1==Fraction(3,64) and ecov==Fraction(1,64)
+assert ecov/ev0==Fraction(1,3)
+for cutoff,expected in [(-1,0),(0,Fraction(1,4)),(.5,Fraction(1,4)),(1,Fraction(3,4)),(1.5,Fraction(3,4)),(2,1)]:
+    assert Fraction(sum(x<=cutoff for x in [0,1,1,2]),4)==expected
+# Exact t power by integrating an independent standard-normal/chi radial
+# construction. Quantiles are independently inverted from central t density;
+# no SciPy or R distribution functions are dependencies of this validator.
+def t_cdf_check(x,nu):
+    coef=math.gamma((nu+1)/2)/(math.sqrt(nu*math.pi)*math.gamma(nu/2))
+    mass=simpson_check(lambda z:coef*(1+z*z/nu)**(-(nu+1)/2),0,abs(x),steps=1200)
+    return .5+math.copysign(mass,x)
+def t_quantile_check(p,nu):
+    lo,hi=0.,16.
+    for _ in range(42):
+        mid=(lo+hi)/2
+        if t_cdf_check(mid,nu)<p:lo=mid
+        else:hi=mid
+    return (lo+hi)/2
+def normal_cdf_check(x):return .5*math.erfc(-x/math.sqrt(2))
+def t_power_radial_check(n,d,critical,two_sided=False):
+    nu=n-1
+    coef=2**(1-nu/2)/math.gamma(nu/2)
+    def radial_integrand(r):
+        density=coef*r**(nu-1)*math.exp(-r*r/2)
+        a=critical*r/math.sqrt(nu)
+        probability=normal_cdf_check(d-a)
+        if two_sided:probability+=normal_cdf_check(-d-a)
+        return density*probability
+    return simpson_check(radial_integrand,0,20,steps=10000)
+assert math.isclose(t_quantile_check(.95,1),math.tan(.45*math.pi),abs_tol=1e-9)
+assert math.isclose(t_quantile_check(.95,2),math.sqrt(2*.9**2/(1-.9**2)),abs_tol=1e-9)
+right_plan=[]
+for n in range(2,28):
+    critical=t_quantile_check(.95,n-1)
+    actual=t_power_radial_check(n,.5*math.sqrt(n),critical)
+    right_plan.append((n,actual))
+    assert math.isclose(t_power_radial_check(n,0,critical),.05,abs_tol=2e-9)
+assert next(n for n,power in right_plan if power>=.8)==27
+for n,target in [(25,.783386118571076),(26,.7980537143957398),(27,.8118315517081682)]:
+    assert math.isclose(dict(right_plan)[n],target,abs_tol=1e-9)
+crit4=t_quantile_check(.95,3)
+assert math.isclose(t_power_radial_check(4,2,crit4),.4607850704719496,abs_tol=1e-9)
+assert math.isclose(1-t_cdf_check(crit4-2,3),.37359438677252294,abs_tol=1e-9)
+for n in [4,10,25,34]:
+    critical=t_quantile_check(.975,n-1)
+    values=[]
+    for d in [0,.5,1.,2.]:
+        positive=t_power_radial_check(n,d,critical,True)
+        negative=t_power_radial_check(n,-d,critical,True)
+        assert math.isclose(positive,negative,abs_tol=1e-12)
+        values.append(positive)
+    assert math.isclose(values[0],.05,abs_tol=2e-9)
+    assert all(x<y for x,y in zip(values,values[1:]))
+    # Composite right null: all negative noncentralities reject no more than
+    # the boundary, without treating the unknown sigma as known.
+    rightcrit=t_quantile_check(.95,n-1)
+    assert t_power_radial_check(n,-.5,rightcrit)<.05
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
