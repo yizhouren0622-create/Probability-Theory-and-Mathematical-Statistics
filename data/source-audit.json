@@ -1108,6 +1108,35 @@
         "moments-quantiles"
       ],
       "scope": "仅选读Description中的比值定义、单位与自然零点、近零均值说明；不采用该软件页其他段落的估计量偏差宣称。本站给正均值总体CV定义、仿射变换的直接证明与原创两点练习，未替代教材正文核对。"
+    },
+    {
+      "id": "uw-bootstrap-mean-triangular-selected",
+      "date": "2026-10-19",
+      "title": "华盛顿大学STAT535：均值bootstrap与三角阵条件极限",
+      "url": "https://faculty.washington.edu/yenchic/25A_stat535/Lec12_bootstrap.html",
+      "webSections": [
+        "Consistency of Bootstrap",
+        "Lindeberg-Feller’s central limit theorem"
+      ],
+      "concepts": [
+        "nonparametric-bootstrap",
+        "bootstrap-null-test"
+      ],
+      "scope": "选读条件CDF比较、经验总体随n变化、Lindeberg尾项及有限二阶矩的论证。本站以中心化三角阵、Markov尾控制与子列/有限网格补足自身证明，并独立枚举零重抽样方差的例子；未采用网页其他部分的方差相似推广或Berry–Esseen速率主张。不是指定教材正文。"
+    },
+    {
+      "id": "r-poisson-zero-boundary-selected",
+      "date": "2026-10-19",
+      "title": "R官方Poisson分布：非负参数与λ=0退化情形",
+      "url": "https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Poisson.html",
+      "webSections": [
+        "Arguments: lambda",
+        "Details: lambda=0"
+      ],
+      "concepts": [
+        "parametric-bootstrap"
+      ],
+      "scope": "选读lambda非负与零参数时退化在0的定义。本站另证全零似然在开/闭空间的最大值差异，并以Poisson下尾反演构造上界；未声称执行新的R代码，也不作为盛骤教材正文核对。"
     }
   ],
   "frontMatterChecks": [

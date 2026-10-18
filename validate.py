@@ -1799,6 +1799,113 @@ assert sum(p*(y-2-3*x-x*x)**2 for x,y,p in prediction_law)==1
 moment_uniform_sample=[1,2,9]
 moment_uniform_theta=2*Fraction(sum(moment_uniform_sample),len(moment_uniform_sample))
 assert moment_uniform_theta==8>0 and max(moment_uniform_sample)>moment_uniform_theta
+# Bootstrap zero-variance boundary audit: enumerate every original ordered
+# resample. Do not remove constant resamples or assume positive original S is enough.
+bootstrap_pair=[Fraction(0),Fraction(2)]
+pair_mean=mean(bootstrap_pair);pair_null=[x-pair_mean for x in bootstrap_pair]
+pair_rows=list(product(pair_null,repeat=2))
+assert variance(bootstrap_pair)==2 and len(pair_rows)==4
+pair_tail=sum(abs(mean(row))>=abs(pair_mean) for row in pair_rows)
+pair_zero=sum(variance(row)==0 for row in pair_rows)
+assert Fraction(pair_tail,4)==Fraction(1,2)
+assert Fraction(pair_zero,4)==Fraction(1,2)
+kept_pair=[row for row in pair_rows if variance(row)>0]
+assert len(kept_pair)==2 and all(mean(row)==0 for row in kept_pair)
+assert sum(abs(mean(row))>=abs(pair_mean) for row in kept_pair)==0
+zero_ternary=list(product([-1,0,1],repeat=3))
+assert sum(variance(row)==0 for row in zero_ternary)==3
+assert sum(variance(row)==0 and mean(row)==0 for row in zero_ternary)==1
+# Numerical duplicates still carry distinct empirical labels, so the chance of
+# a constant-valued sample can exceed the chance of repeating one specific label.
+duplicate_zero_rows=list(product([1,1,3],repeat=3))
+assert Fraction(sum(variance(row)==0 for row in duplicate_zero_rows),27)==Fraction(1,3)
+
+# Old exercise P10-03 now states a complete fixed-scale statistic. Its empirical
+# support makes K=0 mandatory, so arbitrary positive hit counts would be impossible.
+null_original=[Fraction(3),Fraction(4),Fraction(5)];null_target=Fraction(2)
+null_mean=mean(null_original)
+null_centered=[x-null_mean+null_target for x in null_original]
+null_rows=list(product(null_centered,repeat=3))
+assert null_centered==[1,2,3]
+assert not any(abs(mean(row)-null_target)>=abs(null_mean-null_target) for row in null_rows)
+assert Fraction(1,999+1)==Fraction(1,1000)
+
+# All27 outcomes check the sqrt(n) error scaling independently of a variance
+# formula. A characteristic-function identity also checks the conditional sum law.
+bootstrap_three=[Fraction(-2),Fraction(0),Fraction(5)]
+three_mean=mean(bootstrap_three);three_rows=list(product(bootstrap_three,repeat=3))
+three_means=[mean(row) for row in three_rows]
+assert three_mean==1 and mean(three_means)==1
+assert mean((x-1)**2 for x in three_means)==Fraction(26,9)
+assert 3*mean((x-1)**2 for x in three_means)==Fraction(26,3)
+import cmath
+for frequency in [-2.,-.7,0.,.7,2.]:
+    cf_enumerated=sum(cmath.exp(1j*frequency*math.sqrt(3)*float(x-1)) for x in three_means)/27
+    cf_one=sum(cmath.exp(1j*frequency*float(x-three_mean)/math.sqrt(3)) for x in bootstrap_three)/3
+    assert abs(cf_enumerated-cf_one**3)<1e-12
+# These bounded-row identities are sanity checks, not a numerical proof of
+# general bootstrap consistency or a claimed universal convergence rate.
+for frequency in [.5,1.,1.3]:
+    errors=[abs(math.cos(frequency/math.sqrt(n))**n-math.exp(-frequency**2/2)) for n in [8,32,128,512]]
+    assert all(a>b for a,b in zip(errors,errors[1:]))
+    assert errors[-1]<.001
+
+# Algebraic large-term bound used in the finite-second-moment proof. Check it
+# on centered rows with and without isolated large observations, in both signs.
+for raw in [[0]*63+[128],[0]*63+[-128],[-8,0,9]*21+[0]]:
+    n=len(raw);mu=Fraction(sum(raw),n);centered=[Fraction(x)-mu for x in raw]
+    assert abs(mu)<=2 and n==64
+    for epsilon in [Fraction(1,2),Fraction(1),Fraction(2)]:
+        assert epsilon**2*n>=4*2**2
+        l_value=sum(y*y for y in centered if y*y>epsilon**2*n)/n
+        a_value=sum(Fraction(x*x) for x in raw if x*x>epsilon**2*n/4)/n
+        assert l_value<=4*a_value
+
+# Finite-B add-one correction is not unbiased, even though K/B is. Enumerate
+# the full binomial simulator law rather than substituting an expected K.
+for hit_probability in [Fraction(0),Fraction(1,4),Fraction(1,2),Fraction(1)]:
+    simulations=5
+    law=[Fraction(math.comb(simulations,k))*hit_probability**k*(1-hit_probability)**(simulations-k) for k in range(simulations+1)]
+    assert sum(law)==1
+    expected_raw=sum(w*Fraction(k,simulations) for k,w in enumerate(law))
+    expected_adjusted=sum(w*Fraction(k+1,simulations+1) for k,w in enumerate(law))
+    assert expected_raw==hit_probability
+    assert expected_adjusted==hit_probability+(1-hit_probability)/(simulations+1)
+
+# Zero Poisson parameter has a legitimate point-mass distribution if the model
+# explicitly includes that boundary. Positive true lambda can still yield zeros.
+for k in range(5):
+    assert math.exp(0)*0**k/math.factorial(k)==float(k==0)
+zero_likelihood=[math.exp(-5*rate) for rate in [0.,.01,.1,.5,1.]]
+assert zero_likelihood[0]==1 and all(a>b for a,b in zip(zero_likelihood,zero_likelihood[1:]))
+for n in [1,5,12]:
+    for alpha in [.01,.05,.1]:
+        upper=-math.log(alpha)/n
+        assert upper>0 and math.isclose(math.exp(-n*upper),alpha,abs_tol=1e-13)
+assert math.isclose(-math.log(.05)/5,.5991464547107982,abs_tol=1e-13)
+def poisson_cdf_boundary(k,total_mean):
+    mass=math.exp(-total_mean);value=mass
+    for j in range(1,k+1):mass*=total_mean/j;value+=mass
+    return min(value,1.)
+def poisson_upper_boundary(k,n,alpha):
+    lo=0.;hi=max(1.,k+1.)
+    while poisson_cdf_boundary(k,hi)>alpha:hi*=2
+    for _ in range(75):
+        mid=(lo+hi)/2
+        if poisson_cdf_boundary(k,mid)>alpha:lo=mid
+        else:hi=mid
+    return (lo+hi)/(2*n)
+upper_boundary=[poisson_upper_boundary(k,5,.05) for k in range(101)]
+assert math.isclose(upper_boundary[0],-math.log(.05)/5,abs_tol=1e-12)
+assert all(a<b for a,b in zip(upper_boundary,upper_boundary[1:]))
+for rate in [.1,.2,.5,1.,2.,4.]:
+    total_mean=5*rate;mass=math.exp(-total_mean);coverage=0.;total=0.
+    for k,u in enumerate(upper_boundary):
+        if k:mass*=total_mean/k
+        total+=mass
+        if rate<=u+1e-12:coverage+=mass
+    assert total>1-1e-13 and coverage>=.95-1e-12
+
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
