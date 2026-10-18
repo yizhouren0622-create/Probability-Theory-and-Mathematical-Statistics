@@ -1040,6 +1040,58 @@ hit_law=[Fraction(math.comb(b_sim,k))*hit_prob**k*(1-hit_prob)**(b_sim-k) for k 
 assert sum(w*Fraction(k,b_sim) for k,w in enumerate(hit_law))==hit_prob
 assert sum(w*(Fraction(k,b_sim)-hit_prob)**2 for k,w in enumerate(hit_law))==hit_prob*(1-hit_prob)/b_sim
 assert sum(w*Fraction(k+1,b_sim+1) for k,w in enumerate(hit_law))==Fraction(1+b_sim*hit_prob,b_sim+1)
+# Moment shape counterexample: exact finite law, including its unique median
+# and mode. Zero skewness is weaker than reflection of the whole distribution.
+shape_values=[-2,-1,1,3]
+shape_weights=[Fraction(1,5),Fraction(1,4),Fraction(1,2),Fraction(1,20)]
+shape_moments=[sum(w*x**k for x,w in zip(shape_values,shape_weights)) for k in range(5)]
+assert shape_moments==[1,0,2,0,8]
+assert shape_weights[0]!=0 and 2 not in shape_values
+assert sum(w for x,w in zip(shape_values,shape_weights) if x<1)==Fraction(9,20)
+assert sum(w for x,w in zip(shape_values,shape_weights) if x<=1)==Fraction(19,20)
+assert shape_values[shape_weights.index(max(shape_weights))]==1
+# Three-time autocorrelation incompatibility: a negative exact quadratic form
+# supplies a direct impossibility proof, beyond checking pointwise bounds.
+candidate_r=lambda t:max(1-Fraction(t*t,4),0)
+coeff=[Fraction(1),Fraction(-3,2),Fraction(1)]
+quadratic=sum(coeff[i]*coeff[j]*candidate_r(i-j) for i,j in product(range(3),repeat=2))
+assert quadratic==Fraction(-1,4)
+assert candidate_r(2)<2*candidate_r(1)**2-1==Fraction(1,8)
+for times in [[0,.2,1,3],[0,math.pi/3,2*math.pi/3],[0,-1,2,4]]:
+    coefficients=[i-1.2 for i in range(len(times))]
+    values=[sum(c*(a*math.cos(t)+b*math.sin(t)) for c,t in zip(coefficients,times)) for a,b in product([-1,1],repeat=2)]
+    covariance_form=sum(a*b*math.cos(t-s) for a,t in zip(coefficients,times) for b,s in zip(coefficients,times))
+    assert math.isclose(mean(v*v for v in values),covariance_form,abs_tol=1e-12)
+    assert covariance_form>=-1e-12
+# Finite-window spectrum: independently integrate the triangularly weighted
+# exponential correlation and compare a closed-form complex antiderivative.
+import cmath
+for window,omega in product([.5,2,10],[0,.7,3]):
+    finite_integral=simpson_check(lambda t:8*(1-t/window)*math.exp(-2*t)*math.cos(omega*t),0,window)
+    rate=2+1j*omega
+    finite_closed=8*(1/rate-(1-cmath.exp(-rate*window))/(window*rate*rate)).real
+    spectrum=16/(4+omega*omega)
+    assert math.isclose(finite_integral,finite_closed,abs_tol=1e-10)
+    assert finite_integral>=-1e-12
+    assert abs(spectrum-finite_closed)<=2/window+1e-12
+# Arrival-time proof: mix finite-window uniform order densities over the
+# actual Poisson total, then compare with the interarrival-product density.
+for lam,k,tk,horizon in [(2,2,.75,2),(1.7,3,1.4,3),(.5,1,2,5),(3,4,.8,1.2)]:
+    mixture=0.
+    for total in range(k,100):
+        poisson_weight=math.exp(-lam*horizon)*(lam*horizon)**total/math.factorial(total)
+        first_k_density=math.factorial(total)/math.factorial(total-k)*(horizon-tk)**(total-k)/horizon**total
+        mixture+=poisson_weight*first_k_density
+    assert math.isclose(mixture,lam**k*math.exp(-lam*tk),abs_tol=1e-11)
+    gaps=[tk/k]*k
+    product_density=math.prod(lam*math.exp(-lam*e) for e in gaps)
+    assert math.isclose(mixture,product_density,abs_tol=1e-11)
+assert math.isclose(simpson_check(lambda t:.75*t*(2-t),0,2),1,abs_tol=1e-12)
+interarrival_tail=simpson_check(lambda e:2*math.exp(-2*e),.5,25)*simpson_check(lambda e:2*math.exp(-2*e),1,25)
+assert math.isclose(interarrival_tail,math.exp(-3),abs_tol=1e-11)
+joint_arrival_tail=simpson_check(lambda e:2*math.exp(-2*e)*math.exp(-2*(1-e)),.5,1)+math.exp(-2)
+assert math.isclose(joint_arrival_tail,2*math.exp(-2),abs_tol=1e-12)
+assert not math.isclose(joint_arrival_tail,3*math.exp(-3),abs_tol=1e-3)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6

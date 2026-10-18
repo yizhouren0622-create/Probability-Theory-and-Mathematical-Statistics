@@ -434,9 +434,10 @@
         23
       ],
       "concepts": [
-        "poisson-conditional-arrivals"
+        "poisson-conditional-arrivals",
+        "poisson-waiting-independence"
       ],
-      "scope": "选读第 2.5 节 Theorem 2.5.1、条件密度推导与均匀排序说明，正文印刷 89–91 页；未通读全 35 页。本网站另独立以间隔密度乘无后续到达概率推导、积分得到 Beta 边缘，并用四点原创例核对。不是盛骤第十二章正文。"
+      "scope": "选读第 2.5 节 Theorem 2.5.1、条件密度推导与均匀排序说明，正文印刷 89–91 页；未通读全 35 页。本网站另独立以间隔密度乘无后续到达概率推导、积分得到 Beta 边缘，并用四点原创例核对。不是盛骤第十二章正文。 从计数定义到间隔独立性的反向重建由本站独立展开：先用条件多项计数识别均匀排序，再混合总数和作雅可比变换；未标记其他尚未读取的MIT页或指定教材第十二章正文已读。"
     },
     {
       "id": "waterloo-mean-square-selected",

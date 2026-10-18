@@ -84,16 +84,16 @@ const { pathToFileURL } = require('node:url');
             2: ['hypergeometric-binomial-limit','poisson-error-bound','mixed-transform','discrete-uniform','binomial-mode','quantile-generalized-inverse','memoryless-characterization','gaussian-integral-moments'],
             5: ['bernoulli-khinchin','central-limit','lyapunov-clt','clt-dominant-summand'],
             3: ['joint-cdf','joint-law-density','marginal-distribution','bivariate-normal','multivariate-basics','conditional-cdf-bayes','independent-blocks','joint-transform-cdf','jacobian-transform','gamma-additivity','normal-linear-combination','system-lifetimes','rayleigh-radius'],
-            4: ['count-factorial-moments','hypergeometric-variance','median-absolute-loss','expectation-properties','variance-properties'],
+            4: ['moments-quantiles','count-factorial-moments','hypergeometric-variance','median-absolute-loss','expectation-properties','variance-properties'],
             6: ['student-t-density','f-density-t-square','sample-moment-dependence'],
             7: ['normal-confidence-intervals','normal-mle-proof','maximum-likelihood','fisher-cramer-rao','beta-prior-moments','normal-conjugate-update','slutsky-studentization','wilson-score-interval','clopper-pearson-interval','type2-exponential-pivot'],
             8: ['two-sample-mean-tests','welch-satterthwaite-proof','pvalue-calibration','pearson-fitted-df','contingency-independence-proof','homogeneity-projection-proof','fisher-exact-conditional'],
             9: ['gauss-markov','normal-regression-projections','correlation-exact-test','linear-constraint-f','ridge-risk-existence','two-way-orthogonal-proof','two-way-no-replication'],
             11: ['r-boxplot','r-anova','r-regression'],
-            12: ['poisson-small-increments','poisson-arrival-times','gaussian-process-definition','poisson-conditional-arrivals'],
+            12: ['poisson-small-increments','poisson-arrival-times','poisson-waiting-independence','gaussian-process-definition','poisson-conditional-arrivals'],
             13: ['markov-return-criterion','markov-positive-power','markov-return-mean'],
             10: ['nonparametric-bootstrap','bootstrap-ci-inversion','bootstrap-maximum-failure','bootstrap-weights-bias','bootstrap-null-test'],
-            14: ['mean-ergodicity','mean-versus-correlation-ergodicity','wiener-window-process','mean-square-continuity'],
+            14: ['correlation-three-time-bound','power-spectrum','mean-ergodicity','mean-versus-correlation-ergodicity','wiener-window-process','mean-square-continuity'],
           }[chapter.id] || [];
           await page.addStyleTag({ content: '.topbar{position:static!important}.skip{display:none!important}' });
           for (const id of screenshots) await page.locator('#' + id).screenshot({ path: path.join(output, id + '.png') });
