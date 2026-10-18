@@ -1033,6 +1033,38 @@
         "conditional-independence"
       ],
       "scope": "选读PDF第11页条件独立乘积定义及再条件化需P(BC)>0的条件。本站另给混合来源与骰子筛选两方向反例、无放回带噪检测，全部独立编写；未将整27页标为已读，不是目标教材正文。"
+    },
+    {
+      "id": "lpw-finite-classes-gambler-selected",
+      "date": "2026-10-18",
+      "title": "Levin–Peres第二版：有限链分类与公平有限游走",
+      "url": "https://pages.uoregon.edu/dlevin/MARKOV/markovmixing.pdf",
+      "pdfPages": [
+        31,
+        32,
+        33,
+        37,
+        38
+      ],
+      "concepts": [
+        "markov-closed-classes",
+        "gambler-ruin"
+      ],
+      "scope": "选读1.7节与命题1.29、2.1节命题2.1及跨页一步方程的文字；不是通读461页，PDF截图失败，不标为图像核读。本站另写统一尾界、平稳族与混合极限证明，独立推导不公平游走公式并另造练习；不是盛骤教材正文核对。"
+    },
+    {
+      "id": "mit-absorption-firststep-selected",
+      "date": "2026-10-18",
+      "title": "MIT6.041SC：吸收概率与到达时间的一步方程",
+      "url": "https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/3dd39ef98a1da35dbe78dfbd702a4748_MIT6_041SCF13_L18.pdf",
+      "pdfPages": [
+        2
+      ],
+      "concepts": [
+        "markov-absorption-time",
+        "markov-absorption-probabilities"
+      ],
+      "scope": "选读PDF第2页吸收概率、首次到达及首次返回的一步方程文字。未声称通读整份或读取原课本7.4。本站四状态数值、矩阵级数、有限矩前提和二阶矩推导独立编写，不替代目标教材正文。"
     }
   ],
   "frontMatterChecks": [

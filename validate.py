@@ -1613,6 +1613,126 @@ assert sum(truncated_masses)==1 and truncated_masses[-1]!=cap_masses[-1]
 # Same marginal uniform distributions can have a nonzero difference variance.
 assert math.isclose(simpson_check(lambda u:(2*u)**2/2,-1,1),Fraction(4,3),abs_tol=1e-12)
 assert math.isclose(simpson_check(lambda u:(2*u-1)**2,0,1),Fraction(1,3),abs_tol=1e-12)
+# Finite-chain supplements: obtain probabilities and moments by propagating the
+# original transition law and recording the actual step of first absorption.
+# This is independent of the fundamental-matrix moment formulas in the lesson.
+absorption_transition=[
+    [Fraction(1,4),Fraction(1,2),Fraction(1,4),0],
+    [Fraction(1,3),0,0,Fraction(2,3)],
+    [0,0,1,0],[0,0,0,1]]
+abs_q=[row[:2] for row in absorption_transition[:2]]
+abs_r=[row[2:] for row in absorption_transition[:2]]
+abs_f=inverse_check(subtract_matrix_check([[1,0],[0,1]],abs_q))
+assert abs_f==[[Fraction(12,7),Fraction(6,7)],[Fraction(4,7),Fraction(9,7)]]
+abs_b=matmul_check(abs_f,abs_r)
+assert abs_b==[[Fraction(3,7),Fraction(4,7)],[Fraction(1,7),Fraction(6,7)]]
+abs_t=[sum(row) for row in abs_f]
+abs_s=[row[0] for row in matmul_check(abs_f,[[2*x-1] for x in abs_t])]
+assert abs_t==[Fraction(18,7),Fraction(13,7)]
+assert abs_s==[Fraction(66,7),Fraction(41,7)]
+assert [s-t*t for s,t in zip(abs_s,abs_t)]==[Fraction(138,49),Fraction(118,49)]
+assert sum(matmul_check(abs_q,abs_r)[0])==Fraction(19,48)
+for start in [0,1]:
+    mass=[float(i==start) for i in range(2)]
+    first_moment=second_moment=tail_first=tail_second=0.
+    destinations=[0.,0.];visits=[0.,0.]
+    for n in range(400):
+        survival=sum(mass)
+        tail_first+=survival;tail_second+=(2*n+1)*survival
+        visits=[a+b for a,b in zip(visits,mass)]
+        landed=[sum(mass[i]*float(absorption_transition[i][j]) for i in range(2)) for j in [2,3]]
+        destinations=[a+b for a,b in zip(destinations,landed)]
+        first_moment+=(n+1)*sum(landed)
+        second_moment+=(n+1)**2*sum(landed)
+        mass=[sum(mass[i]*float(absorption_transition[i][j]) for i in range(2)) for j in range(2)]
+    assert sum(mass)<1e-30
+    assert all(math.isclose(x,float(y),abs_tol=1e-12) for x,y in zip(visits,abs_f[start]))
+    assert all(math.isclose(x,float(y),abs_tol=1e-12) for x,y in zip(destinations,abs_b[start]))
+    assert math.isclose(first_moment,float(abs_t[start]),abs_tol=1e-12)
+    assert math.isclose(tail_first,first_moment,abs_tol=1e-12)
+    assert math.isclose(second_moment,float(abs_s[start]),abs_tol=1e-12)
+    assert math.isclose(tail_second,second_moment,abs_tol=1e-12)
+
+# Determine communicating classes from reachability of the full transition
+# graph; then check stationary families and limits without assuming irreducibility.
+def closed_classes_check(p):
+    n=len(p);reach=[[i==j or p[i][j]>0 for j in range(n)] for i in range(n)]
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):reach[i][j]=reach[i][j] or (reach[i][k] and reach[k][j])
+    remaining=set(range(n));classes=[]
+    while remaining:
+        i=min(remaining)
+        group={j for j in remaining if reach[i][j] and reach[j][i]}
+        remaining-=group
+        if all(not p[x][y] for x in group for y in range(n) if y not in group):classes.append(group)
+    return classes
+class_transition=[
+    [Fraction(1,4),Fraction(1,2),Fraction(1,4),0,0],
+    [Fraction(1,3),0,0,0,Fraction(2,3)],
+    [0,0,Fraction(1,2),Fraction(1,2),0],
+    [0,0,Fraction(1,4),Fraction(3,4),0],
+    [0,0,0,0,1]]
+assert closed_classes_check(class_transition)==[{2,3},{4}]
+assert closed_classes_check(absorption_transition)==[{2},{3}]
+for alpha in [Fraction(0),Fraction(1,7),Fraction(3,7),Fraction(1)]:
+    stationary_family=[[0,0,alpha/3,2*alpha/3,1-alpha]]
+    assert matmul_check(stationary_family,class_transition)==stationary_family
+for initial,limit in [([1,0,0,0,0],[0,0,Fraction(1,7),Fraction(2,7),Fraction(4,7)]),
+                      ([0,1,0,0,0],[0,0,Fraction(1,21),Fraction(2,21),Fraction(6,7)])]:
+    row=list(map(float,initial))
+    for _ in range(400):
+        row=[sum(row[i]*float(class_transition[i][j]) for i in range(5)) for j in range(5)]
+    assert all(math.isclose(x,float(y),abs_tol=1e-12) for x,y in zip(row,limit))
+periodic_reducible=[[0,1,0],[0,0,1],[0,1,0]]
+assert closed_classes_check(periodic_reducible)==[{1,2}]
+assert matmul_check([[0,Fraction(1,2),Fraction(1,2)]],periodic_reducible)==[[0,Fraction(1,2),Fraction(1,2)]]
+for a_num in range(5):
+    for b_num in range(5-a_num):
+        alpha=Fraction(a_num,4);beta=Fraction(b_num,4);gamma=1-alpha-beta
+        after_one=matmul_check([[alpha,beta,gamma]],periodic_reducible)
+        after_two=matmul_check(after_one,periodic_reducible)
+        assert after_one==[[0,alpha+gamma,beta]]
+        assert (after_one==after_two)==(beta==Fraction(1,2))
+
+# Independently solve all finite internal-state boundary systems exactly and
+# compare with both the fair and biased closed forms, including both signs of drift.
+for boundary in range(2,10):
+    for right in [Fraction(1,5),Fraction(2,5),Fraction(1,2),Fraction(3,5),Fraction(4,5)]:
+        left=1-right;n=boundary-1
+        internal=[[Fraction(0) for j in range(n)] for i in range(n)]
+        to_right=[[Fraction(0)] for i in range(n)]
+        for i in range(1,boundary):
+            if i>1:internal[i-1][i-2]=left
+            if i<boundary-1:internal[i-1][i]=right
+            else:to_right[i-1][0]=right
+        resolvent=inverse_check(subtract_matrix_check([[int(i==j) for j in range(n)] for i in range(n)],internal))
+        hit=[x[0] for x in matmul_check(resolvent,to_right)]
+        duration=[sum(row) for row in resolvent]
+        for i,(h_value,t_value) in enumerate(zip(hit,duration),1):
+            if right==left:
+                h_closed=Fraction(i,boundary);t_closed=i*(boundary-i)
+            else:
+                ratio=left/right
+                h_closed=(1-ratio**i)/(1-ratio**boundary)
+                t_closed=(i-boundary*h_closed)/(left-right)
+            assert h_value==h_closed and t_value==t_closed and t_value>0
+        if boundary==4 and right==Fraction(2,5):
+            assert hit==[Fraction(8,65),Fraction(4,13),Fraction(38,65)]
+            assert duration==[Fraction(33,13),Fraction(50,13),Fraction(43,13)]
+            # Compute the actual first-hit law directly, not from the solved system.
+            mass=[0.,1.,0.];landed_right=duration_direct=0.
+            for step in range(1,500):
+                left_exit=mass[0]*float(left);right_exit=mass[-1]*float(right)
+                landed_right+=right_exit;duration_direct+=step*(left_exit+right_exit)
+                new=[0.]*3
+                for pos,prob in enumerate(mass):
+                    if pos>0:new[pos-1]+=prob*float(left)
+                    if pos<2:new[pos+1]+=prob*float(right)
+                mass=new
+            assert sum(mass)<1e-30
+            assert math.isclose(landed_right,float(Fraction(4,13)),abs_tol=1e-12)
+            assert math.isclose(duration_direct,float(Fraction(50,13)),abs_tol=1e-12)
 # Confirm code fences remain code rather than being interpreted as mathematics.
 r_page=(ROOT/'chapter-11.html').read_text(encoding='utf-8')
 assert r_page.count('<pre><code class="language-r">')==6
