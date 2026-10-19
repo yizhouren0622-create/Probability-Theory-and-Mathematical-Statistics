@@ -1173,6 +1173,34 @@
         "slutsky-studentization"
       ],
       "scope": "选读PDF第5—8页的Slutsky条件、样本方差一致性及均值随机标准化文本。本站另给标量和/积/商的紧性与CDF夹逼证明，并用有限二阶矩LLN证明方差一致；未采用该段方差估计量自身的更高阶渐近正态结论，未声称读完302页讲义或盛骤教材对应正文。另只核对公开旧作业N6-2的学生化应用，不复制其题目。 本次复查发现第七章原卡已有核心完整证明，新增内容仅补零分母覆盖事件差、显式平方连续论证及相关边缘反例；保留原锚点并合并未发布的重复草稿。"
+    },
+    {
+      "id": "hep6-ch1-summary",
+      "date": "2026-10-19",
+      "title": "高等教育出版社第六版配套资源：第一章小结（两页）",
+      "url": "https://urc.hep.com.cn/app/preview?previewId=2111989598683463682&flag=false&isShowDocMap=false",
+      "contextUrl": "https://abooks.hep.com.cn/book?id=hETbSUpFf",
+      "pdfPages": [
+        1,
+        2
+      ],
+      "concepts": [
+        "experiment",
+        "events",
+        "algebra",
+        "frequency",
+        "axioms",
+        "classical",
+        "geometry",
+        "addition",
+        "conditional",
+        "multiplication",
+        "total",
+        "bayes",
+        "independent",
+        "practical-inference"
+      ],
+      "scope": "用户自行登录后，在正常网页预览器逐页查看全部两页图像；第二页另以125%放大核对术语。第一页面向样本空间、概率三公理、条件概率的两种求法及乘法公式；第二页读完独立性说明及重要术语清单，发现“实际推断原理”遗漏并补写原创解释与P1-27。小结只提供主题提示，不含本网站新增风险论证与练习。此为官方章末小结交叉核对，不是第一章教材正文逐页核对；指定正文仍仅第三章5/67节。"
     }
   ],
   "frontMatterChecks": [
@@ -1193,6 +1221,19 @@
         7
       ],
       "scope": "逐页查看公开预览第1—7页图像，其中第1—2页为第六版前言，第3页为第五版前言，其余为第四至第二版前言；第8页未加载成功，未计为已读。第六版前言确认条件期望、条件方差和一般期望定义等修订主题；第五版前言说明第五版曾加入时间序列分析，第六版14章目录已无独立时间序列章。这里只核对前言，不能替代任何一节正文审校；前言所列数字资源尚未读取。"
+    },
+    {
+      "id": "hep6-selection-guide",
+      "date": "2026-10-19",
+      "edition": 6,
+      "title": "第六版官方配套资源：选讲建议",
+      "url": "https://urc.hep.com.cn/app/preview?previewId=2111995168601862146&flag=false&isShowDocMap=false",
+      "previewPages": 1,
+      "readPreviewPages": [
+        1
+      ],
+      "linkLabel": "出版社配套选讲建议",
+      "scope": "正常预览器查看单页图像：先以100%读取前部，后缩为50%查看全页并读完末段。提供32、48、64学时以及两种96学时的选学安排；96学时分为不含随机过程（至第十一章）和含随机过程（含第十二至十四章）的路线。仅用于理解选学范围，不将课程安排计作知识正文或新增正文核对节数。"
     }
   ]
 }
