@@ -186,7 +186,7 @@ page('labs.html','概率实验室',h)
 
 # Sources
 h=heading('SOURCES & SCOPE','知道内容从哪里来，也知道它的边界。','教材版本、逐节内容清单与核对状态。')
-h+=f'<section class="card prose"><h2>教材与版本</h2><p>目标教材为浙江大学盛骤、谢式千、潘承毅编《概率论与数理统计》第六版，高等教育出版社，ISBN 9787040666892。已核对出版社公开的全部 14 章、{sum(len(c["sections"]) for c in chapters)} 节目录，包括标星选学节。</p><p><strong>已逐页阅读官方第六版第三章样章，并完成第五版1.4节（古典概型，第9–14页）的正文主题核对；全书其他部分的指定教材正文核对仍未完成。</strong>尚未取得全书可合法完整读取的正文，不能声称全书逐页核对完毕或全部知识点无遗漏。用户提供的第五版内层压缩包加密，未读取其中正文；另从出版社官方免费阅读器实际读完第五版第8–14页，版次与范围在下方单列。</p></section>'
+h+=f'<section class="card prose"><h2>教材与版本</h2><p>目标教材为浙江大学盛骤、谢式千、潘承毅编《概率论与数理统计》第六版，高等教育出版社，ISBN 9787040666892。已核对出版社公开的全部 14 章、{sum(len(c["sections"]) for c in chapters)} 节目录，包括标星选学节。</p><p><strong>已逐页阅读官方第六版第三章样章，并完成第五版1.4–1.6节（古典概型、条件概率与独立性，第9–24页）的正文主题核对；全书其他部分的指定教材正文核对仍未完成。</strong>尚未取得全书可合法完整读取的正文，不能声称全书逐页核对完毕或全部知识点无遗漏。用户提供的第五版内层压缩包加密，未读取其中正文；另从出版社官方免费阅读器实际读完第五版第8–24页，版次与范围在下方单列。</p></section>'
 h+=f'<section class="card prose"><h2>当前内容</h2><p>{len(concepts)} 张知识卡、{len(exercises)} 道原创分步练习，覆盖全书每一节；另提供 {len(exams)} 套模拟卷、{sum(len(e["questions"]) for e in exams)} 道自测题，以及 3 个交互实验。每章均有一套原创自测卷。</p><p>知识卡区分定义、模型假设、证明和算法解释，配有条件、例子和易错点。P 开头是本站原创题号，不对应教材习题。旧链接和学习记录编号继续有效。第十一章 6 段基础 R 代码已实际执行并核对数值；<a href="sources.html#r-runtime">版本与验证范围另列</a>。</p><p>全书内容为独立编写的复习资料。第三章的正文主题与样章逐节对照，教材例题、各节练习和章末习题未逐题复现或提供全解；其他章节继续按可读取正文审校并记录版本与页码。</p></section>'
 for front in audit.get('frontMatterChecks',[]):
     h+=f'<section class="card prose" id="{esc(front["id"])}"><h2>前言与配套导读核对</h2><p>{esc(front["date"])}：{esc(front["title"])}。{esc(front["scope"])}</p><p><a href="{esc(front["url"])}">{esc(front.get("linkLabel", "出版社公开前言"))} ↗</a></p></section>'
