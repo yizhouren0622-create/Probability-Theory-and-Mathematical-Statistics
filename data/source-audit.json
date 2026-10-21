@@ -139,6 +139,34 @@
       ],
       "method": "在正常出版社阅读器中按重叠视窗逐段看图，含图、表与脚注；只将所列节的实际正文范围计入该节，相邻节共用页面不表示重复正文。",
       "scope": "完整第2.5节正文按定义、条件、性质、证明和应用主题核对。补正态平方到第六章卡方推导的链接；新增正弦变换卡sine-arcsine，独立推导单调及双分支两种模型，另编完整周期余弦原创P2-38。反正弦名称为外部术语补充；混合变换反例已有。 例题只核对主题与数学要点；本站说明及练习独立编写，不复制教材解答。"
+    },
+    "hep5-ch1-exercises": {
+      "title": "第五版官方免费预览：习题一全部题目主题，第25–29页",
+      "url": "https://ebook.hep.com.cn/index.html#/reader?bookId=1061809202495750144",
+      "edition": 5,
+      "isbn": "9787040516609",
+      "readDate": "2026-10-21",
+      "printedPages": [
+        25,
+        29
+      ],
+      "samplePages": 5,
+      "method": "正常阅读器逐段看图，实际查看全部40题题目、表格与可靠性图示；不读取或复制配套全解。",
+      "scope": "按等可能计数、条件更新、全概率、贝叶斯、独立性、重复试验与可靠性核对主题。桥式系统为此次补充：本站重新绘制通用网络图，以桥状态分支证明，并另编不同参数P1-37；其他主题已有对应知识点。此记录不增加指定教材正文章节计数。"
+    },
+    "hep5-ch2-exercises": {
+      "title": "第五版官方免费预览：习题二全部题目主题，第55–60页",
+      "url": "https://ebook.hep.com.cn/index.html#/reader?bookId=1061809202495750144",
+      "edition": 5,
+      "isbn": "9787040516609",
+      "readDate": "2026-10-21",
+      "printedPages": [
+        55,
+        60
+      ],
+      "samplePages": 6,
+      "method": "正常阅读器逐段看图，实际查看全部39题题目、分布表及分段表达式；按题目主题审阅，不复制教材解答。",
+      "scope": "补齐习题中的帕斯卡/负二项等待计数、麦克斯韦密度与常数、正态指数/绝对值变换、密度凸组合、立方变换的孤立导数零点。新卡给独立证明和不同设定原创P2-39—42；半正态、对数正态名称及后续矩为说明性补充。麦克斯韦数学形式x²exp(−x²/b)按b=2s²换元，不把物理记号关系用于推算。此记录只表示题目主题对照，不代表逐题教材习题全解，也不增加正文节数。"
     }
   },
   "sections": {
@@ -1556,6 +1584,36 @@
         1
       ],
       "method": "读取NIST公开PDF第1页的文字内容；未将第2页程序图计为已核对。"
+    },
+    {
+      "id": "r-negative-binomial-conventions",
+      "date": "2026-10-21",
+      "title": "R stats：Negative Binomial Distribution",
+      "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/NegBinomial.html",
+      "webSections": [
+        "Arguments",
+        "Details"
+      ],
+      "concepts": [
+        "pascal"
+      ],
+      "scope": "核对软件变量为目标成功前失败次数、参数与矩；软件允许非整数形状，而本站帕斯卡等待模型明确限制正整数r。证明与练习独立编写；不是目标教材正文核对。"
+    },
+    {
+      "id": "r-lognormal-parameters",
+      "date": "2026-10-21",
+      "title": "R stats：Log Normal Distribution",
+      "url": "https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Lognormal.html",
+      "webSections": [
+        "Description",
+        "Arguments",
+        "Details",
+        "Note"
+      ],
+      "concepts": [
+        "lognormal"
+      ],
+      "scope": "核对对数尺度参数、密度、均值/中位数/方差及零尺度退化情形；本站用CDF和配方积分独立证明。R-devel入口一次502后使用官方R-patched文档，未反复重试失败入口。"
     }
   ],
   "frontMatterChecks": [

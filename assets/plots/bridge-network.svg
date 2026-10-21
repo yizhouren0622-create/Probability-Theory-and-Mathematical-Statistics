@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 300" role="img" aria-labelledby="title desc">
+  <title id="title">五元件桥式系统示意</title>
+  <desc id="desc">输入端L经过a到上中间节点，再经b到输出端R；L经过c到下中间节点，再经d到R。桥元件e连接两个中间节点。所有连接均为双向。</desc>
+  <rect width="540" height="300" rx="12" fill="#fffefa"/>
+  <g fill="none" stroke="#32675d" stroke-width="3" stroke-linecap="round">
+    <path d="M40 150 270 55 500 150 270 245Z"/>
+    <path d="M270 55V245"/>
+  </g>
+  <g fill="#fffefa" stroke="#32675d" stroke-width="2">
+    <rect x="126" y="85" width="58" height="34" rx="5"/>
+    <rect x="356" y="85" width="58" height="34" rx="5"/>
+    <rect x="126" y="181" width="58" height="34" rx="5"/>
+    <rect x="356" y="181" width="58" height="34" rx="5"/>
+    <rect x="241" y="133" width="58" height="34" rx="5"/>
+  </g>
+  <g font-family="serif" font-size="25" fill="#1d4b43" text-anchor="middle">
+    <text x="155" y="110">a</text><text x="385" y="110">b</text>
+    <text x="155" y="206">c</text><text x="385" y="206">d</text>
+    <text x="270" y="158">e</text>
+    <text x="18" y="158">L</text><text x="522" y="158">R</text>
+  </g>
+  <g fill="#1d4b43"><circle cx="40" cy="150" r="5"/><circle cx="500" cy="150" r="5"/><circle cx="270" cy="55" r="5"/><circle cx="270" cy="245" r="5"/></g>
+</svg>
