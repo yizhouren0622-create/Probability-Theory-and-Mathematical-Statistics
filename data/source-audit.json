@@ -1689,6 +1689,47 @@
         "r-basics"
       ],
       "scope": "核对四前缀、n与size含义、lower.tail的严格不等号及离散分位数最小整数约定。本站原创题手算二项概率，未执行这些新增R表达式，不改变六段既有R执行记录。R-devel和正态文档入口502，未标为已读，未继续重复访问。非指定教材正文。"
+    },
+    {
+      "id": "nist-c4-selected",
+      "date": "2026-10-22",
+      "title": "NIST：样本标准差的c4偏差因子",
+      "url": "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm",
+      "webSections": [
+        "Sample Variance",
+        "c4 factor",
+        "Mean and standard deviation of the estimators"
+      ],
+      "concepts": [
+        "normal-standard-deviation-bias"
+      ],
+      "scope": "仅核对正态样本标准差期望、Gamma等价因子及标准误。本站另以卡方半阶矩完整推导，并独立限定固定倍数类进行MSE配方比较；未采用控制图经验规则，不是指定教材正文核对。"
+    },
+    {
+      "id": "stan-beta-binomial-pmf-selected",
+      "date": "2026-10-22",
+      "title": "Stan官方函数文档：Beta–二项分布概率质量",
+      "url": "https://mc-stan.org/docs/functions-reference/bounded_discrete_distributions.html",
+      "webSections": [
+        "Beta-binomial distribution: Probability mass function"
+      ],
+      "concepts": [
+        "beta-binomial-prediction"
+      ],
+      "scope": "只核对Beta函数比值的概率质量、参数与支撑；本站另独立推导后验预测、方差和跨未来试验协方差，例题原创。未执行Stan代码，未声称审阅网页其他分布或目标教材正文。"
+    },
+    {
+      "id": "pitman-brownian-bridge-selected",
+      "date": "2026-10-22",
+      "title": "Berkeley Stat205B：布朗桥残差构造",
+      "url": "https://www.stat.berkeley.edu/~pitman/s205s03/b_bridge.pdf",
+      "pdfPages": [
+        2
+      ],
+      "concepts": [
+        "brownian-bridge-conditioning"
+      ],
+      "scope": "选读第二页Theorem22.1的单位区间构造、协方差和终点独立性文字；本站独立推到一般T与任意终点的有限维高斯核，并给出增量负协方差。未使用经验过程收敛或上确界定理，不计作指定教材正文。"
     }
   ],
   "frontMatterChecks": [
