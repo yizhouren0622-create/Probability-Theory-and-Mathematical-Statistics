@@ -1614,6 +1614,81 @@
         "lognormal"
       ],
       "scope": "核对对数尺度参数、密度、均值/中位数/方差及零尺度退化情形；本站用CDF和配方积分独立证明。R-devel入口一次502后使用官方R-patched文档，未反复重试失败入口。"
+    },
+    {
+      "id": "romik-binomial-local-selected",
+      "date": "2026-10-21",
+      "title": "Dan Romik / UC Davis：Stirling与二项局部近似",
+      "url": "https://www.math.ucdavis.edu/~romik/teaching-pages/mat235-2011-2012/lecturenotes235A.pdf",
+      "pdfPages": [
+        62,
+        63,
+        64
+      ],
+      "concepts": [
+        "binomial-local-limit"
+      ],
+      "scope": "读取公开讲义Stirling结论、二项单点概率展开与固定区间Riemann和的文字段落（印刷62–64页）。本站另用D(u)的Taylor展开给固定中央区域的完整余项解释，并自编数值题；没有声称通读111页、另证Stirling或核对指定教材第五章正文。"
+    },
+    {
+      "id": "envstats-uniform-endpoints-selected",
+      "date": "2026-10-21",
+      "title": "EnvStats作者文档：均匀分布双端点估计",
+      "url": "https://alexkowa.github.io/EnvStats/reference/eunif.html",
+      "webSections": [
+        "Details: Maximum Likelihood Estimation",
+        "Details: Method of Moments Estimation"
+      ],
+      "concepts": [
+        "uniform-two-endpoints"
+      ],
+      "scope": "仅核对作者文档中的MLE、矩估计与两种方差分母约定；本站另独立证明支持边界、全同数据无最大值、极值期望、端点无偏修正及一致性。未执行eunif，也不作为指定教材第七章正文核对。"
+    },
+    {
+      "id": "aldous-two-state-selected",
+      "date": "2026-10-21",
+      "title": "Aldous–Fill作者公开书稿：两状态链",
+      "url": "https://www.stat.berkeley.edu/~aldous/RWG/Book_Ralph/Ch5.S1.html",
+      "webSections": [
+        "5.1.3 Example 5.4: discrete-time transition probabilities"
+      ],
+      "concepts": [
+        "two-state-chain-formula"
+      ],
+      "scope": "只读取离散时间两状态例的平稳概率、特征值和转移公式；本站用一阶递推独立证明，并补全部零/一边界与原创负特征值例。不采用连续时间或混合时间部分，不计作盛骤教材正文。"
+    },
+    {
+      "id": "mit-white-spectrum-selected",
+      "date": "2026-10-21",
+      "title": "MIT6.011作者讲义：离散白谱与连续时间白噪声范围",
+      "url": "https://ocw.mit.edu/courses/6-011-introduction-to-communication-control-and-signal-processing-spring-2010/a6bddaee5966f6e73450e6fe79ab0566_MIT6_011S10_notes.pdf",
+      "pdfPages": [
+        165,
+        171,
+        172,
+        177,
+        178
+      ],
+      "concepts": [
+        "white-noise-spectrum"
+      ],
+      "scope": "只读取公开讲义中有限二阶矩与连续理想白噪声的区别、功率积分、离散白谱及滤波的相关文字（印刷177、183–184、189–190页）。本站有限双和证明、共享幅度依赖反例和带限积分均独立编写，未通读250页，不作为指定教材第十四章正文核对。"
+    },
+    {
+      "id": "r-distribution-prefix-binomial",
+      "date": "2026-10-21",
+      "title": "R stats官方：二项分布的d/p/q/r及严格上尾",
+      "url": "https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Binomial.html",
+      "webSections": [
+        "Usage",
+        "Arguments",
+        "Details: quantile definition",
+        "Value"
+      ],
+      "concepts": [
+        "r-basics"
+      ],
+      "scope": "核对四前缀、n与size含义、lower.tail的严格不等号及离散分位数最小整数约定。本站原创题手算二项概率，未执行这些新增R表达式，不改变六段既有R执行记录。R-devel和正态文档入口502，未标为已读，未继续重复访问。非指定教材正文。"
     }
   ],
   "frontMatterChecks": [
