@@ -1730,6 +1730,50 @@
         "brownian-bridge-conditioning"
       ],
       "scope": "选读第二页Theorem22.1的单位区间构造、协方差和终点独立性文字；本站独立推到一般T与任意终点的有限维高斯核，并给出增量负协方差。未使用经验过程收敛或上确界定理，不计作指定教材正文。"
+    },
+    {
+      "id": "umn-anova-mean-ci-selected",
+      "date": "2026-10-22",
+      "title": "University of Minnesota Morris：单因素组均值的合并误差区间",
+      "url": "https://mnstats.morris.umn.edu/statlets/usermanual/sect6_1_1.htm",
+      "webSections": [
+        "Means table: Confidence intervals (pooled)"
+      ],
+      "concepts": [
+        "anova-mean-effect-intervals"
+      ],
+      "scope": "仅核对组均值区间使用合并误差和N−组数自由度的说明；本站另独立推导不平衡组效应协方差、一般线性组合枢轴与联合覆盖界。未采用该旧软件页其他区间的绘图约定，非指定教材正文。"
+    },
+    {
+      "id": "psu-residual-influence-selected",
+      "date": "2026-10-22",
+      "title": "Penn State STAT501公开Quarto课程：杠杆、删除残差与Cook距离",
+      "url": "https://stats-web.quarto.pub/stat501q_dev/Lesson11.html",
+      "webSections": [
+        "11.2 Leverages",
+        "11.3 Studentized residuals",
+        "11.4 Studentized deleted residuals",
+        "11.5 Cook distance definition"
+      ],
+      "concepts": [
+        "residual-leverage-studentization",
+        "case-deletion-cook"
+      ],
+      "scope": "选读杠杆与两种学生化分母、外部t自由度、删除残差和Cook定义。本站独立以投影及正规方程证明，并用不同数据另编两题；未照用原例、经验阈值或其影响即自动删除的表述。主站超时，使用课程公开开发站，非目标教材正文核对。"
+    },
+    {
+      "id": "wellner-centered-residual-bootstrap-selected",
+      "date": "2026-10-22",
+      "title": "Jon Wellner / University of Washington STAT583：残差bootstrap的中心化",
+      "url": "https://sites.stat.washington.edu/jaw/COURSES/580s/583/PROBSETS.09/ps8-09.pdf",
+      "pdfPages": [
+        1,
+        2
+      ],
+      "concepts": [
+        "regression-residual-bootstrap"
+      ],
+      "scope": "只阅读第3、4题对无截距残差均值和中心化抽样的设定，未复制原题或假称原文提供完整解答。本站独立证明有限条件矩、含截距的方差缩放，并另编四点256状态例；未声称证明一般渐近一致性，不是指定教材第十章正文。"
     }
   ],
   "frontMatterChecks": [
